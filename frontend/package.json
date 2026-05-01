@@ -1,0 +1,48 @@
+{
+  "name": "aikiboard-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0",
+    "dev:webpack": "next dev --webpack -H 0.0.0.0",
+    "build": "NODE_ENV=production next build",
+    "start": "next start -H 0.0.0.0",
+    "verify:env:production": "node ./scripts/verify-production-env.mjs",
+    "test": "vitest",
+    "test:ci": "vitest run --silent",
+    "check": "biome check . && tsc --noEmit",
+    "check:fix": "biome check . --write"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@phosphor-icons/react": "^2.1.10",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.39.8",
+    "@tanstack/react-query": "^5.99.2",
+    "@trpc/client": "^11.16.0",
+    "@trpc/react-query": "^11.16.0",
+    "@trpc/server": "^11.16.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "next": "^16.2.2",
+    "next-intl": "^4.3.9",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-hook-form": "^7.62.0",
+    "zod": "^4.1.8",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.0.2",
+    "happy-dom": "^18.0.1",
+    "typescript": "^5",
+    "vite": "^7.0.0",
+    "vitest": "^3.2.4"
+  }
+}

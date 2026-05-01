@@ -1,0 +1,28 @@
+@import "./variables.css";
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--ab-font-ui);
+  font-size: var(--ab-fs-base);
+  line-height: var(--ab-lh-normal);
+  color: var(--ab-text-primary);
+  background: var(--ab-surface-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ab-dou);
+  outline-offset: 1px;
+}

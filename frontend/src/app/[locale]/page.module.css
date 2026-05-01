@@ -1,0 +1,47 @@
+.main {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ab-space-12);
+}
+
+.card {
+  max-width: 640px;
+  width: 100%;
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-xl);
+  padding: var(--ab-space-12) var(--ab-space-10);
+  text-align: center;
+  box-shadow: var(--ab-shadow-sm);
+}
+
+.title {
+  font-family: var(--ab-font-brand);
+  font-size: var(--ab-fs-4xl);
+  font-weight: var(--ab-fw-semibold);
+  letter-spacing: 1px;
+  margin: 0 0 var(--ab-space-4);
+  color: var(--ab-text-primary);
+}
+
+.subtitle {
+  font-size: var(--ab-fs-md);
+  color: var(--ab-text-secondary);
+  margin: 0 0 var(--ab-space-6);
+  line-height: var(--ab-lh-loose);
+}
+
+.phase {
+  display: inline-block;
+  font-family: var(--ab-font-num);
+  font-size: var(--ab-fs-xs);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ab-dou);
+  background: var(--ab-dou-soft);
+  padding: var(--ab-space-1) var(--ab-space-3);
+  border-radius: var(--ab-radius-pill);
+  margin: 0;
+}
