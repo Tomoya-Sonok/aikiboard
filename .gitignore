@@ -7,7 +7,35 @@
 
 # Logs
 *.log
+logs/
 
 # AI agent / Claude Code local config
 .agent/
 .claude/
+
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+.vercel/
+.wrangler/
+dist/
+build/
+out/
+storybook-static/
+
+# Test
+coverage/
+.vitest-cache/
+.vite-cache/
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Env (never commit)
+.env
+.env.local
+.env.*.local
+.dev.vars

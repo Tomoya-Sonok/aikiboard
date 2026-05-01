@@ -1,0 +1,2 @@
+pnpm -r build
+pnpm -r test:ci
