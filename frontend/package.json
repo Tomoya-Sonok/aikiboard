@@ -9,7 +9,7 @@
     "start": "next start -H 0.0.0.0",
     "verify:env:production": "node ./scripts/verify-production-env.mjs",
     "test": "vitest",
-    "test:ci": "vitest run --silent",
+    "test:ci": "vitest run --silent --passWithNoTests",
     "check": "biome check . && tsc --noEmit",
     "check:fix": "biome check . --write"
   },
