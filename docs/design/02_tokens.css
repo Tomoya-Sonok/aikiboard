@@ -1,0 +1,193 @@
+/* ============================================================
+ * AikiBoard Design Tokens v0.1 (for Claude Design handoff)
+ * ------------------------------------------------------------
+ * - 第一参照元: AikiNote `variables.css`, `docs/draft/mock.tsx`
+ * - 方針: 要件定義 9.1-9.4（管理ツール寄りに直線的・シャープ／
+ *         AikiNote の墨・銅・和紙を踏襲／10色プリセット道場テーマ）
+ * - 本ファイルは Claude Design にアップロードして第一参照元として
+ *   扱ってもらう用。実装時は Phase 0 のリポジトリ初期化で
+ *   frontend/src/styles/variables.css に取り込む想定。
+ * ============================================================ */
+
+:root {
+  /* ── ブランド基調色（3色基調） ─────────────────────────── */
+  --ab-sumi: #2C2C2C;           /* 墨：ダーク基調、サイドバー／ロゴ地 */
+  --ab-sumi-light: #3E3E3C;     /* 墨淡：サイドバー内の分割線 */
+  --ab-dou: #C4956A;            /* 銅：アクション／選択状態／ブランドアクセント */
+  --ab-dou-light: #D4AD87;      /* 銅淡：hover・subtle background */
+  --ab-dou-soft: #F3E7D8;       /* 銅：selected background など薄い地 */
+  --ab-washi: #F5F3EF;          /* 和紙：アプリキャンバス背景 */
+  --ab-washi-dark: #EBE8E2;     /* 和紙暗：カードのホバー／subtle 区切り */
+
+  /* ── 面（Surface） ────────────────────────────────────── */
+  --ab-surface-canvas: var(--ab-washi);     /* アプリ背景 */
+  --ab-surface-card: #FFFFFF;               /* カード、モーダル、パネル */
+  --ab-surface-card-alt: #FAF8F4;           /* stripes, readable diff */
+  --ab-surface-nav: var(--ab-sumi);         /* 左サイドバー */
+  --ab-surface-inverse: var(--ab-sumi);     /* 反転面 */
+  --ab-overlay: rgba(44, 44, 44, 0.45);     /* モーダル遮蔽 */
+
+  /* ── テキスト ────────────────────────────────────────── */
+  --ab-text-primary: #2C2C2C;
+  --ab-text-secondary: #5F5E5C;
+  --ab-text-tertiary: #8A8A8A;
+  --ab-text-disabled: #B8B5AF;
+  --ab-text-inverse: #FFFFFF;
+  --ab-text-link: #2E4F6E;
+  --ab-text-on-brand: #FFFFFF;
+
+  /* ── ボーダー ────────────────────────────────────────── */
+  --ab-border-default: #E8E4DF;
+  --ab-border-strong: #D6D1C9;
+  --ab-border-subtle: #F0EDE7;
+  --ab-border-focus: var(--ab-dou);
+
+  /* ── セマンティック ──────────────────────────────────── */
+  --ab-success: #5B8C5A;
+  --ab-success-soft: #E4EEE2;
+  --ab-danger: #C25550;
+  --ab-danger-soft: #F5E1DF;
+  --ab-warning: #DAA83E;
+  --ab-warning-soft: #FAEFD6;
+  --ab-info: #2E4F6E;
+  --ab-info-soft: #E0E7EE;
+
+  /* ── ロール識別色（メンバー一覧・権限表示で使う） ──── */
+  --ab-role-owner: #8E3E3A;
+  --ab-role-admin: #2E4F6E;
+  --ab-role-member: #5F5E5C;
+
+  /* ── 出欠色（稽古カレンダー／モーダル） ──────────────── */
+  --ab-attend-yes: var(--ab-success);
+  --ab-attend-no: var(--ab-danger);
+  --ab-attend-undecided: var(--ab-text-tertiary);
+
+  /* ── タイポグラフィ ──────────────────────────────────── */
+  --ab-font-brand: "Zen Old Mincho", "Times New Roman", "Noto Serif JP", serif;
+  --ab-font-ui: "Inter", "Noto Sans JP", "Hiragino Sans",
+                 "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  --ab-font-num: "Inter", "SF Mono", ui-monospace, monospace;
+
+  /* サイズ（管理ツール寄りにやや詰め気味。base=14px） */
+  --ab-fs-xs: 11px;
+  --ab-fs-sm: 12px;
+  --ab-fs-base: 14px;
+  --ab-fs-md: 15px;
+  --ab-fs-lg: 16px;
+  --ab-fs-xl: 18px;
+  --ab-fs-2xl: 22px;
+  --ab-fs-3xl: 28px;
+  --ab-fs-4xl: 36px;
+
+  /* ウェイト */
+  --ab-fw-regular: 400;
+  --ab-fw-medium: 500;
+  --ab-fw-semibold: 600;
+  --ab-fw-bold: 700;
+
+  /* 行間 */
+  --ab-lh-tight: 1.3;
+  --ab-lh-normal: 1.55;
+  --ab-lh-loose: 1.75;
+
+  /* ── 余白 (4pxグリッド) ───────────────────────────────── */
+  --ab-space-0: 0;
+  --ab-space-1: 4px;
+  --ab-space-2: 8px;
+  --ab-space-3: 12px;
+  --ab-space-4: 16px;
+  --ab-space-5: 20px;
+  --ab-space-6: 24px;
+  --ab-space-8: 32px;
+  --ab-space-10: 40px;
+  --ab-space-12: 48px;
+  --ab-space-16: 64px;
+  --ab-space-20: 80px;
+
+  /* ── 角丸（管理ツール寄りに小さめ） ───────────────────── */
+  --ab-radius-none: 0;
+  --ab-radius-sm: 3px;
+  --ab-radius-md: 6px;
+  --ab-radius-lg: 8px;     /* カード標準 */
+  --ab-radius-xl: 12px;    /* モーダル／主要カード */
+  --ab-radius-pill: 9999px;
+
+  /* ── 影（控えめ） ──────────────────────────────────── */
+  --ab-shadow-xs: 0 1px 2px rgba(44, 44, 44, 0.04);
+  --ab-shadow-sm: 0 1px 3px rgba(44, 44, 44, 0.06);
+  --ab-shadow-md: 0 2px 10px rgba(44, 44, 44, 0.08);
+  --ab-shadow-lg: 0 8px 28px rgba(44, 44, 44, 0.12);
+  --ab-shadow-inner: inset 0 0 0 1px var(--ab-border-default);
+
+  /* ── レイアウト（PC 1440px 基準） ──────────────────── */
+  --ab-layout-sidebar-w: 228px;
+  --ab-layout-sidebar-w-collapsed: 58px;
+  --ab-layout-header-h: 56px;
+  --ab-layout-container-max: 1280px;
+  --ab-layout-content-pad: 32px;
+  --ab-layout-gutter: 24px;
+
+  /* ── z-index ──────────────────────────────────────── */
+  --ab-z-sticky: 10;
+  --ab-z-header: 20;
+  --ab-z-dropdown: 30;
+  --ab-z-drawer: 30;
+  --ab-z-modal: 40;
+  --ab-z-toast: 50;
+
+  /* ── モーション ──────────────────────────────────── */
+  --ab-duration-fast: 120ms;
+  --ab-duration-base: 180ms;
+  --ab-duration-slow: 280ms;
+  --ab-ease-standard: cubic-bezier(0.2, 0, 0.2, 1);
+  --ab-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ── フォーカスリング（アクセシビリティ必須） ────── */
+  --ab-focus-ring: 0 0 0 2px var(--ab-surface-card),
+                   0 0 0 4px var(--ab-dou);
+}
+
+/* ============================================================
+ * 道場別テーマプリセット（10色）
+ *   要件 9.4 に準拠。各ボードはこのうち 1 テーマを選択し、
+ *   `data-dojo-theme="sumi"` のようにルート要素に付与する。
+ *   各テーマは --ab-theme-primary / --ab-theme-primary-soft
+ *   の 2 変数を上書きする。
+ * ============================================================ */
+
+:root {
+  /* デフォルト（墨）。選択時にこの 2 変数が上書きされる。 */
+  --ab-theme-primary: var(--ab-sumi);
+  --ab-theme-primary-soft: #E3E0DB;
+  --ab-theme-on-primary: #FFFFFF;
+}
+
+[data-dojo-theme="sumi"]     { --ab-theme-primary: #2C2C2C; --ab-theme-primary-soft: #E3E0DB; --ab-theme-on-primary: #FFFFFF; }
+[data-dojo-theme="dou"]      { --ab-theme-primary: #C4956A; --ab-theme-primary-soft: #F3E7D8; --ab-theme-on-primary: #FFFFFF; }
+[data-dojo-theme="fukamidori"]{--ab-theme-primary: #3B5F4A; --ab-theme-primary-soft: #E0E9E3; --ab-theme-on-primary: #FFFFFF; }
+[data-dojo-theme="ai"]       { --ab-theme-primary: #2E4F6E; --ab-theme-primary-soft: #E0E7EE; --ab-theme-on-primary: #FFFFFF; }
+[data-dojo-theme="enji"]     { --ab-theme-primary: #8E3E3A; --ab-theme-primary-soft: #F0DEDC; --ab-theme-on-primary: #FFFFFF; }
+[data-dojo-theme="yamabuki"] { --ab-theme-primary: #DAA83E; --ab-theme-primary-soft: #FAEFD6; --ab-theme-on-primary: #2C2C2C; }
+[data-dojo-theme="shikon"]   { --ab-theme-primary: #3C2F6B; --ab-theme-primary-soft: #E1DEEC; --ab-theme-on-primary: #FFFFFF; }
+[data-dojo-theme="toki"]     { --ab-theme-primary: #E99387; --ab-theme-primary-soft: #FAE1DE; --ab-theme-on-primary: #2C2C2C; }
+[data-dojo-theme="usuzumi"]  { --ab-theme-primary: #7A7673; --ab-theme-primary-soft: #E8E6E3; --ab-theme-on-primary: #FFFFFF; }
+[data-dojo-theme="nezumi"]   { --ab-theme-primary: #5F5E5C; --ab-theme-primary-soft: #E4E3E1; --ab-theme-on-primary: #FFFFFF; }
+
+/* ============================================================
+ * ブレークポイント（PCファースト・レスポンシブ）
+ *   mobile:  ~ 639px
+ *   tablet:  640 ~ 1023px
+ *   pc:      1024 ~ 1439px
+ *   wide:    1440px ~
+ *   初期ターゲットは PC=1440px。SP は同プロジェクトで派生。
+ * ============================================================ */
+
+/* ============================================================
+ * 使い方メモ
+ *   - 色はまず --ab-surface-* / --ab-text-* / --ab-border-* を使う。
+ *     生の #hex を component に直接書かない。
+ *   - ボード固有のブランドは --ab-theme-primary を参照する。
+ *   - フォーカスリングは必ず --ab-focus-ring を使う。
+ *   - 角丸はカード＝lg、モーダル＝xl、ボタン＝md を基本。
+ *   - 影は md までで済むよう、面の重ね過ぎを避ける（管理ツールらしさ）。
+ * ============================================================ */
