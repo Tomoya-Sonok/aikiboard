@@ -1,0 +1,6 @@
+# wrangler dev 向けのローカル環境変数。本番デプロイ時は `wrangler secret put` で登録すること。
+
+SUPABASE_URL=https://xxxxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=xxxxxx
+SUPABASE_ANON_KEY=xxxxxx
+JWT_SECRET=xxxxxx

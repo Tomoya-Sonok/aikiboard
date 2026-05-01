@@ -1,0 +1,23 @@
+name = "aikiboard-api"
+main = "src/index.worker.ts"
+compatibility_date = "2026-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+# workers.dev サブドメインも有効化(初回デプロイで動作確認に便利)
+workers_dev = true
+preview_urls = true
+
+# Custom Domain として `api.aiki-board.com` を割り当てる
+# 初回 wrangler deploy 時に Cloudflare が DNS レコードを自動作成する
+[[routes]]
+pattern = "api.aiki-board.com"
+custom_domain = true
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+# 公開可能な環境変数(機密値は wrangler secret put で別途登録)
+[vars]
+NEXT_PUBLIC_APP_URL = "https://aiki-board.com"
+APP_URL = "https://aiki-board.com"
