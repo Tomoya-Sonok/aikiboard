@@ -26,12 +26,12 @@ AikiBoard(アイキボード)は、合気道の道場・会などのコミュニ
 ## 技術スタック(確定)
 
 - **Frontend**: Next.js (App Router) / TypeScript / CSS Modules / next-intl / Zustand / TanStack Query / tRPC — Vercel にデプロイ
-- **Backend**: Hono + tRPC on Cloudflare Workers(`api.aikiboard.com`)
+- **Backend**: Hono + tRPC on Cloudflare Workers(`api.aiki-board.com`)
 - **DB/Auth**: Supabase(AikiNote と同一プロジェクト、`aikiboard` スキーマで論理分離)
 - **決済**: Stripe + Stripe Invoice(Web 決済のみ)
 - **監視**: Sentry / Axiom / BetterStack Uptime / Umami
 - **リント/テスト**: Biome / Vitest
-- **ドメイン**: Cloudflare Register(`aikiboard.com` 予定)
+- **ドメイン**: Cloudflare Register(`aiki-board.com` 取得済み、2026-05-02)
 
 詳細は [`docs/requirements.md`](docs/requirements.md) 10 章を参照。
 
@@ -41,14 +41,15 @@ AikiBoard(アイキボード)は、合気道の道場・会などのコミュニ
 
 ## 次のステップ(Phase 0)
 
-- [ ] `aikiboard.com` ドメインの取得(Cloudflare Register)
+- [ ] `api.aiki-board.com` サブドメイン DNS 設定
 - [ ] pnpm monorepo セットアップ(frontend / backend)
 - [ ] Next.js / Hono 初期化
 - [ ] Supabase `aikiboard` スキーマ作成・基本テーブル定義・RLS ポリシー適用
 - [ ] Biome / Vitest / Husky セットアップ
 - [ ] Vercel(Frontend)・Cloudflare Workers(Backend)のデプロイパイプライン
-- [ ] Sentry / Axiom / BetterStack / Umami 導入
 - [ ] ライセンス・CI バッジの追加
+
+> 監視・分析(Sentry / Axiom / BetterStack / Umami)は本フェーズでは導入しない。
 
 完了済み:
 
@@ -57,3 +58,4 @@ AikiBoard(アイキボード)は、合気道の道場・会などのコミュニ
 - [x] ドキュメント雛形整備(CLAUDE.md / `.agent/` 配下)
 - [x] 正式版 docs/requirements.md・docs/aikiboard-product-overview.md 執筆
 - [x] GitHub リポジトリ初期化(git init + リモートリポジトリ接続済み)
+- [x] `aiki-board.com` ドメイン取得(Cloudflare Register、2026-05-02)
