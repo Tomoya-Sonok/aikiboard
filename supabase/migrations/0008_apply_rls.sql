@@ -7,12 +7,67 @@
 --   - 公開ボード(boards.is_public = true)では events と board_settings のみ
 --     未認証ユーザーにも READ を許可。他のテーブルは公開ボードでも認証必須。
 --   - service_role は RLS をバイパスする(バックエンドは常にバイパス)。
---
--- ヘルパ関数(0001 で定義):
---   - aikiboard.is_member_of_board(board_id, user_id)
---   - aikiboard.is_admin_or_owner_of_board(board_id, user_id)
---   - aikiboard.is_owner_of_board(board_id, user_id)
---   - aikiboard.is_board_public(board_id)
+
+-- ────────────────────────────────────────────────────────────────
+-- 0. RLS ヘルパ関数
+--    LANGUAGE SQL は CREATE 時点で参照テーブルの存在を要求するため、
+--    aikiboard.board_members / boards が揃っている本ファイル冒頭で定義する。
+--    SECURITY DEFINER により、ポリシー評価時にヘルパ関数自身の権限で
+--    board_members を参照できる(RLS の再帰呼び出しを回避)。
+-- ────────────────────────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION aikiboard.is_member_of_board(p_board_id UUID, p_user_id UUID)
+RETURNS BOOLEAN
+LANGUAGE SQL
+STABLE
+SECURITY DEFINER
+SET search_path = aikiboard, public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM aikiboard.board_members
+    WHERE board_id = p_board_id AND user_id = p_user_id
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION aikiboard.is_admin_or_owner_of_board(p_board_id UUID, p_user_id UUID)
+RETURNS BOOLEAN
+LANGUAGE SQL
+STABLE
+SECURITY DEFINER
+SET search_path = aikiboard, public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM aikiboard.board_members
+    WHERE board_id = p_board_id AND user_id = p_user_id
+      AND role IN ('owner', 'admin')
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION aikiboard.is_owner_of_board(p_board_id UUID, p_user_id UUID)
+RETURNS BOOLEAN
+LANGUAGE SQL
+STABLE
+SECURITY DEFINER
+SET search_path = aikiboard, public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM aikiboard.board_members
+    WHERE board_id = p_board_id AND user_id = p_user_id
+      AND role = 'owner'
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION aikiboard.is_board_public(p_board_id UUID)
+RETURNS BOOLEAN
+LANGUAGE SQL
+STABLE
+SECURITY DEFINER
+SET search_path = aikiboard, public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM aikiboard.boards
+    WHERE id = p_board_id AND is_public = true
+  );
+$$;
 
 -- ────────────────────────────────────────────────────────────────
 -- aikiboard.boards
