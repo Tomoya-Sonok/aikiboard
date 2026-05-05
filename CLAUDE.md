@@ -2,14 +2,15 @@
 
 このファイルは Claude Code（claude.ai/code）が aikiboard リポジトリで作業する際のガイドラインを提供します。
 
-> **ステータス: 要件定義 FIX 済み・実装準備中**
+> **ステータス: Phase 0 完了(2026-05-05)— MVP 開発(Phase 1)準備中**
 >
-> 要件定義ヒアリングは完了しており、機能要件・技術選定・収益モデル・デザイン方針は正式版として固まっています。実装フェーズ(リポジトリ初期化・Phase 0)にはまだ入っておらず、次のステップは技術スタックに従ったコードベース構築です。
+> リポジトリ初期化と基盤構築が完了。フロントエンドは Vercel(`https://aiki-board.com`)、バックエンドは Cloudflare Workers(`https://api.aiki-board.com`)で稼働中。Supabase の `aikiboard` スキーマ + RLS も適用済み。
 >
 > - 正式版要件定義書: [`docs/requirements.md`](docs/requirements.md)
 > - プロダクト概要(ユーザー向け): [`docs/aikiboard-product-overview.md`](docs/aikiboard-product-overview.md)
 > - 初期叩き台(履歴): [`docs/draft/requirements.md`](docs/draft/requirements.md)
 > - モック(ビジュアル参考): [`docs/draft/mock.tsx`](docs/draft/mock.tsx)
+> - デザイン handoff: [`docs/design/`](docs/design/)(`02_tokens.css` がトークンの正、`claude_design_prototype.tsx` が 6 フレームの視覚リファレンス)
 
 ## セッション開始
 
