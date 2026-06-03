@@ -27,9 +27,8 @@ mise install        # .mise.toml の node / pnpm を導入
 # 1. 依存インストール(リポジトリ直下)
 pnpm install
 
-# 2. 環境変数ファイルを作成(下記「4. 環境変数」参照)
-cp .env.local.example frontend/.env.local
-cp .env.local.example backend/.env.local
+# 2. 環境変数ファイルを作成(ルート 1 箇所。下記「4. 環境変数」参照)
+cp .env.local.example .env.local
 
 # 3. ローカル Supabase を起動(Docker Desktop が必要)
 cd backend && pnpm exec supabase start
@@ -37,8 +36,8 @@ cd backend && pnpm exec supabase start
 # 4. マイグレーションを適用(000_seed + 001-008)
 pnpm exec supabase db reset
 
-# 5. supabase status でローカルのキーを確認し、手順 2 で作った
-#    frontend/.env.local・backend/.env.local の ANON/SECRET を埋める
+# 5. supabase status でローカルのキーを確認し、ルートの
+#    .env.local の ANON/SECRET を埋める
 pnpm exec supabase status
 ```
 
@@ -66,17 +65,17 @@ backend 単体で何かする場合は `pnpm -C backend <script>`、frontend は
 
 ## 4. 環境変数
 
-**env は各パッケージに置きます**(monorepo の各 dev プロセスが自分のディレクトリの `.env.local` を読むため)。
+**env は[ルート直下の `.env.local` 1 箇所](../.env.local.example)だけ**で管理します。frontend / backend が両方ここを読みます:
 
-- `frontend/.env.local` — Next.js が自動で読み込む
-- `backend/.env.local` — backend の dev スクリプト(`dotenv -e .env.local`)が読み込む
-- ルートの [`.env.local.example`](../.env.local.example) が**テンプレート**。これを両方にコピーして使う
+- `frontend`(Next.js)— `next.config.mjs` が起動時に `../.env.local` を読み込む
+- `backend`(Hono)— dev スクリプトが `cd .. && dotenv -e .env.local` でルートを読み込む
+- ルートの [`.env.local.example`](../.env.local.example) がテンプレート。`cp .env.local.example .env.local` の 1 回だけでよい(frontend / backend に個別の `.env.local` は不要)
 
 `.env.local` は `.gitignore` 済みで**絶対にコミットしない**(secret scanning にも引っかかります)。
 
 ### ローカル Supabase 用(通常の開発)
 
-`.env.local.example` の「ローカル Supabase 用」ブロックを使い、`ANON`/`SECRET` を `pnpm exec supabase status` の値(Publishable / Secret key)で埋めます。URL は固定:
+`.env.local` の `ANON`/`SECRET` を `pnpm exec supabase status` の値(Publishable / Secret key)で埋めます。URL は固定:
 
 | 変数 | 値 |
 |---|---|

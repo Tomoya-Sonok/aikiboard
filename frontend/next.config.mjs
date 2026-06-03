@@ -1,4 +1,14 @@
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+import dotenv from "dotenv";
 import createNextIntlPlugin from "next-intl/plugin";
+
+// モノレポのルート直下 .env.local を読み込む(env をルート 1 箇所に集約)。
+// CI / Vercel では環境変数が別途注入されるため、ファイルが無ければ何もしない。
+const rootEnvPath = resolve(import.meta.dirname, "../.env.local");
+if (existsSync(rootEnvPath)) {
+  dotenv.config({ path: rootEnvPath });
+}
 
 const withNextIntl = createNextIntlPlugin("./src/lib/i18n/i18n.ts");
 

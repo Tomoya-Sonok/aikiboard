@@ -139,6 +139,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^5.0.2
         version: 5.2.0(vite@7.3.2)
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       happy-dom:
         specifier: ^18.0.1
         version: 18.0.1
