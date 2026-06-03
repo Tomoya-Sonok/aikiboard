@@ -46,5 +46,32 @@
       "greeting": "Welcome, {name}",
       "signOut": "Log out"
     }
+  },
+  "boards": {
+    "create": {
+      "title": "Create a board",
+      "name": "Board name",
+      "namePlaceholder": "e.g. General practice",
+      "slug": "URL (public page)",
+      "slugHint": "Follows aiki-board.com/d/. Lowercase letters, numbers and hyphens.",
+      "dojo": "Linked dojo",
+      "dojoSearchPlaceholder": "Search by dojo name",
+      "dojoChange": "Change",
+      "dojoSearching": "Searching…",
+      "dojoNoResults": "No matching dojo",
+      "description": "Description (optional)",
+      "isPublic": "Make this board public",
+      "submit": "Create board",
+      "error": "Failed to create the board",
+      "validation": {
+        "nameRequired": "Board name is required",
+        "nameMax": "Board name must be at most 50 characters",
+        "slugMin": "URL must be at least 3 characters",
+        "slugMax": "URL must be at most 63 characters",
+        "slugFormat": "URL may only contain lowercase letters, numbers and hyphens",
+        "descriptionMax": "Description must be at most 500 characters",
+        "dojoRequired": "Please select a dojo to link"
+      }
+    }
   }
 }

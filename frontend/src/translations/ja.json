@@ -46,5 +46,32 @@
       "greeting": "ようこそ、{name} さん",
       "signOut": "ログアウト"
     }
+  },
+  "boards": {
+    "create": {
+      "title": "ボードを作成",
+      "name": "ボード名",
+      "namePlaceholder": "例: 一般稽古",
+      "slug": "URL（公開ページ）",
+      "slugHint": "aiki-board.com/d/ に続く文字。英小文字・数字・ハイフンが使えます",
+      "dojo": "紐付ける道場",
+      "dojoSearchPlaceholder": "道場名・かなで検索",
+      "dojoChange": "変更",
+      "dojoSearching": "検索中…",
+      "dojoNoResults": "該当する道場がありません",
+      "description": "説明（任意）",
+      "isPublic": "このボードを公開する",
+      "submit": "ボードを作成",
+      "error": "ボードの作成に失敗しました",
+      "validation": {
+        "nameRequired": "ボード名を入力してください",
+        "nameMax": "ボード名は50文字以内で入力してください",
+        "slugMin": "URL は3文字以上で入力してください",
+        "slugMax": "URL は63文字以内で入力してください",
+        "slugFormat": "URL は英小文字・数字・ハイフンのみ使えます",
+        "descriptionMax": "説明は500文字以内で入力してください",
+        "dojoRequired": "紐付ける道場を選択してください"
+      }
+    }
   }
 }
