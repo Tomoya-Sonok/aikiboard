@@ -34,9 +34,27 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 
 > **ドライラン**: 各ファイルを `BEGIN; ... ROLLBACK;` で囲めば、コミットせず構文・依存エラーだけ確認できる。
 
-## ローカル開発(Phase 1・PR4 で実体化予定)
+## ローカル開発(ローカル Supabase コンテナ)
 
-ローカルは Supabase コンテナ(`pnpm dlx supabase start`)で起動し、`pnpm dlx supabase db reset` で `000`〜`008` を頭から再適用する運用へ移行する(詳細は [ADR 0004](../../../docs/adr/0004-environment-and-migration-strategy.md) D-11)。`000_seed_public_schema_for_local_dev.sql`(`public."User"` / `public."DojoStyleMaster"` の最小ダミー)は **ローカル専用で本番には絶対適用しない**。
+ローカルは Docker 上の Supabase コンテナで開発する(本番 DB には触れない)。詳細は [ADR 0004](../../../docs/adr/0004-environment-and-migration-strategy.md) D-11。
+
+### 初回セットアップ
+
+1. Docker Desktop を起動しておく
+2. `cd backend && pnpm exec supabase start` で Supabase スタックを起動(初回は Docker イメージ pull で数分)
+3. ルートの `.env.local.example` をコピーして `.env.local` を作成し、「ローカル Supabase 用」の値を有効化する(`cp .env.local.example .env.local`)
+
+### migrations の適用
+
+`cd backend && pnpm exec supabase db reset` で `000`〜`008` を番号順に再適用する。
+
+- migration の実体は `backend/src/migrations/`。`backend/supabase/migrations` はそこへの **symlink**(supabase CLI は `supabase/migrations` 固定のため、配置を一致させずに接続している)
+- `000_seed_public_schema_for_local_dev.sql` は `public."User"` / `public."DojoStyleMaster"` の最小ダミー。**ローカル専用で本番には絶対適用しない**(本番 Dashboard では 001 以降のみ実行)
+- 適用後、Studio(`http://127.0.0.1:54323`)で `aikiboard` schema(22 テーブル)を確認できる
+
+### 接続情報
+
+`cd backend && pnpm exec supabase status` で URL・キーを確認できる(API: `54321`、DB: `54322`、Studio: `54323`)。
 
 ## 緊急リセット(ローカルのみ)
 
