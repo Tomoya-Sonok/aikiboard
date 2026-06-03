@@ -1,29 +1,28 @@
 version: 2
 updates:
-  # ルートの依存関係 (pnpm workspace)
+  # npm: pnpm workspace は root の pnpm-lock.yaml が全体(frontend / backend)を
+  # 管理するため、"/" 一本でカバーする。ディレクトリ別指定(/frontend, /backend)は
+  # 同一パッケージの重複 PR を生むため行わない。
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    groups:
+      # minor / patch はまとめて 1 PR に集約する。major は個別 PR にして
+      # 破壊的変更を個別レビューできるようにする(groups に含めない)。
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
 
-  # フロントエンド (Next.js)
-  - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-
-  # バックエンド (Hono / Cloudflare Workers)
-  - package-ecosystem: "npm"
-    directory: "/backend"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-
-  # GitHub Actions ワークフロー
+  # GitHub Actions は 1 PR にまとめる。
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    groups:
+      github-actions:
+        patterns:
+          - "*"
