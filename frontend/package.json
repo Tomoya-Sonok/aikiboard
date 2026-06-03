@@ -14,7 +14,7 @@
     "check:fix": "biome check . --write"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
+    "@hookform/resolvers": "^5.4.0",
     "@phosphor-icons/react": "^2.1.10",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.39.8",
