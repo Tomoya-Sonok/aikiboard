@@ -1,0 +1,111 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-1);
+}
+
+.label {
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-medium);
+  color: var(--ab-text-secondary);
+}
+
+.input {
+  width: 100%;
+  padding: var(--ab-space-2) var(--ab-space-3);
+  font-size: var(--ab-fs-base);
+  font-family: var(--ab-font-ui);
+  color: var(--ab-text-primary);
+  background-color: var(--ab-surface-canvas);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  transition: border-color var(--ab-duration-base) var(--ab-ease-standard);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--ab-border-focus);
+  box-shadow: var(--ab-focus-ring);
+}
+
+.inputError {
+  border-color: var(--ab-danger);
+}
+
+/* 検索結果のドロップダウン(オーバーレイにせずブロック表示) */
+.results {
+  list-style: none;
+  margin: var(--ab-space-1) 0 0;
+  padding: var(--ab-space-1);
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  background-color: var(--ab-surface-card);
+}
+
+.resultItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--ab-space-2) var(--ab-space-3);
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: var(--ab-radius-sm);
+  cursor: pointer;
+}
+
+.resultItem:hover {
+  background-color: var(--ab-washi-dark);
+}
+
+.resultName {
+  font-size: var(--ab-fs-base);
+  color: var(--ab-text-primary);
+}
+
+.resultKana {
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-text-tertiary);
+}
+
+.resultEmpty {
+  padding: var(--ab-space-2) var(--ab-space-3);
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-text-tertiary);
+}
+
+/* 選択済み表示 */
+.selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ab-space-2);
+  padding: var(--ab-space-2) var(--ab-space-3);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  background-color: var(--ab-surface-card);
+}
+
+.selectedName {
+  font-size: var(--ab-fs-base);
+  color: var(--ab-text-primary);
+}
+
+.clearButton {
+  flex-shrink: 0;
+  padding: var(--ab-space-1) var(--ab-space-2);
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-text-link);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.error {
+  margin: 0;
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-danger);
+}

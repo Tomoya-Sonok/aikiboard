@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AuthProvider } from "@/lib/hooks/useAuth";
 import { routing } from "@/lib/i18n/routing";
+import { QueryProvider } from "@/lib/query/QueryProvider";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -36,7 +37,9 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <AuthProvider>{children}</AuthProvider>
+          <QueryProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </QueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>

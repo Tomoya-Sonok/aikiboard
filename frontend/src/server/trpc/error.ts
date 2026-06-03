@@ -13,6 +13,8 @@ export function mapTRPCErrorCodeKeyFromStatusCode(
       return "FORBIDDEN";
     case 404:
       return "NOT_FOUND";
+    case 409:
+      return "CONFLICT";
     case 429:
       return "TOO_MANY_REQUESTS";
     default:

@@ -1,14 +1,22 @@
 import type { Preview } from "@storybook/nextjs-vite";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
 import jaMessages from "../src/translations/ja.json";
 import "../src/styles/globals.css";
 
+// TanStack Query を使うコンポーネント(DojoMasterSelect 等)の story 用。
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
+
 const preview: Preview = {
   decorators: [
     (Story) => (
-      <NextIntlClientProvider locale="ja" messages={jaMessages}>
-        <Story />
-      </NextIntlClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <NextIntlClientProvider locale="ja" messages={jaMessages}>
+          <Story />
+        </NextIntlClientProvider>
+      </QueryClientProvider>
     ),
   ],
   parameters: {
