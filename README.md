@@ -15,6 +15,7 @@ AikiBoard(アイキボード)は、合気道の道場・会などのコミュニ
 
 ### 開発ガイドライン
 
+- [`docs/development-guide.md`](docs/development-guide.md) — **開発者向け総合ガイド**(セットアップ・ローカル Supabase・環境変数・PR 運用・テスト)。リポジトリを触るならまずここから
 - [`CLAUDE.md`](CLAUDE.md) — Claude Code / 開発者向けガイドライン
 - [`docs/adr/`](docs/adr/) — 運用方針 ADR(開発フロー・アーキテクチャ・品質ゲート・環境戦略の意思決定記録)
 - `.agent/instructions.md` — AI エージェント向け指示書(ローカル専用、`.gitignore` 対象でリポジトリには含まれません)

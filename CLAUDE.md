@@ -7,6 +7,7 @@
 > リポジトリ初期化と基盤構築が完了。フロントエンドは Vercel(`https://aiki-board.com`)、バックエンドは Cloudflare Workers(`https://api.aiki-board.com`)で稼働中。Supabase の `aikiboard` スキーマ + RLS も適用済み。Phase 1 着手にあたり開発フローを **PR ベース運用** へ移行し、運用方針を `docs/adr/` に記録した。
 >
 > - 正式版要件定義書: [`docs/requirements.md`](docs/requirements.md)
+> - 開発者向けガイド(セットアップ / ローカル Supabase / PR 運用): [`docs/development-guide.md`](docs/development-guide.md)
 > - 運用方針 ADR(開発フロー・アーキテクチャ・品質ゲート・環境戦略): [`docs/adr/`](docs/adr/)
 > - プロダクト概要(ユーザー向け): [`docs/aikiboard-product-overview.md`](docs/aikiboard-product-overview.md)
 > - 初期叩き台(履歴): [`docs/draft/requirements.md`](docs/draft/requirements.md)
