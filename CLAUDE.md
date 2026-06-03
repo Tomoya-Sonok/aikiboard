@@ -2,9 +2,9 @@
 
 このファイルは Claude Code（claude.ai/code）が aikiboard リポジトリで作業する際のガイドラインを提供します。
 
-> **ステータス: Phase 1(MVP 開発)着手中(2026-06-03〜)— Phase 0 完了(2026-05-05)**
+> **ステータス: Phase 1(MVP 開発)進行中(2026-06-03〜)— 第1機能「認証 + 3階層ロール + ボード作成」実装済み(#51〜#54)**
 >
-> リポジトリ初期化と基盤構築が完了。フロントエンドは Vercel(`https://aiki-board.com`)、バックエンドは Cloudflare Workers(`https://api.aiki-board.com`)で稼働中。Supabase の `aikiboard` スキーマ + RLS も適用済み。Phase 1 着手にあたり開発フローを **PR ベース運用** へ移行し、運用方針を `docs/adr/` に記録した。
+> リポジトリ初期化と基盤構築(Phase 0、2026-05-05 完了)に続き、Phase 1 で **認証(サインアップ/ログイン・Server Component ガード)・tRPC 基盤・ボード作成(owner 登録 + 道場紐付け)** を実装。フロントエンドは Vercel(`https://aiki-board.com`)、バックエンドは Cloudflare Workers(`https://api.aiki-board.com`)で稼働、Supabase の `aikiboard` スキーマ + RLS 適用済み(REST 公開 + service_role 権限付与済み)。開発は **PR ベース運用**(main 直 push 禁止・squash merge)、運用方針は `docs/adr/`。次は ボードダッシュボード/画面導線 → 稽古カレンダー等。
 >
 > - 正式版要件定義書: [`docs/requirements.md`](docs/requirements.md)
 > - 開発者向けガイド(セットアップ / ローカル Supabase / PR 運用): [`docs/development-guide.md`](docs/development-guide.md)

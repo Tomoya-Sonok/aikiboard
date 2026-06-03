@@ -1,7 +1,7 @@
 # AikiBoard 要件定義書
 
-**ステータス**: Phase 1(MVP 開発)着手中
-**バージョン**: v1.3
+**ステータス**: Phase 1(MVP 開発)進行中 — 第1機能(認証 + 3階層ロール + ボード作成)実装済み
+**バージョン**: v1.4
 **最終更新**: 2026-06-03
 
 ## 改訂履歴
@@ -13,6 +13,7 @@
 | v1.1 | 2026-05-02 | ドメイン確定(`aiki-board.com`、Cloudflare Register)、Phase 0 着手に伴う現状反映 |
 | v1.2 | 2026-05-05 | Phase 0 完了(monorepo 構築・Vercel / Cloudflare Workers デプロイ・Supabase スキーマ適用・GitHub Actions CI/CD) |
 | v1.3 | 2026-06-03 | Phase 1 着手。運用方針を ADR 化(`docs/adr/`)、開発フローを PR ベース運用へ移行 |
+| v1.4 | 2026-06-03 | Phase 1 第1機能(認証 + 3階層ロール + ボード作成)を実装(#51〜#54)。access_token 検証は JWKS(ES256)本線へ(ADR 0002 B-5 追補)、aikiboard スキーマを REST 公開 + service_role 権限付与(migration `009`)。次は ボードダッシュボード/画面導線の整理 |
 
 ---
 
