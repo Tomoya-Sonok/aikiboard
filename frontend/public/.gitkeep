@@ -1,0 +1,3 @@
+# このファイルは public/ ディレクトリを git 管理下に保持するためのプレースホルダ。
+# Storybook の staticDirs("../public") と Next.js の静的配信が参照する。
+# favicon・画像などを追加したら、このファイルは削除してよい。
