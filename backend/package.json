@@ -11,6 +11,7 @@
     "test": "vitest",
     "test:ci": "vitest run --silent --passWithNoTests",
     "test:watch": "vitest --watch",
+    "test:integration": "dotenv -e ../.env.local -- vitest run --config vitest.integration.config.ts",
     "check": "biome check . && tsc --noEmit",
     "check:fix": "biome check . --write"
   },

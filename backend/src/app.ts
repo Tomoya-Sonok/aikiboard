@@ -6,6 +6,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { resolveSupabaseClient } from "./lib/supabase.js";
+import boardsRoute from "./routes/boards/index.js";
+import dojoMastersRoute from "./routes/dojo-masters/index.js";
 import usersRoute from "./routes/users/index.js";
 
 export type AppBindings = {
@@ -94,8 +96,10 @@ app.get("/health", (c) => {
   });
 });
 
-// API ルート(/api/*)。Phase 1 以降で boards / events 等を追加していく。
+// API ルート(/api/*)。Phase 1 以降で events 等を追加していく。
 app.route("/api/users", usersRoute);
+app.route("/api/boards", boardsRoute);
+app.route("/api/dojo-masters", dojoMastersRoute);
 
 export type AppType = typeof app;
 
