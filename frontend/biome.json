@@ -5,6 +5,7 @@
       "**/*",
       "!node_modules/**/*",
       "!.next/**/*",
+      "!storybook-static/**/*",
       "!coverage/**/*",
       "!.vitest-cache/**/*",
       "!.vite-cache/**/*",
