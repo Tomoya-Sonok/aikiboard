@@ -15,7 +15,7 @@
     "check:fix": "biome check . --write"
   },
   "dependencies": {
-    "@hono/node-server": "^1.14.1",
+    "@hono/node-server": "^2.0.4",
     "@hono/zod-validator": "^0.7.2",
     "@supabase/supabase-js": "^2.49.4",
     "hono": "^4.12.11",
