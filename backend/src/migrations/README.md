@@ -11,7 +11,7 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 
 ## 適用順序
 
-`001` → `002` → ... → `008` の順で実行する(番号 = 依存順)。
+`001` → `002` → ... → `009` の順で実行する(番号 = 依存順)。
 
 | ファイル | 内容 |
 |---|---|
@@ -23,6 +23,9 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 | `006_create_finance_tables.sql` | member_fees / fee_payments / expense_entries |
 | `007_create_feature_flag_tables.sql` | plans / features / plan_features / board_subscriptions + 初期 seed |
 | `008_apply_rls.sql` | 全テーブルに RLS 有効化 + ポリシー定義 |
+| `009_grant_aikiboard_to_service_role.sql` | service_role に aikiboard テーブル/シーケンスの DML 権限を付与(backend が REST 経由で aikiboard を操作するため) |
+
+> **REST 公開設定**: backend / frontend が aikiboard を REST(PostgREST)経由で扱うには、Supabase の **Exposed schemas に `aikiboard` を含める**必要がある。ローカルは `backend/supabase/config.toml` の `[api] schemas`(設定済み、`supabase start` で反映)。**本番は Dashboard → Settings → API → Exposed schemas に `aikiboard` を追加する**(Phase 1 ボード機能のデプロイ前に必須)。
 
 ## 本番適用(Supabase Dashboard、手動)
 
@@ -46,7 +49,7 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 
 ### migrations の適用
 
-`cd backend && pnpm exec supabase db reset` で `000`〜`008` を番号順に再適用する。
+`cd backend && pnpm exec supabase db reset` で `000`〜`009` を番号順に再適用する。
 
 - migration の実体は `backend/src/migrations/`。`backend/supabase/migrations` はそこへの **symlink**(supabase CLI は `supabase/migrations` 固定のため、配置を一致させずに接続している)
 - `000_seed_public_schema_for_local_dev.sql` は `public."User"` / `public."DojoStyleMaster"` の最小ダミー。**ローカル専用で本番には絶対適用しない**(本番 Dashboard では 001 以降のみ実行)
