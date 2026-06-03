@@ -10,12 +10,12 @@ CREATE TABLE aikiboard.events (
   start_at TIMESTAMPTZ NOT NULL,
   end_at TIMESTAMPTZ NOT NULL,
   place TEXT NOT NULL,
-  instructor_name TEXT, -- 自由記述。public.users への FK にはしない(指導者は外部の方の場合もあるため)
+  instructor_name TEXT, -- 自由記述。public."User" への FK にはしない(指導者は外部の方の場合もあるため)
   note TEXT,
   -- 繰り返し稽古(週次など)用。RFC5545 RRULE をテキストで保持。Phase 1 で活用
   recurrence_rule TEXT,
   is_public BOOLEAN NOT NULL DEFAULT true,
-  created_by_user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  created_by_user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
@@ -36,7 +36,7 @@ CREATE TYPE aikiboard.rsvp_status AS ENUM ('attend', 'decline');
 
 CREATE TABLE aikiboard.event_rsvps (
   event_id UUID NOT NULL REFERENCES aikiboard.events(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   status aikiboard.rsvp_status NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),

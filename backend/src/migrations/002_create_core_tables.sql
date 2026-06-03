@@ -1,7 +1,7 @@
 -- 0002_create_core_tables.sql
 -- 付録 A.1 コア(ボード本体・メンバー・道場マスタ紐付け・招待・ログ)。
 --
--- 注意: public.users(id) / public.DojoStyleMaster(id) への FK は型・引用符の
+-- 注意: public."User"(id) / public."DojoStyleMaster"(id) への FK は型・引用符の
 -- 差異で apply が失敗するリスクがあるため、Phase 0 では付与しない。
 -- 該当カラムは UUID 型で、AikiNote 側の id を保持する想定。Phase 1 で
 -- スキーマ確認後に ALTER TABLE ... ADD CONSTRAINT で追加する。
@@ -13,7 +13,7 @@ CREATE TABLE aikiboard.boards (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
-  created_by_user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  created_by_user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   is_public BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -52,7 +52,7 @@ CREATE TYPE aikiboard.board_member_role AS ENUM ('owner', 'admin', 'member');
 
 CREATE TABLE aikiboard.board_members (
   board_id UUID NOT NULL REFERENCES aikiboard.boards(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   role aikiboard.board_member_role NOT NULL DEFAULT 'member',
   joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (board_id, user_id)
@@ -67,7 +67,7 @@ CREATE UNIQUE INDEX idx_board_members_one_owner
 
 -- ────────────────────────────────────────────────────────────────
 -- aikiboard.board_dojo_masters: ボード × 道場マスタ(N:M)
---   AikiNote の public.DojoStyleMaster への紐付け。最低 1 件必須。
+--   AikiNote の public."DojoStyleMaster" への紐付け。最低 1 件必須。
 -- ────────────────────────────────────────────────────────────────
 CREATE TABLE aikiboard.board_dojo_masters (
   board_id UUID NOT NULL REFERENCES aikiboard.boards(id) ON DELETE CASCADE,
@@ -89,9 +89,9 @@ CREATE TABLE aikiboard.invitations (
   board_id UUID NOT NULL REFERENCES aikiboard.boards(id) ON DELETE CASCADE,
   token TEXT NOT NULL UNIQUE,
   expires_at TIMESTAMPTZ NOT NULL,
-  used_by_user_id UUID, -- → public.users(id)、Phase 1 で FK
+  used_by_user_id UUID, -- → public."User"(id)、Phase 1 で FK
   used_at TIMESTAMPTZ,
-  created_by_user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  created_by_user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -104,7 +104,7 @@ CREATE INDEX idx_invitations_token ON aikiboard.invitations(token);
 CREATE TABLE aikiboard.activity_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   board_id UUID NOT NULL REFERENCES aikiboard.boards(id) ON DELETE CASCADE,
-  user_id UUID, -- → public.users(id)。退会で SET NULL 想定。Phase 1 で FK
+  user_id UUID, -- → public."User"(id)。退会で SET NULL 想定。Phase 1 で FK
   action TEXT NOT NULL, -- "event.created", "rsvp.attend", "announce.posted" 等
   target_type TEXT, -- "event", "announcement", "post" 等
   target_id UUID,

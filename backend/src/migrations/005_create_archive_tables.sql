@@ -11,7 +11,7 @@ CREATE TABLE aikiboard.archives (
   title TEXT NOT NULL,
   body_rich JSONB NOT NULL DEFAULT '{}'::JSONB,
   order_index INTEGER NOT NULL DEFAULT 0,
-  created_by_user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  created_by_user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

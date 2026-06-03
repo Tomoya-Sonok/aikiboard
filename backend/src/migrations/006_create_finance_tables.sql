@@ -8,7 +8,7 @@
 CREATE TABLE aikiboard.member_fees (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   board_id UUID NOT NULL REFERENCES aikiboard.boards(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   monthly_fee INTEGER NOT NULL CHECK (monthly_fee >= 0),
   effective_from DATE NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -30,7 +30,7 @@ CREATE TYPE aikiboard.fee_payment_status AS ENUM ('paid', 'unpaid', 'waived');
 CREATE TABLE aikiboard.fee_payments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   board_id UUID NOT NULL REFERENCES aikiboard.boards(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   -- 'YYYYMM' 6 文字、例: '202607'
   period_yyyymm TEXT NOT NULL CHECK (period_yyyymm ~ '^[0-9]{6}$'),
   status aikiboard.fee_payment_status NOT NULL DEFAULT 'unpaid',
@@ -59,7 +59,7 @@ CREATE TABLE aikiboard.expense_entries (
   category TEXT NOT NULL, -- 'venue', 'equipment', 'other' 等。詳細仕様は Phase 1 で確定
   amount INTEGER NOT NULL CHECK (amount >= 0),
   note TEXT,
-  created_by_user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  created_by_user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
