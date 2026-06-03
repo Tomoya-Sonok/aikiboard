@@ -34,6 +34,9 @@ coverage/
 tsconfig.tsbuildinfo
 *.tsbuildinfo
 
+# Next.js 自動生成(dev は .next/dev/types、build は .next/types を指し差分が出るため追跡しない)
+frontend/next-env.d.ts
+
 # Env (never commit)
 .env
 .env.local

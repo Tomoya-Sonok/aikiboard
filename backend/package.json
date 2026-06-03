@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "dotenv -e .env.local -- tsx watch src/index.node.ts",
+    "dev": "cd .. && dotenv -e .env.local -- tsx watch backend/src/index.node.ts",
     "dev:wrangler": "wrangler dev --remote",
     "build": "tsc --noEmit",
     "deploy": "wrangler deploy",
