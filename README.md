@@ -2,9 +2,9 @@
 
 AikiBoard(アイキボード)は、合気道の道場・会などのコミュニティを運営する管理者向けの **道場管理＆コミュニケーションプラットフォーム** です。個人向け稽古日誌アプリ **AikiNote** の姉妹サービスとして、共通アカウント基盤のもとで連携します。
 
-> **ステータス: Phase 0 完了 — MVP 開発準備中**(最終更新: 2026-05-05)
+> **ステータス: Phase 1(MVP 開発)着手中**(最終更新: 2026-06-03)
 >
-> リポジトリ初期化と基盤構築が完了しました。フロントエンドは [`https://aiki-board.com`](https://aiki-board.com)(Vercel)、バックエンド API は [`https://api.aiki-board.com`](https://api.aiki-board.com)(Cloudflare Workers)で稼働中。Supabase の `aikiboard` スキーマ + RLS も適用済み。次のステップは Phase 1(MVP 機能の実装)です。
+> リポジトリ初期化と基盤構築(Phase 0)が完了し、Phase 1(MVP 機能の実装)に着手しました。フロントエンドは [`https://aiki-board.com`](https://aiki-board.com)(Vercel)、バックエンド API は [`https://api.aiki-board.com`](https://api.aiki-board.com)(Cloudflare Workers)で稼働中。Supabase の `aikiboard` スキーマ + RLS も適用済み。Phase 1 着手にあたり開発フローを PR ベース運用へ移行し、運用方針を [`docs/adr/`](docs/adr/) に記録しています。
 
 ## ドキュメント
 
@@ -15,8 +15,9 @@ AikiBoard(アイキボード)は、合気道の道場・会などのコミュニ
 
 ### 開発ガイドライン
 
-- [`CLAUDE.md`](CLAUDE.md) — Claude Code 用ガイドライン
-- [`.agent/instructions.md`](.agent/instructions.md) — AI エージェント向け指示書
+- [`CLAUDE.md`](CLAUDE.md) — Claude Code / 開発者向けガイドライン
+- [`docs/adr/`](docs/adr/) — 運用方針 ADR(開発フロー・アーキテクチャ・品質ゲート・環境戦略の意思決定記録)
+- `.agent/instructions.md` — AI エージェント向け指示書(ローカル専用、`.gitignore` 対象でリポジトリには含まれません)
 
 ### 履歴・参考資料
 
@@ -56,7 +57,9 @@ AikiBoard(アイキボード)は、合気道の道場・会などのコミュニ
 - [x] Vercel(Frontend)・Cloudflare Workers(Backend)のデプロイパイプライン
 - [x] GitHub Actions CI/CD(frontend_ci / backend_ci / backend_deploy)
 
-## 次のステップ(Phase 1: MVP 開発)
+## Phase 1: MVP 開発(着手中)
+
+Phase 1 着手にあたり、まず開発基盤(PR ベース運用・[ADR](docs/adr/) 整備・ローカル Supabase・Storybook 等)を整備中です。MVP 機能は優先度順に以下を実装予定:
 
 - [ ] 認証(SSO、Apple / Google ソーシャルログイン経由)
 - [ ] 3 階層ロール管理(オーナー / アドミン / メンバー)とボード作成フロー

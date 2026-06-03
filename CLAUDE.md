@@ -2,11 +2,12 @@
 
 このファイルは Claude Code（claude.ai/code）が aikiboard リポジトリで作業する際のガイドラインを提供します。
 
-> **ステータス: Phase 0 完了(2026-05-05)— MVP 開発(Phase 1)準備中**
+> **ステータス: Phase 1(MVP 開発)着手中(2026-06-03〜)— Phase 0 完了(2026-05-05)**
 >
-> リポジトリ初期化と基盤構築が完了。フロントエンドは Vercel(`https://aiki-board.com`)、バックエンドは Cloudflare Workers(`https://api.aiki-board.com`)で稼働中。Supabase の `aikiboard` スキーマ + RLS も適用済み。
+> リポジトリ初期化と基盤構築が完了。フロントエンドは Vercel(`https://aiki-board.com`)、バックエンドは Cloudflare Workers(`https://api.aiki-board.com`)で稼働中。Supabase の `aikiboard` スキーマ + RLS も適用済み。Phase 1 着手にあたり開発フローを **PR ベース運用** へ移行し、運用方針を `docs/adr/` に記録した。
 >
 > - 正式版要件定義書: [`docs/requirements.md`](docs/requirements.md)
+> - 運用方針 ADR(開発フロー・アーキテクチャ・品質ゲート・環境戦略): [`docs/adr/`](docs/adr/)
 > - プロダクト概要(ユーザー向け): [`docs/aikiboard-product-overview.md`](docs/aikiboard-product-overview.md)
 > - 初期叩き台(履歴): [`docs/draft/requirements.md`](docs/draft/requirements.md)
 > - モック(ビジュアル参考): [`docs/draft/mock.tsx`](docs/draft/mock.tsx)
@@ -38,7 +39,17 @@ AikiBoard は、合気道の道場・会などのコミュニティを運営す�
 
 ## 主要コマンド
 
-> Phase 0(リポジトリ初期化)未着手のため、具体的な開発コマンドは未策定。AikiNote と同様に `pnpm dev`, `pnpm test`, `pnpm check`, `pnpm check:fix` を採用する方針で、リポジトリ初期化時に確定します。
+monorepo ルートで実行(AikiNote と同一方針):
+
+| コマンド | 内容 |
+|---|---|
+| `pnpm dev` | frontend + backend を同時起動(`scripts/dev.mjs`) |
+| `pnpm dev:stop` | バックグラウンド起動した dev サービスを停止 |
+| `pnpm check` | Biome リント / フォーマットチェック(全パッケージ) |
+| `pnpm check:fix` | リント / フォーマットの自動修正 |
+| `pnpm test` | 全パッケージのテスト(Vitest) |
+
+> 各パッケージ個別のコマンドは各 `package.json` を参照。lint-staged / Storybook 等の追加ツーリングは Phase 1 セットアップ([`docs/adr/0003`](docs/adr/0003-quality-gates.md))で順次導入する。
 
 ## 技術スタック
 
@@ -130,8 +141,9 @@ AikiNote と同様の pnpm monorepo(`frontend/` + `backend/`)を想定。
 ### 参照順序
 
 1. 正式版要件定義書: [`docs/requirements.md`](docs/requirements.md)
-2. プロダクト概要(ユーザー向け): [`docs/aikiboard-product-overview.md`](docs/aikiboard-product-overview.md)
-3. エージェント指示書: [`.agent/instructions.md`](.agent/instructions.md) → `.agent/rules/*.md`
+2. 運用方針 ADR: [`docs/adr/`](docs/adr/)(開発フロー・アーキテクチャ・品質ゲート・環境戦略の意思決定記録)
+3. プロダクト概要(ユーザー向け): [`docs/aikiboard-product-overview.md`](docs/aikiboard-product-overview.md)
+4. エージェント指示書: [`.agent/instructions.md`](.agent/instructions.md) → `.agent/rules/*.md`
 
 ---
 

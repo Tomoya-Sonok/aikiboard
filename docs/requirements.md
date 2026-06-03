@@ -1,8 +1,8 @@
 # AikiBoard 要件定義書
 
-**ステータス**: 要件定義 FIX・実装準備中
-**バージョン**: v1.0
-**最終更新**: 2026-04-15
+**ステータス**: Phase 1(MVP 開発)着手中
+**バージョン**: v1.3
+**最終更新**: 2026-06-03
 
 ## 改訂履歴
 
@@ -12,6 +12,7 @@
 | v1.0 | 2026-04-15 | 要件定義ヒアリング完了、正式版清書 |
 | v1.1 | 2026-05-02 | ドメイン確定(`aiki-board.com`、Cloudflare Register)、Phase 0 着手に伴う現状反映 |
 | v1.2 | 2026-05-05 | Phase 0 完了(monorepo 構築・Vercel / Cloudflare Workers デプロイ・Supabase スキーマ適用・GitHub Actions CI/CD) |
+| v1.3 | 2026-06-03 | Phase 1 着手。運用方針を ADR 化(`docs/adr/`)、開発フローを PR ベース運用へ移行 |
 
 ---
 
