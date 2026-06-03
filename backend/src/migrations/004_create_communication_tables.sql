@@ -10,7 +10,7 @@ CREATE TABLE aikiboard.announcements (
   title TEXT NOT NULL,
   body_rich JSONB NOT NULL DEFAULT '{}'::JSONB, -- リッチテキスト(将来 ProseMirror 等)
   notify_email BOOLEAN NOT NULL DEFAULT false,
-  created_by_user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  created_by_user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   published_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -28,7 +28,7 @@ CREATE TRIGGER trg_announcements_updated_at
 -- ────────────────────────────────────────────────────────────────
 CREATE TABLE aikiboard.announcement_reads (
   announcement_id UUID NOT NULL REFERENCES aikiboard.announcements(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   read_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (announcement_id, user_id)
 );
@@ -41,7 +41,7 @@ CREATE INDEX idx_announcement_reads_user_id ON aikiboard.announcement_reads(user
 CREATE TABLE aikiboard.board_posts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   board_id UUID NOT NULL REFERENCES aikiboard.boards(id) ON DELETE CASCADE,
-  author_user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  author_user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   body TEXT NOT NULL,
   -- AikiNote の稽古日誌を引用共有した場合の元 post id(public.posts → AikiNote 側)
   synced_from_post_id UUID,
@@ -82,7 +82,7 @@ CREATE INDEX idx_board_post_attachments_post_id ON aikiboard.board_post_attachme
 CREATE TABLE aikiboard.threads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   post_id UUID NOT NULL REFERENCES aikiboard.board_posts(id) ON DELETE CASCADE,
-  author_user_id UUID NOT NULL, -- → public.users(id)、Phase 1 で FK
+  author_user_id UUID NOT NULL, -- → public."User"(id)、Phase 1 で FK
   body TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()

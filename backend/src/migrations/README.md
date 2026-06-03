@@ -1,0 +1,54 @@
+# backend/src/migrations — AikiBoard マイグレーションガイド
+
+AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です。**3 桁連番**(`001`, `002`, ...)で管理し、番号は依存順を表します。Phase 1 以降のスキーマ変更は**追加の連番ファイル(`009`, `010`, ...)** として積み増します。運用方針の詳細は [ADR 0004](../../../docs/adr/0004-environment-and-migration-strategy.md) を参照。
+
+## 方針(要点)
+
+- **配置**: `backend/src/migrations/NNN_*.sql`(AikiNote と同位置)。
+- **本番適用**: Supabase Dashboard の SQL Editor で **手動**。Supabase CLI の `db push` は AikiNote と同一プロジェクトへの副作用リスクがあるため使わない。
+- **Rollback**: forward-only。down script は書かず、誤りは新しい連番で前進修正する。
+- **共有 `public` スキーマ**: `public."User"` / `public."DojoStyleMaster"`(AikiNote 既存、引用符付き PascalCase)は **変更しない**。FK は型・引用符差異による apply 失敗を避けるため Phase 0 では付与せず、Phase 1 でスキーマ確認の上 `ALTER TABLE ... ADD CONSTRAINT` で追加する。
+
+## 適用順序
+
+`001` → `002` → ... → `008` の順で実行する(番号 = 依存順)。
+
+| ファイル | 内容 |
+|---|---|
+| `001_create_aikiboard_schema.sql` | `aikiboard` schema 作成 + GRANT + 共通ヘルパ関数 + `set_updated_at` トリガ関数 |
+| `002_create_core_tables.sql` | boards / board_settings / board_members / board_dojo_masters / invitations / activity_logs |
+| `003_create_event_tables.sql` | events / event_rsvps |
+| `004_create_communication_tables.sql` | announcements / announcement_reads / board_posts / board_post_attachments / threads |
+| `005_create_archive_tables.sql` | archives / archive_attachments |
+| `006_create_finance_tables.sql` | member_fees / fee_payments / expense_entries |
+| `007_create_feature_flag_tables.sql` | plans / features / plan_features / board_subscriptions + 初期 seed |
+| `008_apply_rls.sql` | 全テーブルに RLS 有効化 + ポリシー定義 |
+
+## 本番適用(Supabase Dashboard、手動)
+
+1. Supabase Dashboard を開く(AikiNote と同一プロジェクト)
+2. **SQL Editor** → **+ New query**
+3. `001_*.sql` の中身を貼り付け **Run**。エラーが無ければ次のファイルへ。`008` まで実行する
+4. **Database → Schemas → aikiboard** でテーブル一覧と RLS の有効化を確認
+5. 適用状況は PR テンプレの「DB マイグレーション → 本番適用済み」チェックで追跡する(`000_seed_*.sql` は本番では実行しない)
+
+> **ドライラン**: 各ファイルを `BEGIN; ... ROLLBACK;` で囲めば、コミットせず構文・依存エラーだけ確認できる。
+
+## ローカル開発(Phase 1・PR4 で実体化予定)
+
+ローカルは Supabase コンテナ(`pnpm dlx supabase start`)で起動し、`pnpm dlx supabase db reset` で `000`〜`008` を頭から再適用する運用へ移行する(詳細は [ADR 0004](../../../docs/adr/0004-environment-and-migration-strategy.md) D-11)。`000_seed_public_schema_for_local_dev.sql`(`public."User"` / `public."DojoStyleMaster"` の最小ダミー)は **ローカル専用で本番には絶対適用しない**。
+
+## 緊急リセット(ローカルのみ)
+
+```sql
+DROP SCHEMA aikiboard CASCADE;
+```
+
+`aikiboard` schema 配下のテーブル・関数・ポリシー・トリガを全削除する(`public` には影響しない)。**本番では実行しない**(forward-only 方針)。
+
+## 注意点
+
+- **`public."User"` / `public."DojoStyleMaster"` への FK 制約は本マイグレーションでは付与していない**。型・引用符付き識別子の差異による apply 失敗を避けるため。Phase 1 でスキーマ確認の上 `ALTER TABLE ... ADD CONSTRAINT` で追加する。
+- `auth.uid()` を使った RLS ポリシーは Supabase Auth のセッション JWT 経由で評価される。バックエンド(Cloudflare Workers)は `SUPABASE_SERVICE_ROLE_KEY` で動作するため RLS をバイパスする。
+- `aikiboard` schema 内のテーブルへ frontend から直接アクセスする場合は `SUPABASE_ANON_KEY` + RLS で防御層を設ける。
+- フィーチャーフラグ初期データ(`plans` / `features` / `plan_features`)は `007` 末尾で INSERT 済み。料金確定後に値を更新する場合は別途 `UPDATE` または専用マイグレーションを書く。
