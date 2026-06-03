@@ -3,5 +3,48 @@
     "title": "AikiBoard",
     "subtitle": "合気道の道場運営のための管理＆コミュニケーションプラットフォーム",
     "phase": "Phase 0 — リポジトリ初期化中"
+  },
+  "auth": {
+    "login": {
+      "title": "ログイン",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "submit": "ログイン",
+      "noAccount": "アカウントをお持ちでないですか?",
+      "signupLink": "新規登録",
+      "error": {
+        "invalidCredentials": "メールアドレスまたはパスワードが正しくありません"
+      }
+    },
+    "signup": {
+      "title": "新規登録",
+      "step1Subtitle": "メールアドレスとパスワードを入力してください",
+      "step2Subtitle": "ユーザー名を決めてください",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "username": "ユーザー名",
+      "next": "次へ",
+      "submit": "登録する",
+      "back": "戻る",
+      "haveAccount": "すでにアカウントをお持ちですか?",
+      "loginLink": "ログイン",
+      "error": {
+        "generic": "新規登録に失敗しました。時間をおいて再度お試しください"
+      }
+    },
+    "validation": {
+      "required": "入力してください",
+      "emailInvalid": "メールアドレスの形式が正しくありません",
+      "passwordMin": "パスワードは8文字以上で入力してください",
+      "passwordMax": "パスワードは128文字以内で入力してください",
+      "passwordComplexity": "大文字・小文字・数字・記号のうち3種類以上を含めてください",
+      "usernameRequired": "ユーザー名を入力してください",
+      "usernameMax": "ユーザー名は20文字以内で入力してください",
+      "usernameFormat": "ユーザー名は半角英数字・ハイフン・アンダースコアのみ使えます"
+    },
+    "home": {
+      "greeting": "ようこそ、{name} さん",
+      "signOut": "ログアウト"
+    }
   }
 }

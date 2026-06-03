@@ -1,0 +1,94 @@
+/* ログイン / サインアップ フォーム共通スタイル。PC ファースト + SP(375px〜)対応。
+   色・余白・角丸はすべて variables.css のトークンを使う。 */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-4);
+  width: 100%;
+  max-width: 400px;
+  padding: var(--ab-space-8) var(--ab-space-6);
+  background-color: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-md);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--ab-font-brand);
+  font-size: var(--ab-fs-2xl);
+  font-weight: var(--ab-fw-bold);
+  color: var(--ab-text-primary);
+  letter-spacing: 0.02em;
+}
+
+.subtitle {
+  margin: calc(-1 * var(--ab-space-2)) 0 0;
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-text-secondary);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-1);
+}
+
+.label {
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-medium);
+  color: var(--ab-text-secondary);
+}
+
+.input {
+  width: 100%;
+  padding: var(--ab-space-2) var(--ab-space-3);
+  font-size: var(--ab-fs-base);
+  font-family: var(--ab-font-ui);
+  color: var(--ab-text-primary);
+  background-color: var(--ab-surface-canvas);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  transition: border-color var(--ab-duration-base) var(--ab-ease-standard);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--ab-border-focus);
+  box-shadow: var(--ab-focus-ring);
+}
+
+.error {
+  margin: 0;
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-danger);
+}
+
+.serverError {
+  margin: 0;
+  padding: var(--ab-space-2) var(--ab-space-3);
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-danger);
+  background-color: var(--ab-danger-soft);
+  border-radius: var(--ab-radius-md);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-2);
+  margin-top: var(--ab-space-2);
+}
+
+.footer {
+  margin: var(--ab-space-2) 0 0;
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-text-secondary);
+  text-align: center;
+}
+
+.link {
+  color: var(--ab-text-link);
+  font-weight: var(--ab-fw-medium);
+}

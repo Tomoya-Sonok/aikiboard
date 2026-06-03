@@ -3,5 +3,48 @@
     "title": "AikiBoard",
     "subtitle": "Dojo management & communication platform for Aikido communities",
     "phase": "Phase 0 — repository bootstrap"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log in",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up",
+      "error": {
+        "invalidCredentials": "Incorrect email or password"
+      }
+    },
+    "signup": {
+      "title": "Sign up",
+      "step1Subtitle": "Enter your email and password",
+      "step2Subtitle": "Choose your username",
+      "email": "Email",
+      "password": "Password",
+      "username": "Username",
+      "next": "Next",
+      "submit": "Create account",
+      "back": "Back",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "error": {
+        "generic": "Sign up failed. Please try again later"
+      }
+    },
+    "validation": {
+      "required": "This field is required",
+      "emailInvalid": "Invalid email format",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordMax": "Password must be at most 128 characters",
+      "passwordComplexity": "Include at least 3 of: uppercase, lowercase, number, symbol",
+      "usernameRequired": "Username is required",
+      "usernameMax": "Username must be at most 20 characters",
+      "usernameFormat": "Username may only contain letters, numbers, hyphens and underscores"
+    },
+    "home": {
+      "greeting": "Welcome, {name}",
+      "signOut": "Log out"
+    }
   }
 }
