@@ -6,12 +6,14 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { resolveSupabaseClient } from "./lib/supabase.js";
+import usersRoute from "./routes/users/index.js";
 
 export type AppBindings = {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SUPABASE_ANON_KEY?: string;
-  JWT_SECRET?: string;
+  // Supabase access_token の HS256 検証に使う(ADR 0002 B-5)。
+  SUPABASE_JWT_SECRET?: string;
   NEXT_PUBLIC_APP_URL?: string;
   APP_URL?: string;
 };
@@ -92,7 +94,8 @@ app.get("/health", (c) => {
   });
 });
 
-// Phase 1 以降で /api/* ルートを追加していく(boards, board_members, events, ...)。
+// API ルート(/api/*)。Phase 1 以降で boards / events 等を追加していく。
+app.route("/api/users", usersRoute);
 
 export type AppType = typeof app;
 
