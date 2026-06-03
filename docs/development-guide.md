@@ -184,7 +184,7 @@ aikiboard/
 - **frontend**: Vercel(main マージで自動。PR は preview デプロイ)
 - **backend**: Cloudflare Workers。`cd backend && pnpm deploy`(`wrangler deploy`)
 - **secrets**: Vercel / Cloudflare / GitHub(`Production` environment)に登録済み。新しい secret が必要なときは各所に追加
-  - 例: Phase 1 認証で `SUPABASE_JWT_SECRET` を `cd backend && pnpm exec wrangler secret put SUPABASE_JWT_SECRET`
+  - Phase 1 認証の access_token 検証は Supabase の **JWKS(ES256)が本線**で、backend は `SUPABASE_URL` があればよい([ADR 0002](adr/0002-architecture-decisions.md) B-5 追補)。本番が legacy HS256 署名の場合のみ `cd backend && pnpm exec wrangler secret put SUPABASE_JWT_SECRET` を追加する
 
 ---
 

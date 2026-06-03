@@ -1,0 +1,14 @@
+// tRPC の HTTP エンドポイント(/api/trpc/*)。Next.js Route Handler。
+
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { appRouter } from "@/server/trpc/router";
+
+const handler = (req: Request) =>
+  fetchRequestHandler({
+    endpoint: "/api/trpc",
+    req,
+    router: appRouter,
+    createContext: () => ({ req }),
+  });
+
+export { handler as GET, handler as POST };
