@@ -10,7 +10,7 @@ export default defineConfig({
     environment: "happy-dom",
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.test.{ts,tsx}"],
-    exclude: ["node_modules", ".next", "dist"],
+    exclude: ["node_modules", ".next", "dist", "**/*.stories.{ts,tsx}"],
     cache: {
       dir: "./.vitest-cache",
     },

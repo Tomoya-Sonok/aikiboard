@@ -1,0 +1,59 @@
+name: Deploy Storybook
+
+# frontend を含む変更が main にマージされたら Storybook を GitHub Pages へデプロイする。
+# frontend_ci / backend_ci は別途 push/PR で品質を保証するため、ここでは deploy のみ行う。
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy_storybook.yml"
+
+# GitHub Pages への同時 deploy を 1 本に絞る。
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy-storybook:
+    name: Deploy Storybook to GitHub Pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.22.0"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Storybook
+        run: pnpm -C frontend build-storybook
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./frontend/storybook-static"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -11,7 +11,9 @@
     "test": "vitest",
     "test:ci": "vitest run --silent --passWithNoTests",
     "check": "biome check . && tsc --noEmit",
-    "check:fix": "biome check . --write"
+    "check:fix": "biome check . --write",
+    "sb": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -34,6 +36,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
+    "@storybook/addon-a11y": "^9",
+    "@storybook/nextjs-vite": "^9",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^22",
@@ -41,6 +45,7 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.0.2",
     "happy-dom": "^18.0.1",
+    "storybook": "^9",
     "typescript": "^5",
     "vite": "^7.0.0",
     "vitest": "^3.2.4"
