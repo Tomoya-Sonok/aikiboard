@@ -75,7 +75,7 @@
     },
     "dashboard": {
       "nextPractice": "Next practice",
-      "daysUntil": "in {days} days",
+      "daysUntil": "{days, plural, =0 {today} =1 {tomorrow} other {in # days}}",
       "viewDetail": "View detail",
       "attending": "Attending",
       "declined": "Declined",
@@ -85,7 +85,8 @@
       "announcements": "Announcements",
       "viewAll": "View all",
       "recentFeed": "Recent feed",
-      "toFeed": "Go to feed"
+      "toFeed": "Go to feed",
+      "noUpcoming": "No upcoming practices"
     },
     "calendar": {
       "title": "Practice calendar",

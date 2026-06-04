@@ -1,17 +1,11 @@
 "use client";
 
-import {
-  ArrowBendUpLeft,
-  CaretRight,
-  Check,
-  Heart,
-  MapPin,
-  User,
-} from "@phosphor-icons/react";
+import { ArrowBendUpLeft, CaretRight, Heart } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import styles from "./DashboardCards.module.css";
+import { NextPracticeCard } from "./NextPracticeCard";
 
-// ガワ表示用のダミーデータ。実データ(カレンダー/お知らせ/フィード)は各機能 PR で差し替える。
+// ガワ表示用のダミーデータ。お知らせ/フィードは各機能 PR で実データに差し替える。
 const ANNOUNCEMENTS = [
   {
     id: 1,
@@ -51,87 +45,18 @@ const FEED = [
   },
 ];
 
-const ATTENDEES = ["田", "佐", "鈴", "高", "山"];
+type Props = {
+  boardId: string;
+  slug: string;
+};
 
-// ボードホームのダッシュボード本体。現状はダミー表示(ガワ)。
-export function DashboardCards() {
+// ボードホームのダッシュボード本体。「次の稽古」は実データ、お知らせ/フィードは各機能 PR で差し替える。
+export function DashboardCards({ boardId, slug }: Props) {
   const t = useTranslations("boards.dashboard");
 
   return (
     <div className={styles.grid}>
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <span className={styles.sectionLabel}>
-            {t("nextPractice")}
-            <span className={styles.muted}>{t("daysUntil", { days: 4 })}</span>
-          </span>
-          <span className={styles.ghostLink}>
-            {t("viewDetail")}
-            <CaretRight size={13} />
-          </span>
-        </div>
-        <div className={styles.practiceBody}>
-          <div className={styles.dateBlock}>
-            <div className={styles.dateMonth}>JUL · 金</div>
-            <div className={styles.dateDay}>3</div>
-            <div className={styles.dateTime}>19:00 – 21:00</div>
-          </div>
-          <div className={styles.practiceInfo}>
-            <div>
-              <div className={styles.practiceTitle}>基本技中心</div>
-              <div className={styles.practiceMeta}>
-                <span className={styles.metaItem}>
-                  <MapPin size={13} className={styles.metaIcon} />
-                  第一武道場
-                </span>
-                <span className={styles.metaItem}>
-                  <User size={13} className={styles.metaIcon} />
-                  指導 · 田中 一郎(五段)
-                </span>
-              </div>
-            </div>
-            <div className={styles.attendance}>
-              <div className={styles.statBlock}>
-                <span className={`${styles.statValue} ${styles.statYes}`}>
-                  4
-                </span>
-                <span className={styles.statLabel}>{t("attending")}</span>
-              </div>
-              <span className={styles.statDivider} />
-              <div className={styles.statBlock}>
-                <span className={`${styles.statValue} ${styles.statNo}`}>
-                  1
-                </span>
-                <span className={styles.statLabel}>{t("declined")}</span>
-              </div>
-              <span className={styles.statDivider} />
-              <div className={styles.statBlock}>
-                <span className={`${styles.statValue} ${styles.statUn}`}>
-                  1
-                </span>
-                <span className={styles.statLabel}>{t("pending")}</span>
-              </div>
-              <span className={styles.spacer} />
-              <div className={styles.avatars}>
-                {ATTENDEES.map((a) => (
-                  <span key={a} className={styles.avatar}>
-                    {a}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className={styles.actions}>
-              <button type="button" className={styles.attendBtn}>
-                <Check size={14} />
-                {t("attend")}
-              </button>
-              <button type="button" className={styles.declineBtn}>
-                {t("decline")}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <NextPracticeCard boardId={boardId} slug={slug} />
 
       <section className={styles.card}>
         <div className={styles.cardHeader}>

@@ -75,7 +75,7 @@
     },
     "dashboard": {
       "nextPractice": "次の稽古",
-      "daysUntil": "あと {days} 日",
+      "daysUntil": "{days, plural, =0 {本日} =1 {明日} other {あと # 日}}",
       "viewDetail": "詳細を見る",
       "attending": "参加予定",
       "declined": "不参加",
@@ -85,7 +85,8 @@
       "announcements": "お知らせ",
       "viewAll": "すべて見る",
       "recentFeed": "最近のフィード",
-      "toFeed": "フィードへ"
+      "toFeed": "フィードへ",
+      "noUpcoming": "今後の稽古予定はありません"
     },
     "calendar": {
       "title": "稽古カレンダー",

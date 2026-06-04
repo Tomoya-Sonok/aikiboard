@@ -2,9 +2,9 @@
 
 このファイルは Claude Code（claude.ai/code）が aikiboard リポジトリで作業する際のガイドラインを提供します。
 
-> **ステータス: Phase 1(MVP 開発)進行中(2026-06-03〜)— 第1機能「認証 + 3階層ロール + ボード作成」実装済み(#51〜#54)**
+> **ステータス: Phase 1(MVP 開発)進行中(2026-06-03〜)— 認証 + ボード作成(#51〜#54)、ログイン後ダッシュボード + 画面導線(#58〜#63)、稽古カレンダー + 出欠管理(#64〜#67)実装済み**
 >
-> リポジトリ初期化と基盤構築(Phase 0、2026-05-05 完了)に続き、Phase 1 で **認証(サインアップ/ログイン・Server Component ガード)・tRPC 基盤・ボード作成(owner 登録 + 道場紐付け)** を実装。フロントエンドは Vercel(`https://aiki-board.com`)、バックエンドは Cloudflare Workers(`https://api.aiki-board.com`)で稼働、Supabase の `aikiboard` スキーマ + RLS 適用済み(REST 公開 + service_role 権限付与済み)。開発は **PR ベース運用**(main 直 push 禁止・squash merge)、運用方針は `docs/adr/`。次は ボードダッシュボード/画面導線 → 稽古カレンダー等。
+> リポジトリ初期化と基盤構築(Phase 0、2026-05-05 完了)に続き、Phase 1 で **認証(サインアップ/ログイン・Server Component ガード)・tRPC 基盤・ボード作成(owner 登録 + 道場紐付け)・ログイン後ダッシュボード/画面導線・稽古カレンダー + 出欠管理(定期稽古/例外/出欠名簿/管理者集計)** を実装。フロントエンドは Vercel(`https://aiki-board.com`)、バックエンドは Cloudflare Workers(`https://api.aiki-board.com`)で稼働、Supabase の `aikiboard` スキーマ + RLS 適用済み(REST 公開 + service_role 権限付与済み)。開発は **PR ベース運用**(main 直 push 禁止・squash merge)、運用方針は `docs/adr/`。次は お知らせ配信 → メンバー管理等(未認証の公開カレンダーは公開ページ機能と一括)。
 >
 > - 正式版要件定義書: [`docs/requirements.md`](docs/requirements.md)
 > - 開発者向けガイド(セットアップ / ローカル Supabase / PR 運用): [`docs/development-guide.md`](docs/development-guide.md)

@@ -479,3 +479,52 @@ describe("GET /api/events/:id/rsvps", () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe("GET /api/events/next", () => {
+  it("今以降の最も近い稽古を 1 件返す", async () => {
+    // Arrange(明日の単発イベント = ホライズン内・今以降)
+    const start = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const end = new Date(Date.now() + 26 * 60 * 60 * 1000).toISOString();
+    const { supabase } = createEventsMock({
+      role: "member",
+      events: [
+        {
+          id: EVENT_ID,
+          start_at: start,
+          end_at: end,
+          place: "本部道場",
+          instructor_name: null,
+          note: null,
+          recurrence_rule: null,
+          is_public: true,
+        },
+      ],
+    });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await request(app, `/api/events/next?boardId=${BOARD_ID}`, {
+      method: "GET",
+    });
+
+    // Assert
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.data).toMatchObject({ eventId: EVENT_ID, startAt: start });
+  });
+
+  it("予定が無ければ data:null を返す", async () => {
+    // Arrange(events 無し)
+    const { supabase } = createEventsMock({ role: "member" });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await request(app, `/api/events/next?boardId=${BOARD_ID}`, {
+      method: "GET",
+    });
+
+    // Assert
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ success: true, data: null });
+  });
+});

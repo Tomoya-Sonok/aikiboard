@@ -4,6 +4,7 @@
 import { notFound } from "next/navigation";
 import { BoardShell } from "@/components/features/boards/BoardShell/BoardShell";
 import { RememberBoard } from "@/components/features/boards/RememberBoard/RememberBoard";
+import { getBoardDetail } from "@/lib/boards/getBoardDetail";
 import { redirect } from "@/lib/i18n/routing";
 import type { BoardDetail } from "@/lib/types/board";
 import { createCallerFactory } from "@/server/trpc";
@@ -18,13 +19,9 @@ export default async function BoardLayout({
 }) {
   const { locale, slug } = await params;
 
-  const caller = createCallerFactory(appRouter)({
-    req: new Request("http://localhost"),
-  });
-
   let board: BoardDetail | undefined;
   try {
-    board = (await caller.boards.getBySlug({ slug })).data;
+    board = await getBoardDetail(slug);
   } catch {
     notFound();
   }
@@ -36,6 +33,9 @@ export default async function BoardLayout({
     redirect({ href: "/home", locale });
   }
 
+  const caller = createCallerFactory(appRouter)({
+    req: new Request("http://localhost"),
+  });
   const boards = (await caller.boards.list()).data ?? [];
 
   return (
