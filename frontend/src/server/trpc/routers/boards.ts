@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import type { ApiResponse } from "@/lib/types/api";
+import type { BoardDetail, BoardSummary } from "@/lib/types/board";
 import { callHonoApi } from "../hono";
 import { authenticatedProcedure, createTRPCRouter } from "../index";
 
@@ -18,6 +19,22 @@ type CreatedBoard = {
 };
 
 export const boardsRouter = createTRPCRouter({
+  // ログイン中ユーザーの所属ボード一覧(ログイン後リゾルバ / サイドバー切替で使う)。
+  list: authenticatedProcedure.query(({ ctx }) =>
+    callHonoApi<ApiResponse<BoardSummary[]>>("/api/boards", {
+      headers: { Authorization: `Bearer ${ctx.accessToken}` },
+    }),
+  ),
+
+  // slug でボード詳細を取得(メンバー判定込み)。ボードホームのガードと表示に使う。
+  getBySlug: authenticatedProcedure
+    .input(z.object({ slug: z.string().regex(slugRegex) }))
+    .query(({ input, ctx }) =>
+      callHonoApi<ApiResponse<BoardDetail>>(`/api/boards/${input.slug}`, {
+        headers: { Authorization: `Bearer ${ctx.accessToken}` },
+      }),
+    ),
+
   // ボード作成(認証必須、作成者が owner になる)。
   create: authenticatedProcedure
     .input(
