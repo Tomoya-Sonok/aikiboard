@@ -72,6 +72,28 @@
         "descriptionMax": "説明は500文字以内で入力してください",
         "dojoRequired": "紐付ける道場を選択してください"
       }
+    },
+    "dashboard": {
+      "preparing": "ダッシュボードは準備中です"
     }
+  },
+  "nav": {
+    "home": "ホーム",
+    "calendar": "カレンダー",
+    "announce": "お知らせ",
+    "feed": "フィード",
+    "archive": "アーカイブ",
+    "money": "会計",
+    "members": "メンバー",
+    "activity": "アクティビティ",
+    "settings": "ボード設定",
+    "newBoard": "ボードを作成",
+    "pro": "PRO",
+    "comingSoon": "準備中",
+    "collapse": "サイドバーを折りたたむ",
+    "signOut": "ログアウト",
+    "memberCount": "{count} メンバー",
+    "searchPlaceholder": "道場ボード内を検索",
+    "notifications": "通知"
   }
 }
