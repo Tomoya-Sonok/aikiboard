@@ -38,6 +38,8 @@ Phase 1 の実装に先立ち、フロントエンド / バックエンドの基
 - tRPC procedure ↔ Hono endpoint は原則 1:1。
 - **AikiNote のフラット `procedures.ts` 構造は採用しない**(可読性 / PR diff サイズ改善のため意図的に乖離)。
 
+> **追補(2026-06-04)**: `boardMemberProcedure` / `boardAdminProcedure` は read-only な画面(ボード一覧 / 詳細)では導入せず、`authenticatedProcedure` + backend 側の所属判定 + RLS で代替している。slug → board_id 解決とロール取得の共通化が必要になる write 系機能(お知らせ投稿等)の PR で導入する。
+
 ## B-7: 状態管理の境界 + アクティブボードは URL 駆動
 
 - Server state: TanStack Query + tRPC / Form state: React Hook Form + Zod / 永続 UI 設定: Zustand(`frontend/src/stores/`)/ Session: AuthProvider Context / 一時 UI: `useState`。
@@ -47,12 +49,15 @@ Phase 1 の実装に先立ち、フロントエンド / バックエンドの基
 URL 構造の代表例:
 
 ```
-/ja/boards                        所属ボード一覧
-/ja/d/<board-slug>                ボードホーム
+/home                             ログイン後リゾルバ(所属ボードを解決して /d/<slug> へ送る中継)
+/ja/d/<board-slug>                ボードホーム(ログイン後のデフォルト着地)
 /ja/d/<board-slug>/calendar       稽古カレンダー
+/boards/new                       ボード作成
 /d/<board-slug>                   公開ページ(認証不要、locale as-needed)
 /ja/settings                      ユーザー個人設定(ボード横断)
 ```
+
+> **追補(2026-06-04、#58〜#63 で確定)**: `/boards`(所属ボード一覧)は **着地導線にしない**(専用一覧画面は当面作らない)。複数ボードの切り替えは **サイドバー上部の Slack 風 BoardSwitcher** が担う。ログイン後は `/home`(Server Component リゾルバ)が `boards.list` を引き、**最後に開いたボードの slug を cookie(`ab_last_board_slug`)で記憶**して `/d/<slug>` へ送る(無ければ先頭、所属 0 件は `/boards/new`)。SSR でリダイレクト判断に使うため localStorage ではなく cookie を採用。公開ページは同一 `/d/<slug>` を認証状態で出し分ける方針で、将来は特定クエリパラメータ付与時に認証中でも公開ビューを表示できる余地を残す(`getBySlug` が `isMember` / 公開可否を返す設計)。
 
 ## Considered Options
 
