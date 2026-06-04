@@ -1,5 +1,14 @@
-import { getTranslations } from "next-intl/server";
-import { Icon } from "@/components/shared/Icon/Icon";
+"use client";
+
+import {
+  ArrowBendUpLeft,
+  CaretRight,
+  Check,
+  Heart,
+  MapPin,
+  User,
+} from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 import styles from "./DashboardCards.module.css";
 
 // ガワ表示用のダミーデータ。実データ(カレンダー/お知らせ/フィード)は各機能 PR で差し替える。
@@ -45,8 +54,8 @@ const FEED = [
 const ATTENDEES = ["田", "佐", "鈴", "高", "山"];
 
 // ボードホームのダッシュボード本体。現状はダミー表示(ガワ)。
-export async function DashboardCards() {
-  const t = await getTranslations("boards.dashboard");
+export function DashboardCards() {
+  const t = useTranslations("boards.dashboard");
 
   return (
     <div className={styles.grid}>
@@ -58,7 +67,7 @@ export async function DashboardCards() {
           </span>
           <span className={styles.ghostLink}>
             {t("viewDetail")}
-            <Icon name="chevron-right" size={13} />
+            <CaretRight size={13} />
           </span>
         </div>
         <div className={styles.practiceBody}>
@@ -72,11 +81,11 @@ export async function DashboardCards() {
               <div className={styles.practiceTitle}>基本技中心</div>
               <div className={styles.practiceMeta}>
                 <span className={styles.metaItem}>
-                  <Icon name="map-pin" size={13} className={styles.metaIcon} />
+                  <MapPin size={13} className={styles.metaIcon} />
                   第一武道場
                 </span>
                 <span className={styles.metaItem}>
-                  <Icon name="user" size={13} className={styles.metaIcon} />
+                  <User size={13} className={styles.metaIcon} />
                   指導 · 田中 一郎(五段)
                 </span>
               </div>
@@ -113,7 +122,7 @@ export async function DashboardCards() {
             </div>
             <div className={styles.actions}>
               <button type="button" className={styles.attendBtn}>
-                <Icon name="check" size={14} />
+                <Check size={14} />
                 {t("attend")}
               </button>
               <button type="button" className={styles.declineBtn}>
@@ -132,7 +141,7 @@ export async function DashboardCards() {
           </span>
           <span className={styles.ghostLink}>
             {t("viewAll")}
-            <Icon name="chevron-right" size={13} />
+            <CaretRight size={13} />
           </span>
         </div>
         <div>
@@ -163,7 +172,7 @@ export async function DashboardCards() {
           <span className={styles.sectionLabel}>{t("recentFeed")}</span>
           <span className={styles.ghostLink}>
             {t("toFeed")}
-            <Icon name="chevron-right" size={13} />
+            <CaretRight size={13} />
           </span>
         </div>
         <div>
@@ -179,11 +188,11 @@ export async function DashboardCards() {
                 <div className={styles.feedBody}>{post.body}</div>
                 <div className={styles.feedActions}>
                   <span className={styles.feedAction}>
-                    <Icon name="heart" size={13} />
+                    <Heart size={13} />
                     {post.likes}
                   </span>
                   <span className={styles.feedAction}>
-                    <Icon name="reply" size={13} />
+                    <ArrowBendUpLeft size={13} />
                     {post.replies}
                   </span>
                 </div>
