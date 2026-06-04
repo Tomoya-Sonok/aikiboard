@@ -140,6 +140,24 @@ boardsRoute.post("/", authMiddleware, async (c) => {
     if (dojoInsertError) {
       throw dojoInsertError;
     }
+
+    // 新規ボードは Free プランから開始する。プラン別機能判定(hasFeature)や
+    // サイドバーのプラン表示の基準として board_subscriptions を 1 行作る。
+    // plans の seed は migration 007 で投入済み。
+    const { data: freePlan, error: freePlanError } = await aikiboard
+      .from("plans")
+      .select("id")
+      .eq("code", "free")
+      .maybeSingle();
+    if (freePlanError || !freePlan) {
+      throw freePlanError ?? new Error("free プランが見つかりません");
+    }
+    const { error: subscriptionError } = await aikiboard
+      .from("board_subscriptions")
+      .insert({ board_id: boardId, plan_id: freePlan.id, status: "active" });
+    if (subscriptionError) {
+      throw subscriptionError;
+    }
   } catch (_error) {
     await aikiboard.from("boards").delete().eq("id", boardId);
     logger.error("ボード関連行の INSERT に失敗し board をロールバック", {
