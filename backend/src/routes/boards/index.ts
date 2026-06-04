@@ -35,6 +35,113 @@ const createBoardSchema = z.object({
   dojoMasterIds: z.array(uuidLike).min(1).max(10),
 });
 
+// GET /api/boards — ログイン中ユーザーの所属ボード一覧(認証必須)。
+// board_members を起点に、各ボードへ role / プラン名 / メンバー数を付けて返す。
+// 実体は service_role(RLS バイパス)で読むため、所属判定は board_members で行う。
+boardsRoute.get("/", authMiddleware, async (c) => {
+  const supabase = c.get("supabase");
+  if (!supabase) {
+    return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+  }
+  const userId = c.get("userId");
+  const aikiboard = supabase.schema("aikiboard");
+
+  // 取得失敗時の共通エラー応答(ログ文言だけ可変)。
+  const failWithListError = (logMessage: string) => {
+    logger.error(logMessage, { feature: "boards", userId });
+    return c.json(
+      { success: false, error: "ボード一覧の取得に失敗しました" },
+      500,
+    );
+  };
+
+  // 所属(role / joined_at)。joined_at 昇順 = 先頭がデフォルトボード候補。
+  const { data: memberships, error: membershipError } = await aikiboard
+    .from("board_members")
+    .select("board_id, role, joined_at")
+    .eq("user_id", userId)
+    .order("joined_at", { ascending: true });
+  if (membershipError) {
+    return failWithListError("所属ボードの取得に失敗");
+  }
+  if (!memberships || memberships.length === 0) {
+    return c.json({ success: true, data: [] });
+  }
+
+  const boardIds = memberships.map((m) => m.board_id);
+
+  // ボード本体 / メンバー数 / サブスクをまとめて取得。
+  const [boardsRes, membersRes, subsRes] = await Promise.all([
+    aikiboard
+      .from("boards")
+      .select("id, name, slug, is_public")
+      .in("id", boardIds),
+    aikiboard.from("board_members").select("board_id").in("board_id", boardIds),
+    aikiboard
+      .from("board_subscriptions")
+      .select("board_id, plan_id")
+      .in("board_id", boardIds),
+  ]);
+  if (boardsRes.error || membersRes.error || subsRes.error || !boardsRes.data) {
+    return failWithListError("ボード一覧の関連データ取得に失敗");
+  }
+
+  // プラン名(サブスク → plans)。サブスク無しのボードは Free にフォールバック。
+  const planIdByBoard = new Map<string, string>();
+  for (const row of subsRes.data ?? []) {
+    planIdByBoard.set(row.board_id, row.plan_id);
+  }
+  const planIds = [...new Set(planIdByBoard.values())];
+  const planById = new Map<string, { code: string; name: string }>();
+  if (planIds.length > 0) {
+    const { data: plans, error: plansError } = await aikiboard
+      .from("plans")
+      .select("id, code, name")
+      .in("id", planIds);
+    if (plansError) {
+      return failWithListError("プランの取得に失敗");
+    }
+    for (const p of plans ?? []) {
+      planById.set(p.id, { code: p.code, name: p.name });
+    }
+  }
+
+  // メンバー数を集計。
+  const memberCountByBoard = new Map<string, number>();
+  for (const row of membersRes.data ?? []) {
+    memberCountByBoard.set(
+      row.board_id,
+      (memberCountByBoard.get(row.board_id) ?? 0) + 1,
+    );
+  }
+
+  const boardById = new Map(boardsRes.data.map((b) => [b.id, b]));
+  const freePlan = { code: "free", name: "Free" };
+
+  // memberships の順(joined_at 昇順)を維持して整形。
+  const data = [];
+  for (const m of memberships) {
+    const board = boardById.get(m.board_id);
+    if (!board) {
+      continue;
+    }
+    const planId = planIdByBoard.get(m.board_id);
+    const plan = (planId && planById.get(planId)) || freePlan;
+    data.push({
+      id: board.id,
+      name: board.name,
+      slug: board.slug,
+      isPublic: board.is_public,
+      role: m.role,
+      planCode: plan.code,
+      planName: plan.name,
+      memberCount: memberCountByBoard.get(m.board_id) ?? 0,
+    });
+  }
+
+  return c.json({ success: true, data });
+});
+
 // POST /api/boards — ボード作成(認証必須、作成者が owner になる)。
 boardsRoute.post("/", authMiddleware, async (c) => {
   const supabase = c.get("supabase");
