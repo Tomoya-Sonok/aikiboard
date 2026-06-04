@@ -17,7 +17,13 @@ export type IconName =
   | "chevron-down"
   | "chevron-double-left"
   | "plus"
-  | "globe";
+  | "globe"
+  | "map-pin"
+  | "user"
+  | "check"
+  | "chevron-right"
+  | "heart"
+  | "reply";
 
 type IconProps = {
   name: IconName;
@@ -146,6 +152,45 @@ export function Icon({
         <svg {...common} aria-hidden="true">
           <circle cx="12" cy="12" r="9" />
           <path d="M3 12h18M12 3c2.5 3 4 6 4 9s-1.5 6-4 9c-2.5-3-4-6-4-9s1.5-6 4-9Z" />
+        </svg>
+      );
+    case "map-pin":
+      return (
+        <svg {...common} aria-hidden="true">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+      );
+    case "user":
+      return (
+        <svg {...common} aria-hidden="true">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21c1-4.5 4.5-7 8-7s7 2.5 8 7" />
+        </svg>
+      );
+    case "check":
+      return (
+        <svg {...common} aria-hidden="true">
+          <path d="m4 12 5 5L20 6" />
+        </svg>
+      );
+    case "chevron-right":
+      return (
+        <svg {...common} aria-hidden="true">
+          <path d="m10 6 6 6-6 6" />
+        </svg>
+      );
+    case "heart":
+      return (
+        <svg {...common} aria-hidden="true">
+          <path d="M12 20s-7-4.5-9-9a4.5 4.5 0 0 1 9-2 4.5 4.5 0 0 1 9 2c-2 4.5-9 9-9 9Z" />
+        </svg>
+      );
+    case "reply":
+      return (
+        <svg {...common} aria-hidden="true">
+          <path d="M21 20v-4a4 4 0 0 0-4-4H4" />
+          <path d="m9 7-5 5 5 5" />
         </svg>
       );
     default:

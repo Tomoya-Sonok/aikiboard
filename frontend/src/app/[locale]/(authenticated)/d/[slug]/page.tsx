@@ -1,14 +1,8 @@
 // ボードホームのダッシュボード本体。シェル(サイドバー/ヘッダー)とメンバーガードは
-// layout.tsx が提供する。次の稽古 / お知らせ / フィードのカードは後続 PR で追加する。
+// layout.tsx が提供する。カードは今はダミー表示で、各機能 PR で実データに差し替える。
 
-import { getTranslations } from "next-intl/server";
-import styles from "./page.module.css";
+import { DashboardCards } from "@/components/features/boards/dashboard/DashboardCards";
 
-export default async function BoardHomePage() {
-  const t = await getTranslations("boards.dashboard");
-  return (
-    <div className={styles.placeholder}>
-      <p>{t("preparing")}</p>
-    </div>
-  );
+export default function BoardHomePage() {
+  return <DashboardCards />;
 }

@@ -74,7 +74,18 @@
       }
     },
     "dashboard": {
-      "preparing": "ダッシュボードは準備中です"
+      "nextPractice": "次の稽古",
+      "daysUntil": "あと {days} 日",
+      "viewDetail": "詳細を見る",
+      "attending": "参加予定",
+      "declined": "不参加",
+      "pending": "未回答",
+      "attend": "参加を表明",
+      "decline": "不参加",
+      "announcements": "お知らせ",
+      "viewAll": "すべて見る",
+      "recentFeed": "最近のフィード",
+      "toFeed": "フィードへ"
     }
   },
   "nav": {
