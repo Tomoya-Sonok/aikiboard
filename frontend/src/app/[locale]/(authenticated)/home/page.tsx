@@ -1,34 +1,34 @@
-"use client";
+// ログイン後の着地点(リゾルバ)。所属ボードを解決して、デフォルトボードのホーム
+// (/d/<slug>)へ送る。所属が無ければボード作成(/boards/new)へ誘導。
+// アクティブボードは URL で表現する方針のため、ここは UI を持たず即リダイレクトする(ADR 0002 B-7)。
 
-// 認証後のプレースホルダーホーム。ログイン中の表示とログアウトを確認するための最小画面。
-// PR-D で所属ボード一覧(/boards)に差し替える。
+import { cookies } from "next/headers";
+import {
+  LAST_BOARD_COOKIE,
+  resolveDefaultBoardSlug,
+} from "@/lib/boards/resolveDefaultBoard";
+import { redirect } from "@/lib/i18n/routing";
+import { createCallerFactory } from "@/server/trpc";
+import { appRouter } from "@/server/trpc/router";
 
-import { useTranslations } from "next-intl";
-import { Button } from "@/components/shared/Button/Button";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { useRouter } from "@/lib/i18n/routing";
-import styles from "./home.module.css";
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
 
-export default function HomePage() {
-  const t = useTranslations("auth.home");
-  const router = useRouter();
-  const { user, signOut } = useAuth();
+  // 認証は (authenticated)/layout.tsx で済んでいる。所属ボードを取得して着地先を決める。
+  // authenticatedProcedure は cookie 由来の session で検証するため、req はダミーでよい。
+  const caller = createCallerFactory(appRouter)({
+    req: new Request("http://localhost"),
+  });
+  const res = await caller.boards.list();
+  const boards = res.data ?? [];
 
-  const handleSignOut = async () => {
-    await signOut();
-    router.replace("/login");
-  };
+  const cookieStore = await cookies();
+  const lastSlug = cookieStore.get(LAST_BOARD_COOKIE)?.value;
+  const slug = resolveDefaultBoardSlug(boards, lastSlug);
 
-  return (
-    <main className={styles.main}>
-      <div className={styles.card}>
-        <p className={styles.greeting}>
-          {t("greeting", { name: user?.username ?? user?.email ?? "" })}
-        </p>
-        <Button variant="secondary" onClick={handleSignOut}>
-          {t("signOut")}
-        </Button>
-      </div>
-    </main>
-  );
+  redirect({ href: slug ? `/d/${slug}` : "/boards/new", locale });
 }
