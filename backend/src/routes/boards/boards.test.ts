@@ -446,3 +446,216 @@ describe("GET /api/boards", () => {
     expect(res.status).toBe(500);
   });
 });
+
+// GET /api/boards/:slug 用スタブ。board_members は role 確認(.eq().eq().maybeSingle())と
+// メンバー数(.eq() を await)の両方で呼ばれるため、eq() の戻りに maybeSingle と then を生やす。
+function createDetailSupabaseMock(opts: {
+  board?: Result;
+  membership?: Result;
+  settings?: Result;
+  members?: Result;
+  subscription?: Result;
+  plan?: Result;
+}) {
+  const aikiboard = {
+    from: (table: string) => {
+      if (table === "boards") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () =>
+                opts.board ?? { data: null, error: null },
+            }),
+          }),
+        };
+      }
+      if (table === "board_members") {
+        // role 確認は select("role")、メンバー数は select("user_id") で呼び分けられる。
+        return {
+          select: (fields: string) =>
+            fields === "role"
+              ? {
+                  eq: () => ({
+                    eq: () => ({
+                      maybeSingle: async () =>
+                        opts.membership ?? { data: null, error: null },
+                    }),
+                  }),
+                }
+              : {
+                  eq: async () => opts.members ?? { data: [], error: null },
+                },
+        };
+      }
+      if (table === "board_settings") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () =>
+                opts.settings ?? { data: null, error: null },
+            }),
+          }),
+        };
+      }
+      if (table === "board_subscriptions") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () =>
+                opts.subscription ?? { data: null, error: null },
+            }),
+          }),
+        };
+      }
+      if (table === "plans") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => opts.plan ?? { data: null, error: null },
+            }),
+          }),
+        };
+      }
+      return {};
+    },
+  };
+
+  return {
+    supabase: { schema: () => aikiboard } as unknown as SupabaseClient,
+  };
+}
+
+async function getBoardDetail(
+  app: Hono<TestEnv>,
+  slug: string,
+  withAuth = true,
+) {
+  const headers: Record<string, string> = {};
+  if (withAuth) {
+    const token = await sign({ sub: "user-1" }, SECRET);
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return app.request(
+    `/api/boards/${slug}`,
+    { method: "GET", headers },
+    { SUPABASE_JWT_SECRET: SECRET },
+  );
+}
+
+describe("GET /api/boards/:slug", () => {
+  const memberOpts = {
+    board: {
+      data: { id: "b1", name: "蕨合気道会", slug: "warabi", is_public: true },
+      error: null,
+    },
+    membership: { data: { role: "owner" }, error: null },
+    settings: {
+      data: { description: "説明", theme_color_code: "dou" },
+      error: null,
+    },
+    members: { data: [{ user_id: "u1" }, { user_id: "u2" }], error: null },
+    subscription: { data: { plan_id: "plan-std" }, error: null },
+    plan: { data: { code: "standard", name: "Standard" }, error: null },
+  };
+
+  it("メンバーには viewerRole と詳細を返す", async () => {
+    // Arrange
+    const { supabase } = createDetailSupabaseMock(memberOpts);
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await getBoardDetail(app, "warabi");
+
+    // Assert
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      success: true,
+      data: {
+        slug: "warabi",
+        viewerRole: "owner",
+        isMember: true,
+        planName: "Standard",
+        memberCount: 2,
+        themeColorCode: "dou",
+      },
+    });
+  });
+
+  it("非メンバーでも公開ボードは isMember:false で返す", async () => {
+    // Arrange(membership なし・公開ボード)
+    const { supabase } = createDetailSupabaseMock({
+      ...memberOpts,
+      membership: { data: null, error: null },
+    });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await getBoardDetail(app, "warabi");
+
+    // Assert
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.data).toMatchObject({ isMember: false, viewerRole: null });
+  });
+
+  it("非メンバーかつ非公開ボードは 404 を返す", async () => {
+    // Arrange(membership なし・非公開ボード)
+    const { supabase } = createDetailSupabaseMock({
+      board: {
+        data: { id: "b1", name: "x", slug: "warabi", is_public: false },
+        error: null,
+      },
+      membership: { data: null, error: null },
+    });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await getBoardDetail(app, "warabi");
+
+    // Assert
+    expect(res.status).toBe(404);
+  });
+
+  it("存在しない slug は 404 を返す", async () => {
+    // Arrange(board が null)
+    const { supabase } = createDetailSupabaseMock({
+      board: { data: null, error: null },
+    });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await getBoardDetail(app, "missing");
+
+    // Assert
+    expect(res.status).toBe(404);
+  });
+
+  it("サブスク未設定のボードは Free として返す", async () => {
+    // Arrange(subscription なし)
+    const { supabase } = createDetailSupabaseMock({
+      ...memberOpts,
+      subscription: { data: null, error: null },
+      plan: undefined,
+    });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await getBoardDetail(app, "warabi");
+
+    // Assert
+    const body = await res.json();
+    expect(body.data).toMatchObject({ planCode: "free", planName: "Free" });
+  });
+
+  it("認証が無ければ 401 を返す", async () => {
+    // Arrange
+    const { supabase } = createDetailSupabaseMock({});
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await getBoardDetail(app, "warabi", false);
+
+    // Assert
+    expect(res.status).toBe(401);
+  });
+});

@@ -142,6 +142,112 @@ boardsRoute.get("/", authMiddleware, async (c) => {
   return c.json({ success: true, data });
 });
 
+// GET /api/boards/:slug — ボード詳細(認証必須)。
+// メンバーはロール付きで閲覧でき、非メンバーは公開ボードのみ isMember:false で閲覧可。
+// 非公開ボードは非メンバーに存在を隠す(404)。`:slug` は固定パスより後に登録すること。
+boardsRoute.get("/:slug", authMiddleware, async (c) => {
+  const supabase = c.get("supabase");
+  if (!supabase) {
+    return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+  }
+  const userId = c.get("userId");
+  const slug = c.req.param("slug");
+  const aikiboard = supabase.schema("aikiboard");
+
+  // slug は DB 制約と同じ形式。不正なら該当ボードは存在し得ないので 404。
+  if (!slugRegex.test(slug)) {
+    return c.json({ success: false, error: "ボードが見つかりません" }, 404);
+  }
+
+  const failWithDetailError = (logMessage: string) => {
+    logger.error(logMessage, { feature: "boards", userId });
+    return c.json({ success: false, error: "ボードの取得に失敗しました" }, 500);
+  };
+
+  // ボード本体
+  const { data: board, error: boardError } = await aikiboard
+    .from("boards")
+    .select("id, name, slug, is_public")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (boardError) {
+    return failWithDetailError("ボード詳細の取得に失敗");
+  }
+  if (!board) {
+    return c.json({ success: false, error: "ボードが見つかりません" }, 404);
+  }
+
+  // 閲覧者のロール(非メンバーは null)
+  const { data: membership, error: membershipError } = await aikiboard
+    .from("board_members")
+    .select("role")
+    .eq("board_id", board.id)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (membershipError) {
+    return failWithDetailError("ボードメンバーの確認に失敗");
+  }
+  const viewerRole = membership?.role ?? null;
+  const isMember = viewerRole !== null;
+
+  // 非メンバーは公開ボードのみ閲覧可。非公開は存在を隠す。
+  if (!isMember && !board.is_public) {
+    return c.json({ success: false, error: "ボードが見つかりません" }, 404);
+  }
+
+  // 設定 / メンバー数 / サブスクをまとめて取得。
+  const [settingsRes, membersRes, subRes] = await Promise.all([
+    aikiboard
+      .from("board_settings")
+      .select("description, theme_color_code")
+      .eq("board_id", board.id)
+      .maybeSingle(),
+    aikiboard.from("board_members").select("user_id").eq("board_id", board.id),
+    aikiboard
+      .from("board_subscriptions")
+      .select("plan_id")
+      .eq("board_id", board.id)
+      .maybeSingle(),
+  ]);
+  if (settingsRes.error || membersRes.error || subRes.error) {
+    return failWithDetailError("ボード詳細の関連データ取得に失敗");
+  }
+
+  // プラン名(サブスク無しは Free にフォールバック)。
+  let plan = { code: "free", name: "Free" };
+  const planId = subRes.data?.plan_id;
+  if (planId) {
+    const { data: planRow, error: planError } = await aikiboard
+      .from("plans")
+      .select("code, name")
+      .eq("id", planId)
+      .maybeSingle();
+    if (planError) {
+      return failWithDetailError("プランの取得に失敗");
+    }
+    if (planRow) {
+      plan = { code: planRow.code, name: planRow.name };
+    }
+  }
+
+  return c.json({
+    success: true,
+    data: {
+      id: board.id,
+      name: board.name,
+      slug: board.slug,
+      isPublic: board.is_public,
+      description: settingsRes.data?.description ?? null,
+      themeColorCode: settingsRes.data?.theme_color_code ?? "sumi",
+      planCode: plan.code,
+      planName: plan.name,
+      memberCount: membersRes.data?.length ?? 0,
+      viewerRole,
+      isMember,
+    },
+  });
+});
+
 // POST /api/boards — ボード作成(認証必須、作成者が owner になる)。
 boardsRoute.post("/", authMiddleware, async (c) => {
   const supabase = c.get("supabase");
