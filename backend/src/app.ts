@@ -8,6 +8,7 @@ import { logger } from "hono/logger";
 import { resolveSupabaseClient } from "./lib/supabase.js";
 import boardsRoute from "./routes/boards/index.js";
 import dojoMastersRoute from "./routes/dojo-masters/index.js";
+import eventsRoute from "./routes/events/index.js";
 import usersRoute from "./routes/users/index.js";
 
 export type AppBindings = {
@@ -20,9 +21,14 @@ export type AppBindings = {
   APP_URL?: string;
 };
 
+export type BoardRole = "owner" | "admin" | "member";
+
 export type AppVariables = {
   supabase: SupabaseClient | null;
   userId?: string;
+  // boardAccess ミドルウェアが解決したボード ID と閲覧者のロール。
+  boardId?: string;
+  boardRole?: BoardRole;
 };
 
 const app = new Hono<{ Bindings: AppBindings; Variables: AppVariables }>();
@@ -100,6 +106,7 @@ app.get("/health", (c) => {
 app.route("/api/users", usersRoute);
 app.route("/api/boards", boardsRoute);
 app.route("/api/dojo-masters", dojoMastersRoute);
+app.route("/api/events", eventsRoute);
 
 export type AppType = typeof app;
 
