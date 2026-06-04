@@ -46,6 +46,15 @@ boardsRoute.get("/", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const aikiboard = supabase.schema("aikiboard");
 
+  // 取得失敗時の共通エラー応答(ログ文言だけ可変)。
+  const failWithListError = (logMessage: string) => {
+    logger.error(logMessage, { feature: "boards", userId });
+    return c.json(
+      { success: false, error: "ボード一覧の取得に失敗しました" },
+      500,
+    );
+  };
+
   // 所属(role / joined_at)。joined_at 昇順 = 先頭がデフォルトボード候補。
   const { data: memberships, error: membershipError } = await aikiboard
     .from("board_members")
@@ -53,11 +62,7 @@ boardsRoute.get("/", authMiddleware, async (c) => {
     .eq("user_id", userId)
     .order("joined_at", { ascending: true });
   if (membershipError) {
-    logger.error("所属ボードの取得に失敗", { feature: "boards", userId });
-    return c.json(
-      { success: false, error: "ボード一覧の取得に失敗しました" },
-      500,
-    );
+    return failWithListError("所属ボードの取得に失敗");
   }
   if (!memberships || memberships.length === 0) {
     return c.json({ success: true, data: [] });
@@ -78,11 +83,7 @@ boardsRoute.get("/", authMiddleware, async (c) => {
       .in("board_id", boardIds),
   ]);
   if (boardsRes.error || membersRes.error || subsRes.error || !boardsRes.data) {
-    logger.error("ボード一覧の関連データ取得に失敗", { feature: "boards" });
-    return c.json(
-      { success: false, error: "ボード一覧の取得に失敗しました" },
-      500,
-    );
+    return failWithListError("ボード一覧の関連データ取得に失敗");
   }
 
   // プラン名(サブスク → plans)。サブスク無しのボードは Free にフォールバック。
@@ -98,11 +99,7 @@ boardsRoute.get("/", authMiddleware, async (c) => {
       .select("id, code, name")
       .in("id", planIds);
     if (plansError) {
-      logger.error("プランの取得に失敗", { feature: "boards" });
-      return c.json(
-        { success: false, error: "ボード一覧の取得に失敗しました" },
-        500,
-      );
+      return failWithListError("プランの取得に失敗");
     }
     for (const p of plans ?? []) {
       planById.set(p.id, { code: p.code, name: p.name });
