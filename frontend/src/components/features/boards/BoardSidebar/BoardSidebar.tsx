@@ -4,7 +4,7 @@ import { CaretDoubleLeft, Plus } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { BOARD_NAV_ITEMS } from "@/lib/boards/navItems";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useRouter } from "@/lib/i18n/routing";
+import { usePathname, useRouter } from "@/lib/i18n/routing";
 import type { BoardSummary } from "@/lib/types/board";
 import { useUiStore } from "@/stores/uiStore";
 import styles from "./BoardSidebar.module.css";
@@ -14,9 +14,22 @@ type Props = {
   activeSlug: string;
 };
 
+// 現在の URL から「どのナビ項目がアクティブか」を求める。
+// /d/<slug> はホーム、/d/<slug>/<section> は section。
+function activeSectionFromPath(pathname: string, slug: string): string {
+  const segments = pathname.split("/").filter(Boolean);
+  const dIndex = segments.indexOf("d");
+  if (dIndex === -1 || segments[dIndex + 1] !== slug) {
+    return "home";
+  }
+  return segments[dIndex + 2] ?? "home";
+}
+
 export function BoardSidebar({ boards, activeSlug }: Props) {
   const t = useTranslations("nav");
   const router = useRouter();
+  const pathname = usePathname();
+  const activeSection = activeSectionFromPath(pathname, activeSlug);
   const { user, signOut } = useAuth();
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useUiStore((s) => s.toggleSidebar);
@@ -88,7 +101,7 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
 
       <nav className={styles.nav}>
         {BOARD_NAV_ITEMS.map((item) => {
-          const isActive = item.id === "home";
+          const isActive = item.id === activeSection;
           const NavIcon = item.icon;
           return (
             <button
@@ -96,9 +109,14 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
               key={item.id}
               className={`${styles.navItem} ${isActive ? styles.navItemActive : ""} ${item.enabled ? "" : styles.navItemDisabled}`}
               onClick={() => {
-                if (item.enabled && item.id === "home") {
-                  router.push(`/d/${activeSlug}`);
+                if (!item.enabled) {
+                  return;
                 }
+                router.push(
+                  item.id === "home"
+                    ? `/d/${activeSlug}`
+                    : `/d/${activeSlug}/${item.id}`,
+                );
               }}
               disabled={!item.enabled}
               title={item.enabled ? undefined : t("comingSoon")}

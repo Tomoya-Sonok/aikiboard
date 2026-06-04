@@ -3,12 +3,14 @@
 import { createTRPCRouter } from "./index";
 import { boardsRouter } from "./routers/boards";
 import { dojoMastersRouter } from "./routers/dojoMasters";
+import { eventsRouter } from "./routers/events";
 import { usersRouter } from "./routers/users";
 
 export const appRouter = createTRPCRouter({
   users: usersRouter,
   boards: boardsRouter,
   dojoMasters: dojoMastersRouter,
+  events: eventsRouter,
 });
 
 export type AppRouter = typeof appRouter;

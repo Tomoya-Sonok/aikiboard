@@ -1,0 +1,237 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-4);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ab-space-3);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--ab-fs-2xl);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+}
+
+.navBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-card);
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+}
+
+.navBtn:hover {
+  background: var(--ab-washi-dark);
+}
+
+.monthLabel {
+  min-width: 120px;
+  text-align: center;
+  font-size: var(--ab-fs-md);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.todayBtn {
+  padding: var(--ab-space-1) var(--ab-space-3);
+  font-size: var(--ab-fs-sm);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-card);
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+}
+
+.todayBtn:hover {
+  background: var(--ab-washi-dark);
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  padding: var(--ab-space-2) var(--ab-space-3);
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-semibold);
+  border: 1px solid transparent;
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-dou);
+  color: var(--ab-text-on-brand);
+  cursor: pointer;
+}
+
+.addBtn:hover {
+  background: var(--ab-dou-light);
+}
+
+.weekHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+}
+
+.weekHeaderCell {
+  padding: var(--ab-space-1) var(--ab-space-2);
+  font-size: var(--ab-fs-xs);
+  font-weight: var(--ab-fw-medium);
+  color: var(--ab-text-tertiary);
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(96px, 1fr);
+  gap: 1px;
+  background: var(--ab-border-subtle);
+  border: 1px solid var(--ab-border-subtle);
+  border-radius: var(--ab-radius-md);
+  overflow: hidden;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-1);
+  align-items: stretch;
+  padding: var(--ab-space-1);
+  min-height: 96px;
+  background: var(--ab-surface-card);
+}
+
+.cellHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.addDay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: var(--ab-radius-sm);
+  background: transparent;
+  color: var(--ab-text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--ab-duration-fast) var(--ab-ease-standard);
+}
+
+.addDay:hover {
+  background: var(--ab-dou-soft);
+  color: var(--ab-dou);
+}
+
+.addDay:focus-visible {
+  opacity: 1;
+  outline: none;
+  box-shadow: var(--ab-focus-ring);
+}
+
+.cell:hover .addDay {
+  opacity: 1;
+}
+
+.cellMuted {
+  background: var(--ab-surface-card-alt);
+}
+
+.dayNum {
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-medium);
+  font-family: var(--ab-font-num);
+  color: var(--ab-text-secondary);
+}
+
+.cellMuted .dayNum {
+  color: var(--ab-text-tertiary);
+}
+
+.cellToday .dayNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-dou);
+  color: var(--ab-text-on-brand);
+}
+
+.chips {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  padding: 2px var(--ab-space-1);
+  font-size: var(--ab-fs-xs);
+  text-align: left;
+  border: none;
+  border-radius: var(--ab-radius-sm);
+  background: var(--ab-dou-soft);
+  color: var(--ab-text-primary);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.chip:hover {
+  background: var(--ab-dou-light);
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--ab-radius-pill);
+}
+
+.dotAttend {
+  background: var(--ab-attend-yes);
+}
+
+.dotDecline {
+  background: var(--ab-attend-no);
+}
+
+.dotNone {
+  background: var(--ab-attend-undecided);
+}
+
+.chipTime {
+  flex-shrink: 0;
+  font-family: var(--ab-font-num);
+  font-weight: var(--ab-fw-medium);
+}
+
+.chipPlace {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
