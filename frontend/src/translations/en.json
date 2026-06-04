@@ -74,7 +74,18 @@
       }
     },
     "dashboard": {
-      "preparing": "Dashboard coming soon"
+      "nextPractice": "Next practice",
+      "daysUntil": "in {days} days",
+      "viewDetail": "View detail",
+      "attending": "Attending",
+      "declined": "Declined",
+      "pending": "No reply",
+      "attend": "Attend",
+      "decline": "Decline",
+      "announcements": "Announcements",
+      "viewAll": "View all",
+      "recentFeed": "Recent feed",
+      "toFeed": "Go to feed"
     }
   },
   "nav": {

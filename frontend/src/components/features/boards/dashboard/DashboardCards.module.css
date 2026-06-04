@@ -1,0 +1,376 @@
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-layout-gutter);
+  max-width: var(--ab-layout-container-max);
+  padding: var(--ab-layout-content-pad);
+}
+
+.card {
+  overflow: hidden;
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-sm);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--ab-border-subtle);
+}
+
+.sectionLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--ab-fs-base);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.muted {
+  font-size: var(--ab-fs-xs);
+  font-weight: var(--ab-fw-regular);
+  color: var(--ab-text-tertiary);
+}
+
+.ghostLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+}
+
+.countPill {
+  font-size: var(--ab-fs-xs);
+  font-family: var(--ab-font-num);
+  color: var(--ab-text-on-brand);
+  background: var(--ab-dou);
+  padding: 0 6px;
+  border-radius: var(--ab-radius-pill);
+}
+
+/* ── 次の稽古 ── */
+.practiceBody {
+  display: grid;
+  grid-template-columns: 152px 1fr;
+  gap: var(--ab-space-6);
+  padding: 16px 20px 20px;
+}
+
+.dateBlock {
+  overflow: hidden;
+  text-align: center;
+  font-family: var(--ab-font-brand);
+  background: var(--ab-surface-card-alt);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+}
+
+.dateMonth {
+  padding: 4px 0;
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-medium);
+  letter-spacing: 2px;
+  color: var(--ab-text-inverse);
+  background: var(--ab-sumi);
+}
+
+.dateDay {
+  padding: 14px 0 8px;
+  font-family: var(--ab-font-num);
+  font-size: var(--ab-fs-4xl);
+  font-weight: var(--ab-fw-semibold);
+  line-height: 1;
+  letter-spacing: -2px;
+  color: var(--ab-text-primary);
+}
+
+.dateTime {
+  padding: 0 0 12px;
+  font-size: var(--ab-fs-sm);
+  letter-spacing: 1px;
+  color: var(--ab-text-secondary);
+}
+
+.practiceInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.practiceTitle {
+  margin-bottom: 6px;
+  font-size: var(--ab-fs-lg);
+  font-weight: var(--ab-fw-semibold);
+  letter-spacing: 0.3px;
+}
+
+.practiceMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ab-space-5);
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-text-secondary);
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.metaIcon {
+  color: var(--ab-text-tertiary);
+}
+
+.attendance {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-5);
+  padding: 12px 14px;
+  background: var(--ab-surface-card-alt);
+  border: 1px solid var(--ab-border-subtle);
+  border-radius: var(--ab-radius-md);
+}
+
+.statBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statValue {
+  font-family: var(--ab-font-num);
+  font-size: var(--ab-fs-xl);
+  font-weight: var(--ab-fw-semibold);
+  line-height: 1;
+}
+
+.statYes {
+  color: var(--ab-success);
+}
+
+.statNo {
+  color: var(--ab-danger);
+}
+
+.statUn {
+  color: var(--ab-text-tertiary);
+}
+
+.statLabel {
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-text-tertiary);
+}
+
+.statDivider {
+  width: 1px;
+  height: 28px;
+  background: var(--ab-border-default);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.avatars {
+  display: flex;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-left: -8px;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-dou);
+  color: var(--ab-text-inverse);
+  font-size: var(--ab-fs-xs);
+  font-weight: var(--ab-fw-semibold);
+  box-shadow: 0 0 0 2px var(--ab-surface-card-alt);
+}
+
+.avatar:first-child {
+  margin-left: 0;
+}
+
+.actions {
+  display: flex;
+  gap: var(--ab-space-2);
+  margin-top: 2px;
+}
+
+.attendBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--ab-sumi);
+  color: var(--ab-text-inverse);
+  border: none;
+  border-radius: var(--ab-radius-md);
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-semibold);
+  cursor: pointer;
+}
+
+.declineBtn {
+  padding: 7px 14px;
+  background: var(--ab-surface-card);
+  color: var(--ab-text-primary);
+  border: 1px solid var(--ab-border-strong);
+  border-radius: var(--ab-radius-md);
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-semibold);
+  cursor: pointer;
+}
+
+/* ── お知らせ ── */
+.announceRow {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: var(--ab-space-3);
+  align-items: start;
+  padding: 14px 20px;
+  cursor: pointer;
+}
+
+.borderTop {
+  border-top: 1px solid var(--ab-border-subtle);
+}
+
+.unreadDot {
+  width: 7px;
+  height: 7px;
+  margin-top: 7px;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-dou);
+}
+
+.readDot {
+  background: transparent;
+  border: 1px solid var(--ab-border-default);
+}
+
+.announceMain {
+  min-width: 0;
+}
+
+.announceTitle {
+  margin-bottom: 2px;
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.announceTitleRead {
+  font-weight: var(--ab-fw-regular);
+  color: var(--ab-text-secondary);
+}
+
+.announceExcerpt {
+  overflow: hidden;
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-text-tertiary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.announceDate {
+  font-size: var(--ab-fs-xs);
+  font-family: var(--ab-font-num);
+  color: var(--ab-text-tertiary);
+  white-space: nowrap;
+}
+
+/* ── フィード ── */
+.feedRow {
+  display: flex;
+  gap: var(--ab-space-3);
+  padding: 16px 20px;
+}
+
+.feedAvatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-role-member);
+  color: var(--ab-text-inverse);
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-semibold);
+}
+
+.feedMain {
+  min-width: 0;
+}
+
+.feedHead {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.feedAuthor {
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.feedRole {
+  font-size: 10px;
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-role-member);
+  background: var(--ab-washi-dark);
+  padding: 1px 6px;
+  border-radius: var(--ab-radius-sm);
+}
+
+.feedTime {
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-text-tertiary);
+}
+
+.feedBody {
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-normal);
+  color: var(--ab-text-secondary);
+}
+
+.feedActions {
+  display: flex;
+  gap: var(--ab-space-4);
+  margin-top: 8px;
+}
+
+.feedAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-text-tertiary);
+  cursor: pointer;
+}
+
+@media (max-width: 639px) {
+  .grid {
+    padding: var(--ab-space-4);
+  }
+
+  .practiceBody {
+    grid-template-columns: 1fr;
+  }
+}

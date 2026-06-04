@@ -1,7 +1,7 @@
 "use client";
 
+import { Bell, MagnifyingGlass } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
-import { Icon } from "@/components/shared/Icon/Icon";
 import type { BoardDetail } from "@/lib/types/board";
 import styles from "./BoardHeader.module.css";
 
@@ -21,7 +21,7 @@ export function BoardHeader({ board, title }: Props) {
       </div>
       <div className={styles.spacer} />
       <div className={styles.search}>
-        <Icon name="search" size={13} />
+        <MagnifyingGlass size={13} />
         <span className={styles.searchPlaceholder}>
           {t("searchPlaceholder")}
         </span>
@@ -31,7 +31,7 @@ export function BoardHeader({ board, title }: Props) {
         className={styles.iconBtn}
         aria-label={t("notifications")}
       >
-        <Icon name="bell" size={15} />
+        <Bell size={15} />
       </button>
     </header>
   );

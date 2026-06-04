@@ -1,7 +1,7 @@
 "use client";
 
+import { CaretDoubleLeft, Plus } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
-import { Icon } from "@/components/shared/Icon/Icon";
 import { BOARD_NAV_ITEMS } from "@/lib/boards/navItems";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useRouter } from "@/lib/i18n/routing";
@@ -39,7 +39,7 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
           onClick={toggleSidebar}
           aria-label={t("collapse")}
         >
-          <Icon name="chevron-double-left" size={14} />
+          <CaretDoubleLeft size={14} />
         </button>
       </div>
 
@@ -62,7 +62,7 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
             title={t("newBoard")}
             onClick={() => router.push("/boards/new")}
           >
-            <Icon name="plus" size={14} />
+            <Plus size={14} />
           </button>
         </div>
 
@@ -89,6 +89,7 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
       <nav className={styles.nav}>
         {BOARD_NAV_ITEMS.map((item) => {
           const isActive = item.id === "home";
+          const NavIcon = item.icon;
           return (
             <button
               type="button"
@@ -103,12 +104,7 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
               title={item.enabled ? undefined : t("comingSoon")}
             >
               <span className={styles.navAccent} />
-              <Icon
-                name={item.icon}
-                size={15}
-                stroke={1.6}
-                className={styles.navIcon}
-              />
+              <NavIcon size={16} className={styles.navIcon} />
               {!collapsed && (
                 <span className={styles.navLabel}>{t(item.labelKey)}</span>
               )}
