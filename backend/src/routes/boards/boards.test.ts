@@ -12,6 +12,8 @@ type Result = { data: unknown; error: unknown };
 // boards route が使う supabase 呼び出しだけを満たすスタブ。
 // - schema("aikiboard").from("boards")  : select/eq/maybeSingle(slug 確認), insert/select/single(作成), delete/eq(ロールバック)
 // - schema("aikiboard").from("board_members"|"board_settings"|"board_dojo_masters") : insert(終端)
+// - schema("aikiboard").from("plans")               : select/eq/maybeSingle(free プラン取得)
+// - schema("aikiboard").from("board_subscriptions") : insert(終端)
 // - from("DojoStyleMaster")             : select/in(道場存在チェック)
 function createSupabaseMock(opts: {
   slugCheck?: Result;
@@ -20,6 +22,8 @@ function createSupabaseMock(opts: {
   memberInsert?: { error: unknown };
   settingsInsert?: { error: unknown };
   dojoLinkInsert?: { error: unknown };
+  planCheck?: Result;
+  subInsert?: { error: unknown };
 }) {
   const deleteSpy = vi.fn(() => ({
     eq: async () => ({ error: null }),
@@ -58,6 +62,19 @@ function createSupabaseMock(opts: {
       }
       if (table === "board_settings") {
         return { insert: async () => opts.settingsInsert ?? { error: null } };
+      }
+      if (table === "plans") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () =>
+                opts.planCheck ?? { data: { id: "plan-free" }, error: null },
+            }),
+          }),
+        };
+      }
+      if (table === "board_subscriptions") {
+        return { insert: async () => opts.subInsert ?? { error: null } };
       }
       return { insert: async () => opts.dojoLinkInsert ?? { error: null } };
     },
@@ -211,5 +228,35 @@ describe("POST /api/boards", () => {
 
     // Assert
     expect(res.status).toBe(401);
+  });
+
+  it("Free プランが取得できなければ board を削除して 500 を返す", async () => {
+    // Arrange(plans の取得が空)
+    const { supabase, deleteSpy } = createSupabaseMock({
+      planCheck: { data: null, error: null },
+    });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await postBoard(app, validBody);
+
+    // Assert
+    expect(res.status).toBe(500);
+    expect(deleteSpy).toHaveBeenCalled();
+  });
+
+  it("board_subscriptions の INSERT が失敗したら board を削除して 500 を返す", async () => {
+    // Arrange(サブスク insert が失敗)
+    const { supabase, deleteSpy } = createSupabaseMock({
+      subInsert: { error: { message: "insert failed" } },
+    });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await postBoard(app, validBody);
+
+    // Assert
+    expect(res.status).toBe(500);
+    expect(deleteSpy).toHaveBeenCalled();
   });
 });
