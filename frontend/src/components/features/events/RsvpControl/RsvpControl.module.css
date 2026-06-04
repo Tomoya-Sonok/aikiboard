@@ -1,0 +1,53 @@
+.control {
+  display: flex;
+  gap: var(--ab-space-2);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  padding: var(--ab-space-2) var(--ab-space-4);
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-semibold);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-card);
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--ab-duration-fast) var(--ab-ease-standard),
+    border-color var(--ab-duration-fast) var(--ab-ease-standard);
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--ab-washi-dark);
+}
+
+.btn:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.attendActive {
+  border-color: var(--ab-attend-yes);
+  background: var(--ab-success-soft);
+  color: var(--ab-attend-yes-strong);
+  font-weight: var(--ab-fw-bold);
+}
+
+/* 選択中は hover でも soft 地を保つ(.btn:hover より詳細度を上げる)。 */
+.attendActive:hover:not(:disabled) {
+  background: var(--ab-success-soft);
+}
+
+.declineActive {
+  border-color: var(--ab-attend-no);
+  background: var(--ab-danger-soft);
+  color: var(--ab-attend-no-strong);
+  font-weight: var(--ab-fw-bold);
+}
+
+.declineActive:hover:not(:disabled) {
+  background: var(--ab-danger-soft);
+}

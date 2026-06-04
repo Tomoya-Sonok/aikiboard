@@ -4,7 +4,7 @@
 
 import { z } from "zod";
 import type { ApiResponse } from "@/lib/types/api";
-import type { EventOccurrence } from "@/lib/types/event";
+import type { EventOccurrence, OccurrenceRsvps } from "@/lib/types/event";
 import { callHonoApi } from "../hono";
 import { authenticatedProcedure, createTRPCRouter } from "../index";
 
@@ -138,4 +138,48 @@ export const eventsRouter = createTRPCRouter({
         },
       );
     }),
+
+  // その回の出欠名簿(メンバー: 参加/不参加、管理者: 未回答も)。
+  occurrenceRsvps: authenticatedProcedure
+    .input(z.object({ eventId: uuidLike, occurrenceStart: isoString }))
+    .query(({ input, ctx }) => {
+      const qs = new URLSearchParams({
+        occurrenceStart: input.occurrenceStart,
+      });
+      return callHonoApi<ApiResponse<OccurrenceRsvps>>(
+        `/api/events/${input.eventId}/rsvps?${qs.toString()}`,
+        { headers: authHeader(ctx.accessToken) },
+      );
+    }),
+
+  // 自分の出欠表明(メンバー)。
+  setRsvp: authenticatedProcedure
+    .input(
+      z.object({
+        eventId: uuidLike,
+        occurrenceStart: isoString,
+        status: z.enum(["attend", "decline"]),
+      }),
+    )
+    .mutation(({ input, ctx }) =>
+      callHonoApi<ApiResponse<never>>(`/api/events/${input.eventId}/rsvp`, {
+        method: "PUT",
+        headers: authHeader(ctx.accessToken),
+        body: JSON.stringify({
+          occurrenceStart: input.occurrenceStart,
+          status: input.status,
+        }),
+      }),
+    ),
+
+  // 自分の出欠を取り消す(未回答へ)(メンバー)。
+  clearRsvp: authenticatedProcedure
+    .input(z.object({ eventId: uuidLike, occurrenceStart: isoString }))
+    .mutation(({ input, ctx }) =>
+      callHonoApi<ApiResponse<never>>(`/api/events/${input.eventId}/rsvp`, {
+        method: "DELETE",
+        headers: authHeader(ctx.accessToken),
+        body: JSON.stringify({ occurrenceStart: input.occurrenceStart }),
+      }),
+    ),
 });

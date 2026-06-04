@@ -45,22 +45,18 @@
   white-space: pre-wrap;
 }
 
-.counts {
+.rsvpSection {
   display: flex;
-  gap: var(--ab-space-4);
-  padding-top: var(--ab-space-2);
-  font-size: var(--ab-fs-sm);
+  flex-direction: column;
+  gap: var(--ab-space-3);
+  padding-top: var(--ab-space-3);
   border-top: 1px solid var(--ab-border-subtle);
 }
 
-.countAttend {
-  color: var(--ab-attend-yes);
-  font-weight: var(--ab-fw-medium);
-}
-
-.countDecline {
-  color: var(--ab-attend-no);
-  font-weight: var(--ab-fw-medium);
+.sectionLabel {
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-secondary);
 }
 
 .actions {
