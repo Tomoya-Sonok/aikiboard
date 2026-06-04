@@ -33,15 +33,31 @@ cp .env.local.example .env.local
 # 3. ローカル Supabase を起動(Docker Desktop が必要)
 cd backend && pnpm exec supabase start
 
-# 4. マイグレーションを適用(000_seed + 001-008)
+# 4. マイグレーションを適用(000_seed + 001-010)
 pnpm exec supabase db reset
 
 # 5. supabase status でローカルのキーを確認し、ルートの
 #    .env.local の ANON/SECRET を埋める
 pnpm exec supabase status
+
+# 6. ローカル開発用の dev ユーザー + サンプルボード/稽古を投入(.env.local 設定後)
+pnpm -C backend seed:dev
 ```
 
 完了したら `pnpm dev`(リポジトリ直下)で frontend + backend が起動します。
+
+### ローカルログイン情報(seed:dev で作成)
+
+`pnpm -C backend seed:dev` が Supabase Auth に下記の dev ユーザーを作成し、ボード「開発道場」(`/d/dev-dojo`、サンプル稽古つき)に所属させます。`/login` からこの情報でログインできます。
+
+| ロール | メールアドレス | パスワード |
+|---|---|---|
+| オーナー | `dev-owner@example.com` | `Passw0rd!` |
+| メンバー | `dev-member@example.com` | `Passw0rd!` |
+
+- パスワードは**ローカル専用**(本番とは無関係)。スクリプトは冪等で、`db reset` のたびに再実行する。
+- auth ユーザーは GoTrue 管理のため SQL seed(000)では作れない。`seed:dev` は **Admin API**(`SUPABASE_SERVICE_ROLE_KEY`)で作成する。実体は [`backend/scripts/seed-dev.ts`](../backend/scripts/seed-dev.ts)。
+- **本番では実行しない**(ローカル Supabase 専用)。
 
 ---
 
@@ -99,13 +115,15 @@ backend 単体で何かする場合は `pnpm -C backend <script>`、frontend は
 cd backend
 pnpm exec supabase start     # コンテナ起動(初回は Docker イメージ pull で数分)
 pnpm exec supabase status    # URL・キー確認(API:54321 / DB:54322 / Studio:54323)
-pnpm exec supabase db reset  # migrations(000-008)を頭から再適用
+pnpm exec supabase db reset  # migrations(000-010)を頭から再適用
+pnpm seed:dev                # db reset 後: 開発用ログインユーザー + サンプルボード/稽古を投入(冪等)
 pnpm exec supabase stop      # コンテナ停止
 ```
 
-- **Studio**: http://localhost:54323 で `aikiboard` schema(22 テーブル)を確認できる
+- **Studio**: http://localhost:54323 で `aikiboard` schema(23 テーブル)を確認できる
 - migration の実体は [`backend/src/migrations/`](../backend/src/migrations/)。`backend/supabase/migrations` はそこへの **symlink**(supabase CLI は `supabase/migrations` 固定のため)
-- `000_seed_public_schema_for_local_dev.sql` は `public."User"` / `public."DojoStyleMaster"` の**ローカル専用ダミー**。**本番には絶対適用しない**
+- `000_seed_public_schema_for_local_dev.sql` は `public."DojoStyleMaster"` 等の**ローカル専用ダミー**。**本番には絶対適用しない**
+- **`db reset` するたびに `pnpm seed:dev`(= `pnpm -C backend seed:dev`)を再実行**してログインユーザー/サンプルデータを入れ直す(「2. 初回セットアップ」のログイン情報表を参照)
 - 詳細・本番適用手順は [`backend/src/migrations/README.md`](../backend/src/migrations/README.md)
 
 ---

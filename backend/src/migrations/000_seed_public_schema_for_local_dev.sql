@@ -49,8 +49,7 @@ VALUES
   ('00000000-0000-0000-0000-000000000002', '養神館本部道場', 'ようしんかんほんぶどうじょう', true)
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public."User" (id, email, username, dojo_style_id)
-VALUES
-  ('11111111-1111-1111-1111-111111111111', 'dev-owner@example.com', 'dev_owner', '00000000-0000-0000-0000-000000000001'),
-  ('22222222-2222-2222-2222-222222222222', 'dev-member@example.com', 'dev_member', '00000000-0000-0000-0000-000000000001')
-ON CONFLICT (id) DO NOTHING;
+-- public."User" の dev ユーザー(プロフィール行)は、Supabase Auth の auth.users と id を
+-- 一致させる必要があるため、ここでは作らず seed スクリプトで投入する:
+--   `pnpm -C backend seed:dev`(Admin API で auth ユーザー作成 → public."User" upsert →
+--    ボード「開発道場」+ サンプル稽古を作成)。ログイン情報は docs/development-guide.md 参照。
