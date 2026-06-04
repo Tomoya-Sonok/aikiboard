@@ -19,6 +19,8 @@ function createEventsMock(opts: {
   events?: unknown[];
   overrides?: unknown[];
   rsvps?: unknown[];
+  members?: unknown[];
+  users?: unknown[];
   insertResult?: Result;
 }) {
   const role: Role = opts.role === undefined ? "admin" : opts.role;
@@ -61,11 +63,17 @@ function createEventsMock(opts: {
     from: (table: string) => {
       if (table === "board_members") {
         return {
-          select: () => ({
-            eq: () => ({
-              eq: () => ({ maybeSingle: async () => membership }),
-            }),
-          }),
+          // select("role")→ ロール確認(ミドルウェア)、select("user_id")→ メンバー一覧(名簿)。
+          select: (fields: string) =>
+            fields === "role"
+              ? {
+                  eq: () => ({
+                    eq: () => ({ maybeSingle: async () => membership }),
+                  }),
+                }
+              : {
+                  eq: async () => ({ data: opts.members ?? [], error: null }),
+                },
         };
       }
       if (table === "events") {
@@ -82,10 +90,14 @@ function createEventsMock(opts: {
       if (table === "event_rsvps") {
         return {
           select: () => ({
+            // 一覧: in().gte().lt()。名簿: eq().eq()(await)。
             in: () => ({
               gte: () => ({
                 lt: async () => ({ data: opts.rsvps ?? [], error: null }),
               }),
+            }),
+            eq: () => ({
+              eq: async () => ({ data: opts.rsvps ?? [], error: null }),
             }),
           }),
           upsert: async () => ({ error: null }),
@@ -99,7 +111,18 @@ function createEventsMock(opts: {
   };
 
   return {
-    supabase: { schema: () => aikiboard } as unknown as SupabaseClient,
+    supabase: {
+      schema: () => aikiboard,
+      // public."User"(名簿表示用)。
+      from: (table: string) =>
+        table === "User"
+          ? {
+              select: () => ({
+                in: async () => ({ data: opts.users ?? [], error: null }),
+              }),
+            }
+          : {},
+    } as unknown as SupabaseClient,
   };
 }
 
@@ -375,5 +398,84 @@ describe("DELETE /api/events/:id", () => {
 
     // Assert
     expect(res.status).toBe(200);
+  });
+});
+
+describe("GET /api/events/:id/rsvps", () => {
+  const users = [
+    { id: "u1", username: "あいざわ", profile_image_url: null },
+    { id: "u2", username: "いとう", profile_image_url: "https://img/u2" },
+    { id: "u3", username: "うえだ", profile_image_url: null },
+  ];
+
+  it("メンバーは参加者・不参加者を取得できる(未回答は含まない)", async () => {
+    // Arrange
+    const { supabase } = createEventsMock({
+      role: "member",
+      rsvps: [
+        { user_id: "u1", status: "attend" },
+        { user_id: "u2", status: "decline" },
+      ],
+      members: [{ user_id: "u1" }, { user_id: "u2" }],
+      users,
+    });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await request(
+      app,
+      `/api/events/${EVENT_ID}/rsvps?occurrenceStart=${ANCHOR}`,
+      { method: "GET" },
+    );
+
+    // Assert
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.data.attendees).toHaveLength(1);
+    expect(body.data.attendees[0]).toMatchObject({ userId: "u1" });
+    expect(body.data.decliners).toHaveLength(1);
+    expect(body.data.nonResponders).toBeNull();
+  });
+
+  it("管理者は未回答メンバーと件数も取得できる", async () => {
+    // Arrange(回答は u1 のみ、メンバーは u1/u2/u3)
+    const { supabase } = createEventsMock({
+      role: "admin",
+      rsvps: [{ user_id: "u1", status: "attend" }],
+      members: [{ user_id: "u1" }, { user_id: "u2" }, { user_id: "u3" }],
+      users,
+    });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await request(
+      app,
+      `/api/events/${EVENT_ID}/rsvps?occurrenceStart=${ANCHOR}`,
+      { method: "GET" },
+    );
+
+    // Assert
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.data.nonResponders).toHaveLength(2);
+    expect(body.data.counts).toMatchObject({
+      attending: 1,
+      declining: 0,
+      nonResponding: 2,
+    });
+  });
+
+  it("開催日の指定が無ければ 400", async () => {
+    // Arrange
+    const { supabase } = createEventsMock({ role: "member" });
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await request(app, `/api/events/${EVENT_ID}/rsvps`, {
+      method: "GET",
+    });
+
+    // Assert
+    expect(res.status).toBe(400);
   });
 });

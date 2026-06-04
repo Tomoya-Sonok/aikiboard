@@ -15,6 +15,25 @@ export type RecurrenceInput = {
   count?: number;
 };
 
+// 出欠名簿の 1 メンバー(public."User" 由来)。
+export type RsvpMember = {
+  userId: string;
+  username: string;
+  profileImageUrl: string | null;
+};
+
+// GET /api/events/:id/rsvps の戻り。nonResponders / counts.nonResponding は管理者のみ非 null。
+export type OccurrenceRsvps = {
+  attendees: RsvpMember[];
+  decliners: RsvpMember[];
+  nonResponders: RsvpMember[] | null;
+  counts: {
+    attending: number;
+    declining: number;
+    nonResponding: number | null;
+  };
+};
+
 // GET /api/events が返す「展開済みオカレンス」1 件。
 export type EventOccurrence = {
   eventId: string;

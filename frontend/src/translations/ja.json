@@ -164,6 +164,15 @@
         "deleteSeries": "シリーズを削除",
         "cancelConfirm": "この回を休講にしますか?",
         "deleteConfirm": "このシリーズをすべて削除しますか?"
+      },
+      "rsvp": {
+        "title": "出欠",
+        "attend": "参加",
+        "decline": "不参加",
+        "pending": "未回答",
+        "attendees": "参加者",
+        "decliners": "不参加者",
+        "noResponses": "まだ回答がありません"
       }
     }
   },

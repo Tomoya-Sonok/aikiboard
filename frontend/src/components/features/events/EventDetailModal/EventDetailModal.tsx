@@ -7,7 +7,7 @@ import {
   MapPin,
   User,
 } from "@phosphor-icons/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/shared/Button/Button";
 import { Dialog } from "@/components/shared/Dialog/Dialog";
@@ -19,6 +19,8 @@ import {
 import { describeRecurrence } from "@/lib/recurrence/recurrence";
 import { trpcClient } from "@/lib/trpc/client";
 import type { EventOccurrence } from "@/lib/types/event";
+import { AttendeeList } from "../AttendeeList/AttendeeList";
+import { RsvpControl } from "../RsvpControl/RsvpControl";
 import styles from "./EventDetailModal.module.css";
 
 export type EditMode = "editSingle" | "editSeries" | "editOccurrence";
@@ -41,6 +43,29 @@ export function EventDetailModal({
   const t = useTranslations("boards.calendar");
   const rawLocale = useLocale();
   const locale: CalendarLocale = rawLocale === "en" ? "en" : "ja";
+  const queryClient = useQueryClient();
+
+  const rsvpsQueryKey = [
+    "eventRsvps",
+    occurrence.eventId,
+    occurrence.occurrenceStart,
+  ];
+  const { data: rsvpsRes } = useQuery({
+    queryKey: rsvpsQueryKey,
+    queryFn: () =>
+      trpcClient.events.occurrenceRsvps.query({
+        eventId: occurrence.eventId,
+        occurrenceStart: occurrence.occurrenceStart,
+      }),
+    enabled: open,
+  });
+  const roster = rsvpsRes?.data;
+
+  // 出欠を変えたら名簿(このモーダル)とカレンダー一覧の両方を最新化する。
+  const handleRsvpChanged = () => {
+    queryClient.invalidateQueries({ queryKey: rsvpsQueryKey });
+    onChanged();
+  };
 
   const cancelMutation = useMutation({
     mutationFn: () =>
@@ -132,13 +157,35 @@ export function EventDetailModal({
           <p className={styles.note}>{occurrence.note}</p>
         ) : null}
 
-        <div className={styles.counts}>
-          <span className={styles.countAttend}>
-            {t("detail.attending")}: {occurrence.attendingCount}
-          </span>
-          <span className={styles.countDecline}>
-            {t("detail.declined")}: {occurrence.decliningCount}
-          </span>
+        <div className={styles.rsvpSection}>
+          <span className={styles.sectionLabel}>{t("rsvp.title")}</span>
+          <RsvpControl
+            eventId={occurrence.eventId}
+            occurrenceStart={occurrence.occurrenceStart}
+            myStatus={occurrence.myStatus}
+            onChanged={handleRsvpChanged}
+          />
+          {roster ? (
+            <>
+              <AttendeeList
+                label={t("rsvp.attendees")}
+                members={roster.attendees}
+                emptyText={t("rsvp.noResponses")}
+              />
+              {roster.decliners.length > 0 ? (
+                <AttendeeList
+                  label={t("rsvp.decliners")}
+                  members={roster.decliners}
+                />
+              ) : null}
+              {occurrence.canManage && roster.nonResponders ? (
+                <AttendeeList
+                  label={t("rsvp.pending")}
+                  members={roster.nonResponders}
+                />
+              ) : null}
+            </>
+          ) : null}
         </div>
 
         {occurrence.canManage ? (

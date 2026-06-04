@@ -164,6 +164,15 @@
         "deleteSeries": "Delete series",
         "cancelConfirm": "Cancel this occurrence?",
         "deleteConfirm": "Delete this entire series?"
+      },
+      "rsvp": {
+        "title": "Attendance",
+        "attend": "Attend",
+        "decline": "Decline",
+        "pending": "No reply",
+        "attendees": "Attending",
+        "decliners": "Declined",
+        "noResponses": "No responses yet"
       }
     }
   },

@@ -1,0 +1,19 @@
+.image {
+  display: inline-block;
+  border-radius: var(--ab-radius-pill);
+  object-fit: cover;
+  background: var(--ab-washi-dark);
+}
+
+.initial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-dou-soft);
+  /* dou-soft 地で AA を満たすよう墨色の文字にする(--ab-dou は 2.2:1 で不足)。 */
+  color: var(--ab-text-primary);
+  font-weight: var(--ab-fw-semibold);
+  line-height: 1;
+  flex-shrink: 0;
+}

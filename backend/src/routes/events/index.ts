@@ -656,4 +656,141 @@ eventsRoute.delete(
   },
 );
 
+// ────────────────────────────────────────────────────────────────
+// GET /api/events/:id/rsvps?occurrenceStart= — その回の出欠名簿(メンバー)
+//   - 全メンバー: 参加者 / 不参加者(プロフィール画像・氏名つき)を閲覧できる(要件 4.1.3)。
+//   - owner/admin のみ: 未回答メンバー一覧 + 件数も返す(出欠集計ビュー)。
+// ────────────────────────────────────────────────────────────────
+eventsRoute.get(
+  "/:id/rsvps",
+  authMiddleware,
+  boardMemberMiddleware,
+  async (c) => {
+    const supabase = c.get("supabase");
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+    const eventId = c.req.param("id");
+    const boardId = c.get("boardId");
+    const boardRole = c.get("boardRole");
+    const isAdmin = boardRole === "owner" || boardRole === "admin";
+
+    const occurrenceStart = c.req.query("occurrenceStart");
+    if (!occurrenceStart || Number.isNaN(Date.parse(occurrenceStart))) {
+      return c.json({ success: false, error: "開催日の指定が必要です" }, 400);
+    }
+
+    const anchor = await checkOccurrenceAnchor(
+      supabase,
+      eventId,
+      occurrenceStart,
+    );
+    const anchorErr = anchorErrorResponse(c, anchor);
+    if (anchorErr) {
+      return anchorErr;
+    }
+
+    const aikiboard = supabase.schema("aikiboard");
+    const failWith = (logMessage: string) => {
+      logger.error(logMessage, { feature: "events", eventId });
+      return c.json({ success: false, error: "出欠の取得に失敗しました" }, 500);
+    };
+
+    // この回の出欠(回答済み)。
+    const { data: rsvps, error: rsvpError } = await aikiboard
+      .from("event_rsvps")
+      .select("user_id, status")
+      .eq("event_id", eventId)
+      .eq("occurrence_start", occurrenceStart);
+    if (rsvpError) {
+      return failWith("出欠の取得に失敗");
+    }
+    const statusByUser = new Map<string, "attend" | "decline">();
+    for (const r of rsvps ?? []) {
+      statusByUser.set(r.user_id, r.status);
+    }
+
+    // 現メンバーを取得(全呼び出しで取得する)。
+    //   - 名簿は「現在もボードに所属するメンバー」だけを表示する(退会・除名済みの
+    //     ユーザーの氏名/画像が名簿に残り続けるのを防ぐ defense-in-depth)。
+    //   - 管理者は未回答(回答していない現メンバー)も返す。
+    const { data: members, error: memberError } = await aikiboard
+      .from("board_members")
+      .select("user_id")
+      .eq("board_id", boardId);
+    if (memberError) {
+      return failWith("メンバーの取得に失敗");
+    }
+    const allMemberIds = (members ?? []).map((m) => m.user_id as string);
+    const memberSet = new Set(allMemberIds);
+
+    // 表示に必要なユーザー情報(public."User")をまとめて取得。
+    const ids = [...new Set([...statusByUser.keys(), ...allMemberIds])];
+    const userById = new Map<
+      string,
+      { username: string; profileImageUrl: string | null }
+    >();
+    if (ids.length > 0) {
+      const { data: users, error: userError } = await supabase
+        .from("User")
+        .select("id, username, profile_image_url")
+        .in("id", ids);
+      if (userError) {
+        return failWith("ユーザー情報の取得に失敗");
+      }
+      for (const u of users ?? []) {
+        userById.set(u.id, {
+          username: u.username ?? "",
+          profileImageUrl: u.profile_image_url ?? null,
+        });
+      }
+      // public."User" が引けなかった id があれば(AikiNote 側の不整合)可観測にする。
+      if ((users ?? []).length < ids.length) {
+        logger.warn("一部ユーザー情報を解決できませんでした", {
+          feature: "events",
+          eventId,
+        });
+      }
+    }
+
+    const toMember = (userId: string) => ({
+      userId,
+      username: userById.get(userId)?.username ?? "",
+      profileImageUrl: userById.get(userId)?.profileImageUrl ?? null,
+    });
+    const byName = (a: { username: string }, b: { username: string }): number =>
+      a.username.localeCompare(b.username, "ja");
+
+    // 回答済みのうち「現メンバー」だけを名簿に出す。
+    const attendees = [...statusByUser.entries()]
+      .filter(([userId, s]) => s === "attend" && memberSet.has(userId))
+      .map(([userId]) => toMember(userId))
+      .sort(byName);
+    const decliners = [...statusByUser.entries()]
+      .filter(([userId, s]) => s === "decline" && memberSet.has(userId))
+      .map(([userId]) => toMember(userId))
+      .sort(byName);
+    const nonResponders = isAdmin
+      ? allMemberIds
+          .filter((id) => !statusByUser.has(id))
+          .map(toMember)
+          .sort(byName)
+      : null;
+
+    return c.json({
+      success: true,
+      data: {
+        attendees,
+        decliners,
+        nonResponders,
+        counts: {
+          attending: attendees.length,
+          declining: decliners.length,
+          nonResponding: nonResponders ? nonResponders.length : null,
+        },
+      },
+    });
+  },
+);
+
 export default eventsRoute;
