@@ -1,0 +1,86 @@
+.header {
+  height: var(--ab-layout-header-h);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-4);
+  padding: 0 var(--ab-space-6);
+  background: var(--ab-surface-card);
+  border-bottom: 1px solid var(--ab-border-default);
+  font-family: var(--ab-font-ui);
+}
+
+.titleArea {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--ab-font-brand);
+  font-size: var(--ab-fs-2xl);
+  font-weight: var(--ab-fw-semibold);
+  letter-spacing: 0.5px;
+  color: var(--ab-text-primary);
+  white-space: nowrap;
+}
+
+.boardName {
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 240px;
+  padding: 5px 10px;
+  background: var(--ab-surface-canvas);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  color: var(--ab-text-tertiary);
+  font-size: var(--ab-fs-sm);
+}
+
+.searchPlaceholder {
+  flex: 1;
+}
+
+.iconBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+}
+
+.iconBtn:hover {
+  background: var(--ab-washi-dark);
+}
+
+/* SP では検索ボックスを隠してはみ出しを防ぐ(本格対応は後続)。 */
+@media (max-width: 639px) {
+  .header {
+    padding: 0 var(--ab-space-4);
+  }
+
+  .search {
+    display: none;
+  }
+}

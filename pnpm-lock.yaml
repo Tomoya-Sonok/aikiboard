@@ -109,7 +109,7 @@ importers:
         specifier: ^4.1.8
         version: 4.4.1
       zustand:
-        specifier: ^5.0.8
+        specifier: ^5.0.12
         version: 5.0.12(@types/react@19.2.14)(react@19.2.5)
     devDependencies:
       '@biomejs/biome':

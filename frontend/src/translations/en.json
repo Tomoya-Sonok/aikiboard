@@ -72,6 +72,28 @@
         "descriptionMax": "Description must be at most 500 characters",
         "dojoRequired": "Please select a dojo to link"
       }
+    },
+    "dashboard": {
+      "preparing": "Dashboard coming soon"
     }
+  },
+  "nav": {
+    "home": "Home",
+    "calendar": "Calendar",
+    "announce": "Announcements",
+    "feed": "Feed",
+    "archive": "Archive",
+    "money": "Accounting",
+    "members": "Members",
+    "activity": "Activity",
+    "settings": "Board settings",
+    "newBoard": "Create board",
+    "pro": "PRO",
+    "comingSoon": "Coming soon",
+    "collapse": "Collapse sidebar",
+    "signOut": "Log out",
+    "memberCount": "{count} members",
+    "searchPlaceholder": "Search this board",
+    "notifications": "Notifications"
   }
 }
