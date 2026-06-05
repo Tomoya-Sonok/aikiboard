@@ -16,10 +16,10 @@ const SUPABASE_URL = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 
 // ローカル開発用の固定パスワード(本番とは無関係)。docs にも明記。
-const PASSWORD = "Passw0rd!";
-// 000 seed で投入済みの道場マスタ(合気会本部道場)。
+const PASSWORD = "Password1!";
+// 000 seed で投入済みの道場マスタ(蕨合気道会)。
 const DOJO_MASTER_ID = "00000000-0000-0000-0000-000000000001";
-const BOARD_SLUG = "dev-dojo";
+const BOARD_SLUG = "warabiaikidokai";
 
 type DevUser = {
   email: string;
@@ -28,8 +28,12 @@ type DevUser = {
 };
 
 const USERS: DevUser[] = [
-  { email: "dev-owner@example.com", username: "dev_owner", role: "owner" },
-  { email: "dev-member@example.com", username: "dev_member", role: "member" },
+  { email: "dev-owner@aiki-board.com", username: "dev_owner", role: "owner" },
+  {
+    email: "dev-member@aiki-board.com",
+    username: "dev_member",
+    role: "member",
+  },
 ];
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
@@ -107,7 +111,7 @@ async function seedBoard(ownerId: string, memberId: string): Promise<void> {
   const { data: board, error: boardError } = await ab
     .from("boards")
     .insert({
-      name: "開発道場",
+      name: "蕨合気道会",
       slug: BOARD_SLUG,
       created_by_user_id: ownerId,
       is_public: true,
@@ -151,12 +155,14 @@ async function seedBoard(ownerId: string, memberId: string): Promise<void> {
     });
   }
 
-  // サンプル稽古(JST): 明日の単発 + 毎週月・水の定期。
+  // サンプル稽古(JST): 明日の単発 + 蕨合気道会の定期稽古(火金 + 日2枠)。
+  // 定期は BYDAY が曜日を決め、start_at は時刻と長さ(end-start)のみを供給する。
   const now = new Date(Date.now() + JST_OFFSET_MS);
   const y = now.getUTCFullYear();
   const m = now.getUTCMonth() + 1;
   const d = now.getUTCDate();
   const { error: eventsError } = await ab.from("events").insert([
+    // 単発: 明日 19:00–21:00。
     {
       board_id: boardId,
       start_at: jstIso(y, m, d + 1, 19, 0),
@@ -166,13 +172,37 @@ async function seedBoard(ownerId: string, memberId: string): Promise<void> {
       is_public: true,
       created_by_user_id: ownerId,
     },
+    // 定期: 毎週 火・金 19:00–21:00(一般稽古)。
     {
       board_id: boardId,
       start_at: jstIso(y, m, d, 19, 0),
       end_at: jstIso(y, m, d, 21, 0),
-      place: "本部道場",
-      instructor_name: "山田 花子",
-      recurrence_rule: "FREQ=WEEKLY;BYDAY=MO,WE",
+      place: "蕨市民体育館",
+      instructor_name: "岩片裕",
+      recurrence_rule: "FREQ=WEEKLY;BYDAY=TU,FR",
+      is_public: true,
+      created_by_user_id: ownerId,
+    },
+    // 定期: 毎週 日 9:00–10:00(子どもの稽古)。
+    {
+      board_id: boardId,
+      start_at: jstIso(y, m, d, 9, 0),
+      end_at: jstIso(y, m, d, 10, 0),
+      place: "蕨市民体育館",
+      instructor_name: "岩片裕",
+      note: "子どもの稽古",
+      recurrence_rule: "FREQ=WEEKLY;BYDAY=SU",
+      is_public: true,
+      created_by_user_id: ownerId,
+    },
+    // 定期: 毎週 日 10:00–11:30(一般稽古)。
+    {
+      board_id: boardId,
+      start_at: jstIso(y, m, d, 10, 0),
+      end_at: jstIso(y, m, d, 11, 30),
+      place: "蕨市民体育館",
+      instructor_name: "岩片裕",
+      recurrence_rule: "FREQ=WEEKLY;BYDAY=SU",
       is_public: true,
       created_by_user_id: ownerId,
     },
@@ -203,7 +233,7 @@ async function main(): Promise<void> {
     console.log(`  - ${u.role}: ${u.email} / ${PASSWORD}`);
   }
   console.log(
-    `  ログイン後、ボード「開発道場」(/d/${BOARD_SLUG})で稽古カレンダーを確認できます。`,
+    `  ログイン後、ボード「蕨合気道会」(/d/${BOARD_SLUG})で稽古カレンダーを確認できます。`,
   );
 }
 

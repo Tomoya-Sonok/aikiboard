@@ -48,12 +48,12 @@ pnpm -C backend seed:dev
 
 ### ローカルログイン情報(seed:dev で作成)
 
-`pnpm -C backend seed:dev` が Supabase Auth に下記の dev ユーザーを作成し、ボード「開発道場」(`/d/dev-dojo`、サンプル稽古つき)に所属させます。`/login` からこの情報でログインできます。
+`pnpm -C backend seed:dev` が Supabase Auth に下記の dev ユーザーを作成し、ボード「蕨合気道会」(`/d/warabiaikidokai`、サンプル稽古つき)に所属させます。`/login` からこの情報でログインできます。
 
 | ロール | メールアドレス | パスワード |
 |---|---|---|
-| オーナー | `dev-owner@example.com` | `Passw0rd!` |
-| メンバー | `dev-member@example.com` | `Passw0rd!` |
+| オーナー | `dev-owner@aiki-board.com` | `Password1!` |
+| メンバー | `dev-member@aiki-board.com` | `Password1!` |
 
 - パスワードは**ローカル専用**(本番とは無関係)。スクリプトは冪等で、`db reset` のたびに再実行する。
 - auth ユーザーは GoTrue 管理のため SQL seed(000)では作れない。`seed:dev` は **Admin API**(`SUPABASE_SERVICE_ROLE_KEY`)で作成する。実体は [`backend/scripts/seed-dev.ts`](../backend/scripts/seed-dev.ts)。

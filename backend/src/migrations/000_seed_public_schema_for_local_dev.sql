@@ -45,11 +45,11 @@ CREATE TABLE IF NOT EXISTS public."User" (
 -- ────────────────────────────────────────────────────────────────
 INSERT INTO public."DojoStyleMaster" (id, dojo_name, dojo_name_kana, is_approved)
 VALUES
-  ('00000000-0000-0000-0000-000000000001', '合気会本部道場', 'あいきかいほんぶどうじょう', true),
-  ('00000000-0000-0000-0000-000000000002', '養神館本部道場', 'ようしんかんほんぶどうじょう', true)
+  ('00000000-0000-0000-0000-000000000001', '蕨合気道会', 'わらびあいきどうかい', true),
+  ('00000000-0000-0000-0000-000000000002', '初心会', 'しょしんかい', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- public."User" の dev ユーザー(プロフィール行)は、Supabase Auth の auth.users と id を
 -- 一致させる必要があるため、ここでは作らず seed スクリプトで投入する:
 --   `pnpm -C backend seed:dev`(Admin API で auth ユーザー作成 → public."User" upsert →
---    ボード「開発道場」+ サンプル稽古を作成)。ログイン情報は docs/development-guide.md 参照。
+--    ボード「蕨合気道会」+ サンプル稽古を作成)。ログイン情報は docs/development-guide.md 参照。
