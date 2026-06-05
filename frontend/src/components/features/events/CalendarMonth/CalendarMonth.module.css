@@ -95,6 +95,7 @@
 }
 
 .viewBtn:disabled {
+  color: var(--ab-text-disabled);
   cursor: not-allowed;
 }
 
@@ -127,8 +128,9 @@
   background: var(--ab-dou);
 }
 
-.legendAttend {
-  background: var(--ab-attend-yes);
+.legendAll {
+  background: transparent;
+  border: 1.5px solid var(--ab-attend-yes);
 }
 
 /* ── 稽古を追加(主ボタン=墨)── */
@@ -291,14 +293,6 @@
   overflow: hidden;
 }
 
-.chipAttend {
-  border-left-color: var(--ab-attend-yes);
-}
-
-.chipDecline {
-  border-left-color: var(--ab-attend-no);
-}
-
 .chip:hover {
   background: var(--ab-dou-light);
 }
@@ -345,6 +339,10 @@
   font-family: var(--ab-font-num);
   font-size: var(--ab-fs-xs);
   font-weight: var(--ab-fw-semibold);
+}
+
+.chipCountFull {
+  color: var(--ab-attend-yes-strong);
 }
 
 /* ── 月サマリー ── */

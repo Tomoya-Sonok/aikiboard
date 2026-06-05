@@ -26,5 +26,11 @@ export default async function BoardCalendarPage({
   const canManage =
     board.viewerRole === "owner" || board.viewerRole === "admin";
 
-  return <CalendarMonth boardId={board.id} canManage={canManage} />;
+  return (
+    <CalendarMonth
+      boardId={board.id}
+      canManage={canManage}
+      memberCount={board.memberCount}
+    />
+  );
 }

@@ -102,7 +102,7 @@
       "viewList": "リスト",
       "viewComingSoon": "近日対応",
       "legendHasEvent": "稽古あり",
-      "legendAttending": "参加予定",
+      "legendAllAttending": "全員参加",
       "monthSummary": "この月の稽古 {events} 件 · 総参加述べ {attendees} 名",
       "attendingCountLabel": "{count} 名参加予定",
       "weekdayShort": {

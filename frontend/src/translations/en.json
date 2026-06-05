@@ -102,7 +102,7 @@
       "viewList": "List",
       "viewComingSoon": "Coming soon",
       "legendHasEvent": "Has practice",
-      "legendAttending": "Attending",
+      "legendAllAttending": "All attending",
       "monthSummary": "{events} practices · {attendees} total attendances this month",
       "attendingCountLabel": "{count} attending",
       "weekdayShort": {

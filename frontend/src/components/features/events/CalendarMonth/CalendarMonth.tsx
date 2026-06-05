@@ -29,6 +29,7 @@ import styles from "./CalendarMonth.module.css";
 type Props = {
   boardId: string;
   canManage: boolean;
+  memberCount: number;
 };
 
 type FormState = {
@@ -37,7 +38,7 @@ type FormState = {
   defaultDate?: string;
 };
 
-export function CalendarMonth({ boardId, canManage }: Props) {
+export function CalendarMonth({ boardId, canManage, memberCount }: Props) {
   const t = useTranslations("boards.calendar");
   const rawLocale = useLocale();
   const locale: CalendarLocale = rawLocale === "en" ? "en" : "ja";
@@ -106,13 +107,6 @@ export function CalendarMonth({ boardId, canManage }: Props) {
       setSelected(null);
     }
   };
-
-  const chipStatusClass = (occ: EventOccurrence) =>
-    occ.myStatus === "attend"
-      ? styles.chipAttend
-      : occ.myStatus === "decline"
-        ? styles.chipDecline
-        : "";
 
   return (
     <div className={styles.wrapper}>
@@ -186,8 +180,8 @@ export function CalendarMonth({ boardId, canManage }: Props) {
             {t("legendHasEvent")}
           </span>
           <span className={styles.legendItem}>
-            <span className={`${styles.legendDot} ${styles.legendAttend}`} />
-            {t("legendAttending")}
+            <span className={`${styles.legendDot} ${styles.legendAll}`} />
+            {t("legendAllAttending")}
           </span>
         </div>
 
@@ -242,35 +236,46 @@ export function CalendarMonth({ boardId, canManage }: Props) {
                   ) : null}
                 </div>
                 <div className={styles.chips}>
-                  {dayOccurrences.map((occ) => (
-                    <button
-                      type="button"
-                      key={`${occ.eventId}-${occ.occurrenceStart}`}
-                      className={`${styles.chip} ${chipStatusClass(occ)}`}
-                      onClick={() => setSelected(occ)}
-                    >
-                      <span className={styles.chipTop}>
-                        <span className={styles.chipTime}>
-                          {formatJstTime(occ.startAt, locale)}
-                        </span>
-                        <span className={styles.chipPlace}>{occ.place}</span>
-                      </span>
-                      {occ.note ? (
-                        <span className={styles.chipNote}>{occ.note}</span>
-                      ) : null}
-                      <span
-                        className={styles.chipMeta}
-                        title={t("attendingCountLabel", {
-                          count: occ.attendingCount,
-                        })}
+                  {dayOccurrences.map((occ) => {
+                    const isFull =
+                      occ.attendingCount > 0 &&
+                      occ.attendingCount >= memberCount;
+                    return (
+                      <button
+                        type="button"
+                        key={`${occ.eventId}-${occ.occurrenceStart}`}
+                        className={styles.chip}
+                        onClick={() => setSelected(occ)}
                       >
-                        <Users size={11} weight="fill" />
-                        <span className={styles.chipCount}>
-                          {occ.attendingCount}
+                        <span className={styles.chipTop}>
+                          <span className={styles.chipTime}>
+                            {formatJstTime(occ.startAt, locale)}
+                          </span>
+                          <span className={styles.chipPlace}>{occ.place}</span>
                         </span>
-                      </span>
-                    </button>
-                  ))}
+                        {occ.note ? (
+                          <span className={styles.chipNote}>{occ.note}</span>
+                        ) : null}
+                        <span
+                          className={styles.chipMeta}
+                          title={
+                            isFull
+                              ? t("legendAllAttending")
+                              : t("attendingCountLabel", {
+                                  count: occ.attendingCount,
+                                })
+                          }
+                        >
+                          <Users size={11} weight="fill" />
+                          <span
+                            className={`${styles.chipCount} ${isFull ? styles.chipCountFull : ""}`}
+                          >
+                            {occ.attendingCount}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             );

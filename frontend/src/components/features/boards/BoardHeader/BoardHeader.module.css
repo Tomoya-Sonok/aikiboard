@@ -58,7 +58,7 @@
 
 .searchHint {
   flex-shrink: 0;
-  padding: 0 4px;
+  padding: 0 var(--ab-space-1);
   border: 1px solid var(--ab-border-default);
   border-radius: var(--ab-radius-sm);
   font-family: var(--ab-font-num);
