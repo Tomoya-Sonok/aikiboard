@@ -9,6 +9,7 @@ type DojoMaster = {
   id: string;
   dojo_name: string;
   dojo_name_kana: string | null;
+  is_approved: boolean;
 };
 
 export const dojoMastersRouter = createTRPCRouter({

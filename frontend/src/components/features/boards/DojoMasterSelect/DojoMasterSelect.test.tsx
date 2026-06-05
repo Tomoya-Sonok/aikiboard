@@ -56,7 +56,7 @@ describe("DojoMasterSelect", () => {
     expect(onChange).toHaveBeenCalledWith(SEED[0]);
   });
 
-  it("選択済みなら名称と変更ボタンを表示する", () => {
+  it("選択済みなら名称・編集・クリアを表示する", () => {
     // Arrange & Act
     renderWithProviders(
       <DojoMasterSelect
@@ -67,8 +67,11 @@ describe("DojoMasterSelect", () => {
       />,
     );
 
-    // Assert
+    // Assert(道場名 + 「道場名を変更」ボタン + 「クリア」ボタン)
     expect(screen.getByText("合気会本部道場")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "変更" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "道場名を変更" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "クリア" })).toBeInTheDocument();
   });
 });

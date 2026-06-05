@@ -15,6 +15,10 @@
   color: var(--ab-danger);
 }
 
+.control {
+  position: relative;
+}
+
 .input {
   width: 100%;
   padding: var(--ab-space-2) var(--ab-space-3);
@@ -37,22 +41,33 @@
   border-color: var(--ab-danger);
 }
 
-/* 検索結果のドロップダウン(オーバーレイにせずブロック表示) */
-.results {
-  list-style: none;
-  margin: var(--ab-space-1) 0 0;
-  padding: var(--ab-space-1);
-  max-height: 220px;
+/* 候補ドロップダウン(入力直下にオーバーレイ表示) */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: var(--ab-z-dropdown);
+  max-height: 240px;
   overflow-y: auto;
+  padding: var(--ab-space-1);
+  background-color: var(--ab-surface-card);
   border: 1px solid var(--ab-border-default);
   border-radius: var(--ab-radius-md);
-  background-color: var(--ab-surface-card);
+  box-shadow: var(--ab-shadow-lg);
 }
 
-.resultItem {
+.stateItem {
+  padding: var(--ab-space-2) var(--ab-space-3);
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-text-tertiary);
+}
+
+.suggestionItem {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ab-space-2);
   width: 100%;
   padding: var(--ab-space-2) var(--ab-space-3);
   text-align: left;
@@ -62,24 +77,30 @@
   cursor: pointer;
 }
 
-.resultItem:hover {
+.suggestionItem:hover,
+.suggestionItem.active {
   background-color: var(--ab-washi-dark);
 }
 
-.resultName {
+.suggestionName {
+  overflow: hidden;
   font-size: var(--ab-fs-base);
   color: var(--ab-text-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.resultKana {
+.approvedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  color: var(--ab-success);
+}
+
+.approvedText {
   font-size: var(--ab-fs-xs);
-  color: var(--ab-text-tertiary);
-}
-
-.resultEmpty {
-  padding: var(--ab-space-2) var(--ab-space-3);
-  font-size: var(--ab-fs-sm);
-  color: var(--ab-text-tertiary);
+  color: var(--ab-success);
 }
 
 /* 選択済み表示 */
@@ -94,19 +115,42 @@
   background-color: var(--ab-surface-card);
 }
 
+.selectedTextButton {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 .selectedName {
+  display: block;
+  overflow: hidden;
   font-size: var(--ab-fs-base);
   color: var(--ab-text-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .clearButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
-  padding: var(--ab-space-1) var(--ab-space-2);
-  font-size: var(--ab-fs-sm);
-  color: var(--ab-text-link);
-  background: transparent;
+  padding: 0;
+  color: var(--ab-text-secondary);
+  background: none;
   border: none;
+  border-radius: var(--ab-radius-sm);
   cursor: pointer;
+}
+
+.clearButton:hover {
+  background-color: var(--ab-washi-dark);
 }
 
 .error {
