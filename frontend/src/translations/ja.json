@@ -49,28 +49,29 @@
   },
   "boards": {
     "create": {
-      "title": "ボードを作成",
+      "title": "まずはボードを作成しましょう",
+      "subtitle": "ボードとは、あなたが管理・運営している合気道道場の組織や団体を1単位として道場ごとに作成するものです。あとから変更できますので、気軽にご入力ください。",
       "name": "ボード名",
-      "namePlaceholder": "例: 一般稽古",
-      "slug": "URL（公開ページ）",
+      "namePlaceholder": "例: 合気掲示板道場 東京支部",
+      "slug": "ボードURL",
+      "slugPlaceholder": "aiki-board-dojo-tokyo",
       "slugHint": "aiki-board.com/d/ に続く文字。英小文字・数字・ハイフンが使えます",
-      "dojo": "紐付ける道場",
-      "dojoSearchPlaceholder": "道場名・かなで検索",
+      "dojo": "道場名",
+      "dojoSearchPlaceholder": "道場名を入力して、選択してください",
       "dojoChange": "変更",
       "dojoSearching": "検索中…",
       "dojoNoResults": "該当する道場がありません",
-      "description": "説明（任意）",
-      "isPublic": "このボードを公開する",
-      "submit": "ボードを作成",
+      "description": "ボードの説明",
+      "submit": "作成する",
       "error": "ボードの作成に失敗しました",
       "validation": {
         "nameRequired": "ボード名を入力してください",
         "nameMax": "ボード名は50文字以内で入力してください",
-        "slugMin": "URL は3文字以上で入力してください",
-        "slugMax": "URL は63文字以内で入力してください",
-        "slugFormat": "URL は英小文字・数字・ハイフンのみ使えます",
+        "slugMin": "ボードURL は3文字以上で入力してください",
+        "slugMax": "ボードURL は63文字以内で入力してください",
+        "slugFormat": "ボードURL は英小文字・数字・ハイフンのみ使えます",
         "descriptionMax": "説明は500文字以内で入力してください",
-        "dojoRequired": "紐付ける道場を選択してください"
+        "dojoRequired": "ボードに紐づける道場を入力・選択してください"
       }
     },
     "dashboard": {

@@ -10,6 +10,11 @@
   color: var(--ab-text-secondary);
 }
 
+.required {
+  margin-left: 2px;
+  color: var(--ab-danger);
+}
+
 .input {
   width: 100%;
   padding: var(--ab-space-2) var(--ab-space-3);

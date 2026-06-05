@@ -31,10 +31,11 @@ function renderWithProviders(ui: ReactElement) {
 }
 
 async function fillBaseFields() {
-  fireEvent.change(screen.getByLabelText("ボード名"), {
+  // 必須ラベルは末尾に aria-hidden のアスタリスクが付くため部分一致で取得する。
+  fireEvent.change(screen.getByLabelText(/ボード名/), {
     target: { value: "一般稽古" },
   });
-  fireEvent.change(screen.getByLabelText("URL（公開ページ）"), {
+  fireEvent.change(screen.getByLabelText(/ボードURL/), {
     target: { value: "warabi-general" },
   });
 }
@@ -49,12 +50,12 @@ describe("BoardCreateForm", () => {
 
     // Act
     await fillBaseFields();
-    fireEvent.click(screen.getByRole("button", { name: "ボードを作成" }));
+    fireEvent.click(screen.getByRole("button", { name: "作成する" }));
 
     // Assert
     await waitFor(() =>
       expect(
-        screen.getByText("紐付ける道場を選択してください"),
+        screen.getByText("ボードに紐づける道場を入力・選択してください"),
       ).toBeInTheDocument(),
     );
     expect(onSubmit).not.toHaveBeenCalled();
@@ -69,7 +70,7 @@ describe("BoardCreateForm", () => {
 
     // Act
     await fillBaseFields();
-    fireEvent.change(screen.getByLabelText("紐付ける道場"), {
+    fireEvent.change(screen.getByLabelText(/道場名/), {
       target: { value: "合気" },
     });
     await waitFor(
@@ -77,7 +78,7 @@ describe("BoardCreateForm", () => {
       { timeout: 2000 },
     );
     fireEvent.click(screen.getByText("合気会本部道場"));
-    fireEvent.click(screen.getByRole("button", { name: "ボードを作成" }));
+    fireEvent.click(screen.getByRole("button", { name: "作成する" }));
 
     // Assert
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());

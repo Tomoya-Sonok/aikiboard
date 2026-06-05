@@ -10,7 +10,7 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 // label + input + error/hint をまとめた汎用テキスト入力。
 // React Hook Form の register をそのまま spread できるよう forwardRef する。
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, error, hint, id, name, ...rest },
+  { label, error, hint, id, name, required, ...rest },
   ref,
 ) {
   const inputId = id ?? name;
@@ -18,11 +18,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     <div className={styles.field}>
       <label className={styles.label} htmlFor={inputId}>
         {label}
+        {required ? (
+          <span className={styles.required} aria-hidden="true">
+            *
+          </span>
+        ) : null}
       </label>
       <input
         id={inputId}
         name={name}
         ref={ref}
+        required={required}
         className={`${styles.input} ${error ? styles.inputError : ""}`}
         aria-invalid={error ? true : undefined}
         {...rest}

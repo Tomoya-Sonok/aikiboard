@@ -21,6 +21,7 @@ type DojoMasterSelectProps = {
   onChange: (dojo: DojoMaster | null) => void;
   searchDojos: (query: string) => Promise<DojoMaster[]>;
   error?: string;
+  required?: boolean;
 };
 
 export function DojoMasterSelect({
@@ -29,6 +30,7 @@ export function DojoMasterSelect({
   onChange,
   searchDojos,
   error,
+  required,
 }: DojoMasterSelectProps) {
   const t = useTranslations("boards.create");
   const inputId = useId();
@@ -49,7 +51,14 @@ export function DojoMasterSelect({
   if (value) {
     return (
       <div className={styles.field}>
-        <span className={styles.label}>{label}</span>
+        <span className={styles.label}>
+          {label}
+          {required ? (
+            <span className={styles.required} aria-hidden="true">
+              *
+            </span>
+          ) : null}
+        </span>
         <div className={styles.selected}>
           <span className={styles.selectedName}>{value.dojo_name}</span>
           <button
@@ -72,6 +81,11 @@ export function DojoMasterSelect({
     <div className={styles.field}>
       <label className={styles.label} htmlFor={inputId}>
         {label}
+        {required ? (
+          <span className={styles.required} aria-hidden="true">
+            *
+          </span>
+        ) : null}
       </label>
       <input
         id={inputId}

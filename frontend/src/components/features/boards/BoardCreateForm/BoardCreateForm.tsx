@@ -91,7 +91,10 @@ export function BoardCreateForm({
       noValidate
       aria-busy={isSubmitting}
     >
-      <h1 className={styles.title}>{t("title")}</h1>
+      <div className={styles.header}>
+        <h1 className={styles.title}>{t("title")}</h1>
+        <p className={styles.subtitle}>{t("subtitle")}</p>
+      </div>
 
       {serverError ? (
         <p className={styles.serverError} role="alert">
@@ -103,14 +106,16 @@ export function BoardCreateForm({
         label={t("name")}
         placeholder={t("namePlaceholder")}
         error={errors.name?.message}
+        required
         {...register("name")}
       />
 
       <Input
         label={t("slug")}
-        placeholder="warabi-general"
+        placeholder={t("slugPlaceholder")}
         hint={t("slugHint")}
         error={errors.slug?.message}
+        required
         {...register("slug")}
       />
 
@@ -123,6 +128,7 @@ export function BoardCreateForm({
         }}
         searchDojos={searchDojos}
         error={dojoError ?? undefined}
+        required
       />
 
       <div className={styles.field}>
@@ -139,11 +145,6 @@ export function BoardCreateForm({
           <p className={styles.error}>{errors.description.message}</p>
         ) : null}
       </div>
-
-      <label className={styles.checkboxRow}>
-        <input type="checkbox" {...register("isPublic")} />
-        <span>{t("isPublic")}</span>
-      </label>
 
       <div className={styles.actions}>
         <Button type="submit" variant="primary" disabled={isSubmitting}>
