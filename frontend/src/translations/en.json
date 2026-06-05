@@ -97,6 +97,14 @@
       "today": "Today",
       "prevMonth": "Previous month",
       "nextMonth": "Next month",
+      "viewMonth": "Month",
+      "viewWeek": "Week",
+      "viewList": "List",
+      "viewComingSoon": "Coming soon",
+      "legendHasEvent": "Has practice",
+      "legendAttending": "Attending",
+      "monthSummary": "{events} practices · {attendees} total attendances this month",
+      "attendingCountLabel": "{count} attending",
       "weekdayShort": {
         "SU": "Sun",
         "MO": "Mon",
@@ -197,6 +205,8 @@
     "signOut": "Log out",
     "memberCount": "{count} members",
     "searchPlaceholder": "Search this board",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "language": "Language",
+    "account": "Account"
   }
 }

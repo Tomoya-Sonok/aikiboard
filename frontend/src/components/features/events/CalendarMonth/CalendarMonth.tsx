@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretLeft, CaretRight, Plus } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, Plus, Users } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -75,6 +75,21 @@ export function CalendarMonth({ boardId, canManage }: Props) {
     return map;
   }, [occurrences]);
 
+  // この月(表示中の月)に属するオカレンスの件数と参加述べ人数。
+  const summary = useMemo(() => {
+    let events = 0;
+    let attendees = 0;
+    for (const occ of occurrences) {
+      const key = jstDateKey(occ.startAt);
+      const [y, m] = key.split("-").map(Number);
+      if (y === view.year && m === view.month + 1) {
+        events += 1;
+        attendees += occ.attendingCount;
+      }
+    }
+    return { events, attendees };
+  }, [occurrences, view]);
+
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["events", boardId] });
 
@@ -92,100 +107,181 @@ export function CalendarMonth({ boardId, canManage }: Props) {
     }
   };
 
-  const statusClass = (occ: EventOccurrence) =>
+  const chipStatusClass = (occ: EventOccurrence) =>
     occ.myStatus === "attend"
-      ? styles.dotAttend
+      ? styles.chipAttend
       : occ.myStatus === "decline"
-        ? styles.dotDecline
-        : styles.dotNone;
+        ? styles.chipDecline
+        : "";
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>{t("title")}</h1>
-        <div className={styles.controls}>
+      <div className={styles.toolbar}>
+        <div className={styles.nav}>
           <button
             type="button"
             className={styles.navBtn}
             onClick={goPrev}
             aria-label={t("prevMonth")}
           >
-            <CaretLeft size={16} />
+            <CaretLeft size={15} />
           </button>
-          <span className={styles.monthLabel}>
-            {formatJstMonthTitle(view.year, view.month, locale)}
-          </span>
           <button
             type="button"
             className={styles.navBtn}
             onClick={goNext}
             aria-label={t("nextMonth")}
           >
-            <CaretRight size={16} />
+            <CaretRight size={15} />
           </button>
-          <button type="button" className={styles.todayBtn} onClick={goToday}>
-            {t("today")}
+        </div>
+
+        <h2 className={styles.monthLabel}>
+          {locale === "ja" ? (
+            <>
+              {view.year}
+              <span className={styles.monthLabelUnit}>年</span>
+              {view.month + 1}
+              <span className={styles.monthLabelUnit}>月</span>
+            </>
+          ) : (
+            formatJstMonthTitle(view.year, view.month, locale)
+          )}
+        </h2>
+
+        <button type="button" className={styles.todayBtn} onClick={goToday}>
+          {t("today")}
+        </button>
+
+        <div className={styles.viewToggle}>
+          <button
+            type="button"
+            className={`${styles.viewBtn} ${styles.viewBtnActive}`}
+          >
+            {t("viewMonth")}
           </button>
-          {canManage ? (
-            <button
-              type="button"
-              className={styles.addBtn}
-              onClick={() => openCreate()}
+          <button
+            type="button"
+            className={styles.viewBtn}
+            disabled
+            title={t("viewComingSoon")}
+          >
+            {t("viewWeek")}
+          </button>
+          <button
+            type="button"
+            className={styles.viewBtn}
+            disabled
+            title={t("viewComingSoon")}
+          >
+            {t("viewList")}
+          </button>
+        </div>
+
+        <div className={styles.spacer} />
+
+        <div className={styles.legend}>
+          <span className={styles.legendItem}>
+            <span className={`${styles.legendDot} ${styles.legendEvent}`} />
+            {t("legendHasEvent")}
+          </span>
+          <span className={styles.legendItem}>
+            <span className={`${styles.legendDot} ${styles.legendAttend}`} />
+            {t("legendAttending")}
+          </span>
+        </div>
+
+        {canManage ? (
+          <button
+            type="button"
+            className={styles.addBtn}
+            onClick={() => openCreate()}
+          >
+            <Plus size={14} weight="bold" />
+            <span>{t("addEvent")}</span>
+          </button>
+        ) : null}
+      </div>
+
+      <div className={styles.calendar} aria-busy={isLoading}>
+        <div className={styles.weekHeader}>
+          {WEEKDAY_ORDER.map((w, i) => (
+            <div
+              key={w}
+              className={`${styles.weekHeaderCell} ${i === 0 ? styles.weekendSun : ""} ${i === 6 ? styles.weekendSat : ""}`}
             >
-              <Plus size={14} />
-              <span>{t("addEvent")}</span>
-            </button>
-          ) : null}
+              {t(`weekdayShort.${w}`)}
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.grid}>
+          {cells.map((cell, index) => {
+            const dayOccurrences = byDay.get(cell.key) ?? [];
+            const col = index % 7;
+            return (
+              <div
+                key={cell.key}
+                className={`${styles.cell} ${cell.inCurrentMonth ? "" : styles.cellMuted} ${cell.isToday ? styles.cellToday : ""}`}
+              >
+                <div className={styles.cellHeader}>
+                  <span
+                    className={`${styles.dayNum} ${col === 0 ? styles.weekendSun : ""} ${col === 6 ? styles.weekendSat : ""}`}
+                  >
+                    {cell.day}
+                  </span>
+                  {canManage ? (
+                    <button
+                      type="button"
+                      className={styles.addDay}
+                      onClick={() => openCreate(cell.key)}
+                      aria-label={`${t("addEvent")} ${cell.key}`}
+                    >
+                      <Plus size={12} />
+                    </button>
+                  ) : null}
+                </div>
+                <div className={styles.chips}>
+                  {dayOccurrences.map((occ) => (
+                    <button
+                      type="button"
+                      key={`${occ.eventId}-${occ.occurrenceStart}`}
+                      className={`${styles.chip} ${chipStatusClass(occ)}`}
+                      onClick={() => setSelected(occ)}
+                    >
+                      <span className={styles.chipTop}>
+                        <span className={styles.chipTime}>
+                          {formatJstTime(occ.startAt, locale)}
+                        </span>
+                        <span className={styles.chipPlace}>{occ.place}</span>
+                      </span>
+                      {occ.note ? (
+                        <span className={styles.chipNote}>{occ.note}</span>
+                      ) : null}
+                      <span
+                        className={styles.chipMeta}
+                        title={t("attendingCountLabel", {
+                          count: occ.attendingCount,
+                        })}
+                      >
+                        <Users size={11} weight="fill" />
+                        <span className={styles.chipCount}>
+                          {occ.attendingCount}
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      <div className={styles.weekHeader}>
-        {WEEKDAY_ORDER.map((w) => (
-          <div key={w} className={styles.weekHeaderCell}>
-            {t(`weekdayShort.${w}`)}
-          </div>
-        ))}
-      </div>
-
-      <div className={styles.grid} aria-busy={isLoading}>
-        {cells.map((cell) => {
-          const dayOccurrences = byDay.get(cell.key) ?? [];
-          return (
-            <div
-              key={cell.key}
-              className={`${styles.cell} ${cell.inCurrentMonth ? "" : styles.cellMuted} ${cell.isToday ? styles.cellToday : ""}`}
-            >
-              <div className={styles.cellHeader}>
-                <span className={styles.dayNum}>{cell.day}</span>
-                {canManage ? (
-                  <button
-                    type="button"
-                    className={styles.addDay}
-                    onClick={() => openCreate(cell.key)}
-                    aria-label={`${t("addEvent")} ${cell.key}`}
-                  >
-                    <Plus size={12} />
-                  </button>
-                ) : null}
-              </div>
-              <div className={styles.chips}>
-                {dayOccurrences.map((occ) => (
-                  <button
-                    type="button"
-                    key={`${occ.eventId}-${occ.occurrenceStart}`}
-                    className={styles.chip}
-                    onClick={() => setSelected(occ)}
-                  >
-                    <span className={`${styles.dot} ${statusClass(occ)}`} />
-                    <span className={styles.chipTime}>
-                      {formatJstTime(occ.startAt, locale)}
-                    </span>
-                    <span className={styles.chipPlace}>{occ.place}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          );
+      <div className={styles.summary}>
+        {t("monthSummary", {
+          events: summary.events,
+          attendees: summary.attendees,
         })}
       </div>
 

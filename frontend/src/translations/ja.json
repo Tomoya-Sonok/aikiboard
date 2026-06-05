@@ -97,6 +97,14 @@
       "today": "今日",
       "prevMonth": "前の月",
       "nextMonth": "次の月",
+      "viewMonth": "月",
+      "viewWeek": "週",
+      "viewList": "リスト",
+      "viewComingSoon": "近日対応",
+      "legendHasEvent": "稽古あり",
+      "legendAttending": "参加予定",
+      "monthSummary": "この月の稽古 {events} 件 · 総参加述べ {attendees} 名",
+      "attendingCountLabel": "{count} 名参加予定",
       "weekdayShort": {
         "SU": "日",
         "MO": "月",
@@ -197,6 +205,8 @@
     "signOut": "ログアウト",
     "memberCount": "{count} メンバー",
     "searchPlaceholder": "道場ボード内を検索",
-    "notifications": "通知"
+    "notifications": "通知",
+    "language": "言語",
+    "account": "アカウント"
   }
 }
