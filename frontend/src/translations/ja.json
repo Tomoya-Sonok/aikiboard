@@ -49,33 +49,36 @@
   },
   "boards": {
     "create": {
-      "title": "ボードを作成",
+      "title": "ボード作成",
+      "subtitle": "ボードとは、あなたが管理・運営している合気道道場の組織や団体を1単位として道場ごとに作成するものです。あとから変更できますので、気軽にご入力ください。",
       "name": "ボード名",
-      "namePlaceholder": "例: 一般稽古",
-      "slug": "URL（公開ページ）",
+      "namePlaceholder": "例: 合気掲示板道場 東京支部",
+      "slug": "ボードURL",
+      "slugPlaceholder": "例: aiki-board-dojo-tokyo",
       "slugHint": "aiki-board.com/d/ に続く文字。英小文字・数字・ハイフンが使えます",
-      "dojo": "紐付ける道場",
-      "dojoSearchPlaceholder": "道場名・かなで検索",
-      "dojoChange": "変更",
+      "dojo": "道場名",
+      "dojoSearchPlaceholder": "道場名を入力して、選択してください",
+      "dojoEdit": "道場名を変更",
+      "dojoClear": "クリア",
+      "dojoApproved": "承認済み",
       "dojoSearching": "検索中…",
       "dojoNoResults": "該当する道場がありません",
-      "description": "説明（任意）",
-      "isPublic": "このボードを公開する",
-      "submit": "ボードを作成",
+      "description": "ボードの説明",
+      "submit": "作成する",
       "error": "ボードの作成に失敗しました",
       "validation": {
         "nameRequired": "ボード名を入力してください",
         "nameMax": "ボード名は50文字以内で入力してください",
-        "slugMin": "URL は3文字以上で入力してください",
-        "slugMax": "URL は63文字以内で入力してください",
-        "slugFormat": "URL は英小文字・数字・ハイフンのみ使えます",
+        "slugMin": "ボードURL は3文字以上で入力してください",
+        "slugMax": "ボードURL は63文字以内で入力してください",
+        "slugFormat": "ボードURL は英小文字・数字・ハイフンのみ使えます",
         "descriptionMax": "説明は500文字以内で入力してください",
-        "dojoRequired": "紐付ける道場を選択してください"
+        "dojoRequired": "ボードに紐づける道場を入力・選択してください"
       }
     },
     "dashboard": {
       "nextPractice": "次の稽古",
-      "daysUntil": "あと {days} 日",
+      "daysUntil": "{days, plural, =0 {本日} =1 {明日} other {あと # 日}}",
       "viewDetail": "詳細を見る",
       "attending": "参加予定",
       "declined": "不参加",
@@ -85,7 +88,8 @@
       "announcements": "お知らせ",
       "viewAll": "すべて見る",
       "recentFeed": "最近のフィード",
-      "toFeed": "フィードへ"
+      "toFeed": "フィードへ",
+      "noUpcoming": "今後の稽古予定はありません"
     },
     "calendar": {
       "title": "稽古カレンダー",
@@ -93,6 +97,14 @@
       "today": "今日",
       "prevMonth": "前の月",
       "nextMonth": "次の月",
+      "viewMonth": "月",
+      "viewWeek": "週",
+      "viewList": "リスト",
+      "viewComingSoon": "近日対応",
+      "legendHasEvent": "稽古あり",
+      "legendAllAttending": "全員参加",
+      "monthSummary": "この月の稽古 {events} 件 · 総参加述べ {attendees} 名",
+      "attendingCountLabel": "{count} 名参加予定",
       "weekdayShort": {
         "SU": "日",
         "MO": "月",
@@ -193,6 +205,8 @@
     "signOut": "ログアウト",
     "memberCount": "{count} メンバー",
     "searchPlaceholder": "道場ボード内を検索",
-    "notifications": "通知"
+    "notifications": "通知",
+    "language": "言語",
+    "account": "アカウント"
   }
 }

@@ -34,6 +34,24 @@ export const formatJstDateLong = (
     weekday: "short",
   }).format(new Date(iso));
 
+// 日付ブロック用に「日・月・曜日」を JST で分解する。
+export const formatJstDateParts = (
+  iso: string,
+  locale: CalendarLocale,
+): { day: string; month: string; weekday: string } => {
+  const d = new Date(iso);
+  const fmt = (opts: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat(intlLocale(locale), {
+      timeZone: "Asia/Tokyo",
+      ...opts,
+    }).format(d);
+  return {
+    day: fmt({ day: "numeric" }),
+    month: fmt({ month: "short" }),
+    weekday: fmt({ weekday: "short" }),
+  };
+};
+
 // (year, month=0-11)の月見出し。月内の正午 JST を基準にして安全に整形する。
 export const formatJstMonthTitle = (
   year: number,

@@ -56,6 +56,16 @@
   flex: 1;
 }
 
+.searchHint {
+  flex-shrink: 0;
+  padding: 0 var(--ab-space-1);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-sm);
+  font-family: var(--ab-font-num);
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-text-tertiary);
+}
+
 .iconBtn {
   position: relative;
   display: flex;
@@ -72,6 +82,54 @@
 
 .iconBtn:hover {
   background: var(--ab-washi-dark);
+}
+
+.notifyDot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-dou);
+  box-shadow: 0 0 0 2px var(--ab-surface-card);
+}
+
+.divider {
+  width: 1px;
+  height: 22px;
+  background: var(--ab-border-default);
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+  border: none;
+  border-radius: var(--ab-radius-md);
+  background: transparent;
+  color: var(--ab-text-tertiary);
+  cursor: pointer;
+}
+
+.account:hover {
+  background: var(--ab-washi-dark);
+}
+
+.accountAvatar {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-washi-dark);
+  color: var(--ab-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ab-font-brand);
+  font-size: var(--ab-fs-sm);
+  font-weight: var(--ab-fw-semibold);
 }
 
 /* SP では検索ボックスを隠してはみ出しを防ぐ(本格対応は後続)。 */

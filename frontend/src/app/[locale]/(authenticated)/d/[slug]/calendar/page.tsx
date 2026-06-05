@@ -3,9 +3,8 @@
 
 import { notFound } from "next/navigation";
 import { CalendarMonth } from "@/components/features/events/CalendarMonth/CalendarMonth";
+import { getBoardDetail } from "@/lib/boards/getBoardDetail";
 import type { BoardDetail } from "@/lib/types/board";
-import { createCallerFactory } from "@/server/trpc";
-import { appRouter } from "@/server/trpc/router";
 
 export default async function BoardCalendarPage({
   params,
@@ -14,13 +13,9 @@ export default async function BoardCalendarPage({
 }) {
   const { slug } = await params;
 
-  const caller = createCallerFactory(appRouter)({
-    req: new Request("http://localhost"),
-  });
-
   let board: BoardDetail | undefined;
   try {
-    board = (await caller.boards.getBySlug({ slug })).data;
+    board = await getBoardDetail(slug);
   } catch {
     notFound();
   }
@@ -31,5 +26,11 @@ export default async function BoardCalendarPage({
   const canManage =
     board.viewerRole === "owner" || board.viewerRole === "admin";
 
-  return <CalendarMonth boardId={board.id} canManage={canManage} />;
+  return (
+    <CalendarMonth
+      boardId={board.id}
+      canManage={canManage}
+      memberCount={board.memberCount}
+    />
+  );
 }

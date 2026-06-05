@@ -40,7 +40,7 @@ dojoMastersRoute.get("/", authMiddleware, async (c) => {
 
   let query = supabase
     .from("DojoStyleMaster")
-    .select("id, dojo_name, dojo_name_kana")
+    .select("id, dojo_name, dojo_name_kana, is_approved")
     .eq("is_approved", true)
     .order("dojo_name")
     .limit(limit);

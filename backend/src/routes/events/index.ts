@@ -179,6 +179,145 @@ const anchorErrorResponse = (c: Context<EventsEnv>, check: AnchorCheck) => {
   return null;
 };
 
+type EventRow = {
+  id: string;
+  start_at: string;
+  end_at: string;
+  place: string;
+  instructor_name: string | null;
+  note: string | null;
+  recurrence_rule: string | null;
+  is_public: boolean;
+};
+
+type OccurrenceDto = {
+  eventId: string;
+  occurrenceStart: string;
+  startAt: string;
+  endAt: string;
+  place: string;
+  instructorName: string | null;
+  note: string | null;
+  isPublic: boolean;
+  isRecurring: boolean;
+  isOverridden: boolean;
+  recurrenceRule: string | null;
+  attendingCount: number;
+  decliningCount: number;
+  myStatus: "attend" | "decline" | null;
+  canManage: boolean;
+};
+
+// events を [fromMs, toMs) に展開し、例外・出欠を突合して開催日順のオカレンス DTO を返す。
+// 一覧(GET /)と「次の稽古」(GET /next)で共用する。DB エラー時は null。
+const loadOccurrences = async (
+  supabase: SupabaseClient,
+  events: EventRow[],
+  fromMs: number,
+  toMs: number,
+  userId: string | undefined,
+  canManage: boolean,
+): Promise<OccurrenceDto[] | null> => {
+  const aikiboard = supabase.schema("aikiboard");
+  const eventIds = events.map((e) => e.id);
+  const fromIso = new Date(fromMs).toISOString();
+  const toIso = new Date(toMs).toISOString();
+
+  const [overridesRes, rsvpsRes] = await Promise.all([
+    aikiboard
+      .from("event_overrides")
+      .select(
+        "event_id, occurrence_start, is_cancelled, override_start_at, override_end_at, place, instructor_name, note",
+      )
+      .in("event_id", eventIds),
+    aikiboard
+      .from("event_rsvps")
+      .select("event_id, occurrence_start, user_id, status")
+      .in("event_id", eventIds)
+      .gte("occurrence_start", fromIso)
+      .lt("occurrence_start", toIso),
+  ]);
+  if (overridesRes.error || rsvpsRes.error) {
+    return null;
+  }
+
+  const overridesByEvent = new Map<string, OccurrenceOverride[]>();
+  for (const o of overridesRes.data ?? []) {
+    const list = overridesByEvent.get(o.event_id) ?? [];
+    list.push({
+      occurrenceStart: o.occurrence_start,
+      isCancelled: o.is_cancelled,
+      overrideStartAt: o.override_start_at,
+      overrideEndAt: o.override_end_at,
+      place: o.place,
+      instructorName: o.instructor_name,
+      note: o.note,
+    });
+    overridesByEvent.set(o.event_id, list);
+  }
+
+  const attendByKey = new Map<string, number>();
+  const declineByKey = new Map<string, number>();
+  const myStatusByKey = new Map<string, "attend" | "decline">();
+  const keyOf = (eventId: string, anchorIso: string) =>
+    `${eventId}|${Date.parse(anchorIso)}`;
+  for (const r of rsvpsRes.data ?? []) {
+    const key = keyOf(r.event_id, r.occurrence_start);
+    if (r.status === "attend") {
+      attendByKey.set(key, (attendByKey.get(key) ?? 0) + 1);
+    } else {
+      declineByKey.set(key, (declineByKey.get(key) ?? 0) + 1);
+    }
+    if (userId && r.user_id === userId) {
+      myStatusByKey.set(key, r.status);
+    }
+  }
+
+  const occurrences: OccurrenceDto[] = [];
+  for (const event of events) {
+    const raw = expandEvent(
+      {
+        startAt: event.start_at,
+        endAt: event.end_at,
+        recurrenceRule: event.recurrence_rule,
+      },
+      fromIso,
+      toIso,
+    );
+    const effective = applyOverrides(raw, overridesByEvent.get(event.id) ?? []);
+    for (const occ of effective) {
+      const ov = occ.override;
+      const key = keyOf(event.id, occ.occurrenceStart);
+      occurrences.push({
+        eventId: event.id,
+        occurrenceStart: occ.occurrenceStart,
+        startAt: occ.startAt,
+        endAt: occ.endAt,
+        place: ov?.place ?? event.place,
+        instructorName: ov?.instructorName ?? event.instructor_name,
+        note: ov?.note ?? event.note,
+        isPublic: event.is_public,
+        isRecurring: event.recurrence_rule != null,
+        isOverridden: occ.isOverridden,
+        recurrenceRule: event.recurrence_rule,
+        attendingCount: attendByKey.get(key) ?? 0,
+        decliningCount: declineByKey.get(key) ?? 0,
+        myStatus: myStatusByKey.get(key) ?? null,
+        canManage,
+      });
+    }
+  }
+
+  occurrences.sort((a, b) => Date.parse(a.startAt) - Date.parse(b.startAt));
+  return occurrences;
+};
+
+// 「次の稽古」を探す展開ホライズン(日)。
+const NEXT_HORIZON_DAYS = 180;
+// 過去側の余白(日)。admin が過去回をこの範囲で未来へ振替(override)しても拾えるよう、
+// 展開窓の下限を now より過去に広げ、最終的に startAt >= now でフィルタする。
+const NEXT_PAST_HORIZON_DAYS = 60;
+
 // ────────────────────────────────────────────────────────────────
 // GET /api/events?boardId=&from=&to= — 月範囲のオカレンス一覧(メンバー)
 // ────────────────────────────────────────────────────────────────
@@ -225,99 +364,73 @@ eventsRoute.get("/", authMiddleware, boardMemberMiddleware, async (c) => {
     return c.json({ success: true, data: [] });
   }
 
-  const eventIds = events.map((e) => e.id as string);
-
-  // 例外(休み/上書き)と、窓内アンカーの出欠をまとめて取得。
-  const [overridesRes, rsvpsRes] = await Promise.all([
-    aikiboard
-      .from("event_overrides")
-      .select(
-        "event_id, occurrence_start, is_cancelled, override_start_at, override_end_at, place, instructor_name, note",
-      )
-      .in("event_id", eventIds),
-    aikiboard
-      .from("event_rsvps")
-      .select("event_id, occurrence_start, user_id, status")
-      .in("event_id", eventIds)
-      .gte("occurrence_start", new Date(fromMs).toISOString())
-      .lt("occurrence_start", new Date(toMs).toISOString()),
-  ]);
-  if (overridesRes.error || rsvpsRes.error) {
+  const occurrences = await loadOccurrences(
+    supabase,
+    events,
+    fromMs,
+    toMs,
+    userId,
+    canManage,
+  );
+  if (!occurrences) {
     return failWith("稽古の関連データ取得に失敗");
   }
 
-  // event_id ごとに override をまとめる。
-  const overridesByEvent = new Map<string, OccurrenceOverride[]>();
-  for (const o of overridesRes.data ?? []) {
-    const list = overridesByEvent.get(o.event_id) ?? [];
-    list.push({
-      occurrenceStart: o.occurrence_start,
-      isCancelled: o.is_cancelled,
-      overrideStartAt: o.override_start_at,
-      overrideEndAt: o.override_end_at,
-      place: o.place,
-      instructorName: o.instructor_name,
-      note: o.note,
-    });
-    overridesByEvent.set(o.event_id, list);
-  }
-
-  // 出欠を (event_id|anchorMs) で集計 + 自分のステータス。
-  const attendByKey = new Map<string, number>();
-  const declineByKey = new Map<string, number>();
-  const myStatusByKey = new Map<string, "attend" | "decline">();
-  const keyOf = (eventId: string, anchorIso: string) =>
-    `${eventId}|${Date.parse(anchorIso)}`;
-  for (const r of rsvpsRes.data ?? []) {
-    const key = keyOf(r.event_id, r.occurrence_start);
-    if (r.status === "attend") {
-      attendByKey.set(key, (attendByKey.get(key) ?? 0) + 1);
-    } else {
-      declineByKey.set(key, (declineByKey.get(key) ?? 0) + 1);
-    }
-    if (r.user_id === userId) {
-      myStatusByKey.set(key, r.status);
-    }
-  }
-
-  const occurrences = [];
-  for (const event of events) {
-    const raw = expandEvent(
-      {
-        startAt: event.start_at,
-        endAt: event.end_at,
-        recurrenceRule: event.recurrence_rule,
-      },
-      new Date(fromMs).toISOString(),
-      new Date(toMs).toISOString(),
-    );
-    const effective = applyOverrides(raw, overridesByEvent.get(event.id) ?? []);
-    for (const occ of effective) {
-      const ov = occ.override;
-      const key = keyOf(event.id, occ.occurrenceStart);
-      occurrences.push({
-        eventId: event.id,
-        occurrenceStart: occ.occurrenceStart,
-        startAt: occ.startAt,
-        endAt: occ.endAt,
-        place: ov?.place ?? event.place,
-        instructorName: ov?.instructorName ?? event.instructor_name,
-        note: ov?.note ?? event.note,
-        isPublic: event.is_public,
-        isRecurring: event.recurrence_rule != null,
-        isOverridden: occ.isOverridden,
-        recurrenceRule: event.recurrence_rule,
-        attendingCount: attendByKey.get(key) ?? 0,
-        decliningCount: declineByKey.get(key) ?? 0,
-        myStatus: myStatusByKey.get(key) ?? null,
-        canManage,
-      });
-    }
-  }
-
-  occurrences.sort((a, b) => Date.parse(a.startAt) - Date.parse(b.startAt));
-
   return c.json({ success: true, data: occurrences });
+});
+
+// ────────────────────────────────────────────────────────────────
+// GET /api/events/next?boardId= — 今以降の最も近い稽古 1 件(ダッシュボード用)
+// ────────────────────────────────────────────────────────────────
+eventsRoute.get("/next", authMiddleware, boardMemberMiddleware, async (c) => {
+  const supabase = c.get("supabase");
+  if (!supabase) {
+    return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+  }
+  const userId = c.get("userId");
+  const boardId = c.get("boardId");
+  const boardRole = c.get("boardRole");
+  const canManage = boardRole === "owner" || boardRole === "admin";
+  const aikiboard = supabase.schema("aikiboard");
+
+  const nowMs = Date.now();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const fromMs = nowMs - NEXT_PAST_HORIZON_DAYS * dayMs;
+  const toMs = nowMs + NEXT_HORIZON_DAYS * dayMs;
+
+  const failWith = (logMessage: string) => {
+    logger.error(logMessage, { feature: "events", boardId, userId });
+    return c.json({ success: false, error: "稽古の取得に失敗しました" }, 500);
+  };
+
+  const { data: events, error: eventsError } = await aikiboard
+    .from("events")
+    .select(
+      "id, start_at, end_at, place, instructor_name, note, recurrence_rule, is_public",
+    )
+    .eq("board_id", boardId);
+  if (eventsError) {
+    return failWith("events の取得に失敗");
+  }
+  if (!events || events.length === 0) {
+    return c.json({ success: true, data: null });
+  }
+
+  const occurrences = await loadOccurrences(
+    supabase,
+    events,
+    fromMs,
+    toMs,
+    userId,
+    canManage,
+  );
+  if (!occurrences) {
+    return failWith("稽古の関連データ取得に失敗");
+  }
+
+  // 開催日順なので、(上書き後の)開始時刻が今以降で最初のものが「次の稽古」。
+  const next = occurrences.find((o) => Date.parse(o.startAt) >= nowMs) ?? null;
+  return c.json({ success: true, data: next });
 });
 
 // ────────────────────────────────────────────────────────────────

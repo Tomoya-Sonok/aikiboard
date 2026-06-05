@@ -23,8 +23,11 @@ export function RsvpControl({
   onChanged,
 }: Props) {
   const t = useTranslations("boards.calendar");
+  // myStatus はマウント時にだけ取り込む。外部(再フェッチ)で myStatus が変わったら
+  // 反映されるよう、利用側はアンマウント(モーダル)か key 付与(常時マウント箇所)で
+  // 作り直すこと。
   const [optimistic, setOptimistic] = useState<RsvpStatus | null>(myStatus);
-  // ロールバック先は「直前に確定した値」。初期はモーダルを開いた時点の myStatus。
+  // ロールバック先は「直前に確定した値」。初期はマウント時点の myStatus。
   const confirmedRef = useRef<RsvpStatus | null>(myStatus);
 
   const setMutation = useMutation({

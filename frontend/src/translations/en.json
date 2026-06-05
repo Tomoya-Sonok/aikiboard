@@ -50,32 +50,35 @@
   "boards": {
     "create": {
       "title": "Create a board",
+      "subtitle": "A board represents one aikido dojo organization or group that you manage. Create one per dojo. You can change these later, so feel free to fill them in.",
       "name": "Board name",
-      "namePlaceholder": "e.g. General practice",
-      "slug": "URL (public page)",
+      "namePlaceholder": "e.g. Aiki Board Dojo Tokyo branch",
+      "slug": "Board URL",
+      "slugPlaceholder": "e.g. aiki-board-dojo-tokyo",
       "slugHint": "Follows aiki-board.com/d/. Lowercase letters, numbers and hyphens.",
-      "dojo": "Linked dojo",
-      "dojoSearchPlaceholder": "Search by dojo name",
-      "dojoChange": "Change",
+      "dojo": "Dojo name",
+      "dojoSearchPlaceholder": "Type and select a dojo",
+      "dojoEdit": "Edit dojo name",
+      "dojoClear": "Clear",
+      "dojoApproved": "Approved",
       "dojoSearching": "Searching…",
       "dojoNoResults": "No matching dojo",
-      "description": "Description (optional)",
-      "isPublic": "Make this board public",
-      "submit": "Create board",
+      "description": "Board description",
+      "submit": "Create",
       "error": "Failed to create the board",
       "validation": {
         "nameRequired": "Board name is required",
         "nameMax": "Board name must be at most 50 characters",
-        "slugMin": "URL must be at least 3 characters",
-        "slugMax": "URL must be at most 63 characters",
-        "slugFormat": "URL may only contain lowercase letters, numbers and hyphens",
+        "slugMin": "Board URL must be at least 3 characters",
+        "slugMax": "Board URL must be at most 63 characters",
+        "slugFormat": "Board URL may only contain lowercase letters, numbers and hyphens",
         "descriptionMax": "Description must be at most 500 characters",
-        "dojoRequired": "Please select a dojo to link"
+        "dojoRequired": "Please enter and select a dojo to link"
       }
     },
     "dashboard": {
       "nextPractice": "Next practice",
-      "daysUntil": "in {days} days",
+      "daysUntil": "{days, plural, =0 {today} =1 {tomorrow} other {in # days}}",
       "viewDetail": "View detail",
       "attending": "Attending",
       "declined": "Declined",
@@ -85,7 +88,8 @@
       "announcements": "Announcements",
       "viewAll": "View all",
       "recentFeed": "Recent feed",
-      "toFeed": "Go to feed"
+      "toFeed": "Go to feed",
+      "noUpcoming": "No upcoming practices"
     },
     "calendar": {
       "title": "Practice calendar",
@@ -93,6 +97,14 @@
       "today": "Today",
       "prevMonth": "Previous month",
       "nextMonth": "Next month",
+      "viewMonth": "Month",
+      "viewWeek": "Week",
+      "viewList": "List",
+      "viewComingSoon": "Coming soon",
+      "legendHasEvent": "Has practice",
+      "legendAllAttending": "All attending",
+      "monthSummary": "{events} practices · {attendees} total attendances this month",
+      "attendingCountLabel": "{count} attending",
       "weekdayShort": {
         "SU": "Sun",
         "MO": "Mon",
@@ -193,6 +205,8 @@
     "signOut": "Log out",
     "memberCount": "{count} members",
     "searchPlaceholder": "Search this board",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "language": "Language",
+    "account": "Account"
   }
 }

@@ -2,35 +2,29 @@
   display: flex;
   flex-direction: column;
   gap: var(--ab-space-4);
+  padding: var(--ab-space-5) var(--ab-space-8) var(--ab-space-10);
 }
 
-.header {
+/* ── ツールバー ── */
+.toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--ab-space-4);
   flex-wrap: wrap;
-  gap: var(--ab-space-3);
 }
 
-.title {
-  margin: 0;
-  font-size: var(--ab-fs-2xl);
-  font-weight: var(--ab-fw-semibold);
-  color: var(--ab-text-primary);
-}
-
-.controls {
+.nav {
   display: flex;
   align-items: center;
-  gap: var(--ab-space-2);
+  gap: var(--ab-space-1);
 }
 
 .navBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: 1px solid var(--ab-border-default);
   border-radius: var(--ab-radius-md);
   background: var(--ab-surface-card);
@@ -43,17 +37,26 @@
 }
 
 .monthLabel {
-  min-width: 120px;
-  text-align: center;
-  font-size: var(--ab-fs-md);
+  margin: 0;
+  font-family: var(--ab-font-brand);
+  font-size: var(--ab-fs-2xl);
   font-weight: var(--ab-fw-semibold);
+  letter-spacing: 0.5px;
   color: var(--ab-text-primary);
+  white-space: nowrap;
+}
+
+.monthLabelUnit {
+  margin: 0 3px;
+  font-size: var(--ab-fs-base);
+  font-weight: var(--ab-fw-medium);
+  color: var(--ab-text-secondary);
 }
 
 .todayBtn {
   padding: var(--ab-space-1) var(--ab-space-3);
-  font-size: var(--ab-fs-sm);
-  border: 1px solid var(--ab-border-default);
+  font-size: var(--ab-fs-xs);
+  border: 1px solid var(--ab-border-strong);
   border-radius: var(--ab-radius-md);
   background: var(--ab-surface-card);
   color: var(--ab-text-secondary);
@@ -64,47 +67,125 @@
   background: var(--ab-washi-dark);
 }
 
+/* ── 表示切替(月/週/リスト)── */
+.viewToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-card);
+}
+
+.viewBtn {
+  padding: 3px var(--ab-space-3);
+  border: none;
+  border-radius: var(--ab-radius-sm);
+  background: transparent;
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-text-tertiary);
+  cursor: pointer;
+}
+
+.viewBtnActive {
+  background: var(--ab-surface-card-alt);
+  color: var(--ab-text-primary);
+  font-weight: var(--ab-fw-semibold);
+}
+
+.viewBtn:disabled {
+  color: var(--ab-text-disabled);
+  cursor: not-allowed;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* ── 凡例 ── */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-text-tertiary);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--ab-radius-pill);
+}
+
+.legendEvent {
+  background: var(--ab-dou);
+}
+
+.legendAll {
+  background: transparent;
+  border: 1.5px solid var(--ab-attend-yes);
+}
+
+/* ── 稽古を追加(主ボタン=墨)── */
 .addBtn {
   display: inline-flex;
   align-items: center;
   gap: var(--ab-space-1);
-  padding: var(--ab-space-2) var(--ab-space-3);
+  padding: 6px var(--ab-space-4);
   font-size: var(--ab-fs-sm);
-  font-weight: var(--ab-fw-semibold);
-  border: 1px solid transparent;
+  font-weight: var(--ab-fw-medium);
+  border: 1px solid var(--ab-sumi);
   border-radius: var(--ab-radius-md);
-  background: var(--ab-dou);
-  color: var(--ab-text-on-brand);
+  background: var(--ab-sumi);
+  color: var(--ab-text-inverse);
   cursor: pointer;
 }
 
 .addBtn:hover {
-  background: var(--ab-dou-light);
+  background: var(--ab-sumi-light);
+  border-color: var(--ab-sumi-light);
+}
+
+/* ── カレンダー本体(曜日見出し + 日グリッドを1枚のカードに)── */
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--ab-border-default);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+  overflow: hidden;
 }
 
 .weekHeader {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 1px;
+  background: var(--ab-border-default);
 }
 
 .weekHeaderCell {
-  padding: var(--ab-space-1) var(--ab-space-2);
+  padding: var(--ab-space-2) var(--ab-space-3);
   font-size: var(--ab-fs-xs);
-  font-weight: var(--ab-fw-medium);
-  color: var(--ab-text-tertiary);
-  text-align: center;
+  font-weight: var(--ab-fw-semibold);
+  letter-spacing: 1px;
+  color: var(--ab-text-secondary);
+  background: var(--ab-surface-card-alt);
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: minmax(96px, 1fr);
+  grid-auto-rows: minmax(108px, 1fr);
   gap: 1px;
-  background: var(--ab-border-subtle);
-  border: 1px solid var(--ab-border-subtle);
-  border-radius: var(--ab-radius-md);
-  overflow: hidden;
+  background: var(--ab-border-default);
 }
 
 .cell {
@@ -112,9 +193,13 @@
   flex-direction: column;
   gap: var(--ab-space-1);
   align-items: stretch;
-  padding: var(--ab-space-1);
-  min-height: 96px;
+  padding: var(--ab-space-2) 10px 10px;
+  min-height: 108px;
   background: var(--ab-surface-card);
+}
+
+.cellMuted {
+  background: var(--ab-surface-card-alt);
 }
 
 .cellHeader {
@@ -154,15 +239,25 @@
   opacity: 1;
 }
 
-.cellMuted {
-  background: var(--ab-surface-card-alt);
-}
-
+/* ── 日付の数字(土日は色分け、当日は墨の丸)── */
 .dayNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
   font-size: var(--ab-fs-sm);
   font-weight: var(--ab-fw-medium);
   font-family: var(--ab-font-num);
-  color: var(--ab-text-secondary);
+  color: var(--ab-text-primary);
+}
+
+.weekendSun {
+  color: var(--ab-danger);
+}
+
+.weekendSat {
+  color: var(--ab-info);
 }
 
 .cellMuted .dayNum {
@@ -170,16 +265,13 @@
 }
 
 .cellToday .dayNum {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
   border-radius: var(--ab-radius-pill);
-  background: var(--ab-dou);
-  color: var(--ab-text-on-brand);
+  background: var(--ab-sumi);
+  color: var(--ab-text-inverse);
+  font-weight: var(--ab-fw-bold);
 }
 
+/* ── イベントチップ ── */
 .chips {
   display: flex;
   flex-direction: column;
@@ -188,12 +280,12 @@
 
 .chip {
   display: flex;
-  align-items: center;
-  gap: var(--ab-space-1);
-  padding: 2px var(--ab-space-1);
-  font-size: var(--ab-fs-xs);
+  flex-direction: column;
+  gap: 1px;
+  padding: 3px 6px 4px 8px;
   text-align: left;
   border: none;
+  border-left: 2px solid var(--ab-dou);
   border-radius: var(--ab-radius-sm);
   background: var(--ab-dou-soft);
   color: var(--ab-text-primary);
@@ -205,33 +297,74 @@
   background: var(--ab-dou-light);
 }
 
-.dot {
-  flex-shrink: 0;
-  width: 6px;
-  height: 6px;
-  border-radius: var(--ab-radius-pill);
-}
-
-.dotAttend {
-  background: var(--ab-attend-yes);
-}
-
-.dotDecline {
-  background: var(--ab-attend-no);
-}
-
-.dotNone {
-  background: var(--ab-attend-undecided);
+.chipTop {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  min-width: 0;
 }
 
 .chipTime {
   flex-shrink: 0;
   font-family: var(--ab-font-num);
-  font-weight: var(--ab-fw-medium);
+  font-size: var(--ab-fs-xs);
+  font-weight: var(--ab-fw-semibold);
 }
 
 .chipPlace {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-text-secondary);
+}
+
+.chipNote {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-text-secondary);
+}
+
+.chipMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 1px;
+  color: var(--ab-text-secondary);
+}
+
+.chipCount {
+  font-family: var(--ab-font-num);
+  font-size: var(--ab-fs-xs);
+  font-weight: var(--ab-fw-semibold);
+}
+
+.chipCountFull {
+  color: var(--ab-attend-yes-strong);
+}
+
+/* ── 月サマリー ── */
+.summary {
+  font-size: var(--ab-fs-xs);
+  color: var(--ab-text-tertiary);
+}
+
+@media (max-width: 639px) {
+  .wrapper {
+    padding: var(--ab-space-3) var(--ab-space-3) var(--ab-space-6);
+  }
+
+  .legend {
+    display: none;
+  }
+
+  .grid {
+    grid-auto-rows: minmax(76px, 1fr);
+  }
+
+  .cell {
+    min-height: 76px;
+  }
 }

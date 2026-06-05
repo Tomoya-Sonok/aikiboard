@@ -11,12 +11,25 @@
   box-shadow: var(--ab-shadow-md);
 }
 
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-2);
+}
+
 .title {
   margin: 0;
   font-family: var(--ab-font-brand);
   font-size: var(--ab-fs-2xl);
   font-weight: var(--ab-fw-bold);
   color: var(--ab-text-primary);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-normal);
+  color: var(--ab-text-secondary);
 }
 
 .serverError {
@@ -63,15 +76,6 @@
   margin: 0;
   font-size: var(--ab-fs-xs);
   color: var(--ab-danger);
-}
-
-.checkboxRow {
-  display: flex;
-  align-items: center;
-  gap: var(--ab-space-2);
-  font-size: var(--ab-fs-sm);
-  color: var(--ab-text-primary);
-  cursor: pointer;
 }
 
 .actions {

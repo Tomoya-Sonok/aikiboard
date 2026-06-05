@@ -14,6 +14,16 @@
   box-shadow: var(--ab-shadow-sm);
 }
 
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ab-space-2);
+  padding: var(--ab-space-8) var(--ab-space-5);
+  color: var(--ab-text-tertiary);
+  font-size: var(--ab-fs-sm);
+}
+
 .cardHeader {
   display: flex;
   align-items: center;

@@ -139,6 +139,17 @@ export const eventsRouter = createTRPCRouter({
       );
     }),
 
+  // 今以降の最も近い稽古 1 件(ダッシュボード「次の稽古」)。予定なしは data:null。
+  next: authenticatedProcedure
+    .input(z.object({ boardId: uuidLike }))
+    .query(({ input, ctx }) => {
+      const qs = new URLSearchParams({ boardId: input.boardId });
+      return callHonoApi<ApiResponse<EventOccurrence | null>>(
+        `/api/events/next?${qs.toString()}`,
+        { headers: authHeader(ctx.accessToken) },
+      );
+    }),
+
   // その回の出欠名簿(メンバー: 参加/不参加、管理者: 未回答も)。
   occurrenceRsvps: authenticatedProcedure
     .input(z.object({ eventId: uuidLike, occurrenceStart: isoString }))
