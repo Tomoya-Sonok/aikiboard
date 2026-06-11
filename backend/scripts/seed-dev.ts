@@ -162,16 +162,6 @@ async function seedBoard(ownerId: string, memberId: string): Promise<void> {
   const m = now.getUTCMonth() + 1;
   const d = now.getUTCDate();
   const { error: eventsError } = await ab.from("events").insert([
-    // 単発: 明日 19:00–21:00。
-    {
-      board_id: boardId,
-      start_at: jstIso(y, m, d + 1, 19, 0),
-      end_at: jstIso(y, m, d + 1, 21, 0),
-      place: "第一道場",
-      instructor_name: "田中 一郎",
-      is_public: true,
-      created_by_user_id: ownerId,
-    },
     // 定期: 毎週 火・金 19:00–21:00(一般稽古)。
     {
       board_id: boardId,
