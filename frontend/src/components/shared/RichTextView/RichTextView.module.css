@@ -1,0 +1,48 @@
+.view {
+  color: var(--ab-text-primary);
+  font-size: 15px;
+  line-height: 1.85;
+  word-break: break-word;
+}
+
+.view h1,
+.view h2,
+.view h3 {
+  font-weight: 700;
+  line-height: 1.4;
+  margin: var(--ab-space-5) 0 var(--ab-space-2);
+}
+
+.view h1 {
+  font-size: 22px;
+}
+
+.view h2 {
+  font-size: 19px;
+}
+
+.view h3 {
+  font-size: 16px;
+}
+
+.view > :first-child {
+  margin-top: 0;
+}
+
+.view p {
+  margin: 0 0 var(--ab-space-3);
+}
+
+.view p:last-child {
+  margin-bottom: 0;
+}
+
+.view a {
+  color: var(--ab-text-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.view strong {
+  font-weight: 700;
+}

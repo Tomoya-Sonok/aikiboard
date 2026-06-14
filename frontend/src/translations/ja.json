@@ -186,6 +186,15 @@
         "decliners": "不参加者",
         "noResponses": "まだ回答がありません"
       }
+    },
+    "announcements": {
+      "title": "お知らせ",
+      "draft": "下書き",
+      "empty": "まだお知らせはありません",
+      "loading": "読み込み中…",
+      "loadError": "お知らせを読み込めませんでした",
+      "loadMore": "もっと見る",
+      "notifiedByEmail": "メール通知あり"
     }
   },
   "nav": {
