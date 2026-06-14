@@ -233,6 +233,44 @@
         "undo": "元に戻す",
         "redo": "やり直す"
       }
+    },
+    "members": {
+      "title": "メンバー",
+      "memberCount": "{count}人",
+      "loading": "読み込み中…",
+      "unknownUser": "（不明なユーザー）",
+      "you": "あなた",
+      "joinedAt": "{date} に参加",
+      "remove": "削除",
+      "leave": "退会",
+      "removeConfirm": "{name} さんをこのボードから削除しますか?",
+      "leaveConfirm": "このボードから退会しますか?",
+      "role": {
+        "owner": "オーナー",
+        "admin": "アドミン",
+        "member": "メンバー"
+      },
+      "inviteTitle": "招待リンク",
+      "inviteDesc": "このリンクを共有すると、受け取った人がこのボードに参加できます。",
+      "createInvite": "招待リンクを作成",
+      "noInvite": "有効な招待リンクはありません。",
+      "inviteUrl": "招待リンク URL",
+      "copy": "コピー",
+      "revoke": "失効",
+      "expiresAt": "有効期限: {date}"
+    },
+    "invite": {
+      "loading": "読み込み中…",
+      "invitedTo": "次のボードに招待されています",
+      "memberCount": "{count}人が参加",
+      "join": "参加する",
+      "joining": "参加しています…",
+      "joinError": "参加に失敗しました。時間をおいて再度お試しください。",
+      "alreadyMember": "すでにこのボードに参加しています。",
+      "openBoard": "ボードを開く",
+      "invalidTitle": "招待リンクが無効です",
+      "invalidDesc": "この招待リンクは期限切れか、失効しています。管理者に新しいリンクを依頼してください。",
+      "toHome": "ホームへ"
     }
   },
   "nav": {
