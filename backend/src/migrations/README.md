@@ -11,7 +11,7 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 
 ## 適用順序
 
-`001` → `002` → ... → `010` の順で実行する(番号 = 依存順)。
+`001` → `002` → ... → `011` の順で実行する(番号 = 依存順)。
 
 | ファイル | 内容 |
 |---|---|
@@ -25,6 +25,7 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 | `008_apply_rls.sql` | 全テーブルに RLS 有効化 + ポリシー定義 |
 | `009_grant_aikiboard_to_service_role.sql` | service_role に aikiboard テーブル/シーケンスの DML 権限を付与(backend が REST 経由で aikiboard を操作するため) |
 | `010_recurrence_and_occurrences.sql` | 定期稽古対応: `event_rsvps` を開催日単位へ拡張(PK を `(event_id, occurrence_start, user_id)` へ再構成)+ `event_overrides`(この回だけ休講/上書き)テーブル + RLS |
+| `011_announcements_draft_rls.sql` | お知らせの下書き(`published_at IS NULL`)防御: `announcements_select_member` を「メンバー かつ(公開済み OR 管理者)」へ絞り直し + `announcement_reads_insert_self` を「公開済み + 自分がメンバー」に限定 |
 
 > **REST 公開設定**: backend / frontend が aikiboard を REST(PostgREST)経由で扱うには、Supabase の **Exposed schemas に `aikiboard` を含める**必要がある。ローカルは `backend/supabase/config.toml` の `[api] schemas`(設定済み、`supabase start` で反映)。**本番は Dashboard → Settings → API → Exposed schemas に `aikiboard` を追加する**(Phase 1 ボード機能のデプロイ前に必須)。
 
@@ -32,7 +33,7 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 
 1. Supabase Dashboard を開く(AikiNote と同一プロジェクト)
 2. **SQL Editor** → **+ New query**
-3. `001_*.sql` の中身を貼り付け **Run**。エラーが無ければ次のファイルへ。`010` まで実行する
+3. `001_*.sql` の中身を貼り付け **Run**。エラーが無ければ次のファイルへ。`011` まで実行する
 4. **Database → Schemas → aikiboard** でテーブル一覧と RLS の有効化を確認
 5. 適用状況は PR テンプレの「DB マイグレーション → 本番適用済み」チェックで追跡する(`000_seed_*.sql` は本番では実行しない)
 
