@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretDoubleLeft, Plus } from "@phosphor-icons/react";
+import { CaretDoubleLeft, MagnifyingGlass, Plus } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { BOARD_NAV_ITEMS } from "@/lib/boards/navItems";
@@ -37,7 +37,10 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
   const toggleSidebar = useUiStore((s) => s.toggleSidebar);
 
   // アクティブボードのお知らせ未読数(announce ナビのバッジ用)。
-  const activeBoardId = boards.find((b) => b.slug === activeSlug)?.id;
+  const activeBoard = boards.find((b) => b.slug === activeSlug);
+  const activeBoardId = activeBoard?.id;
+  const isActiveAdmin =
+    activeBoard?.role === "owner" || activeBoard?.role === "admin";
   const { data: unreadRes } = useQuery({
     queryKey: ["announcements", activeBoardId, "unreadCount"],
     queryFn: () =>
@@ -47,6 +50,17 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
     enabled: Boolean(activeBoardId),
   });
   const unreadAnnouncements = unreadRes?.data?.count ?? 0;
+
+  // 管理者のみ: アクティブボードの参加申請(承認待ち)件数を members ナビのバッジに出す。
+  const { data: pendingRes } = useQuery({
+    queryKey: ["membershipRequests", activeBoardId],
+    queryFn: () =>
+      trpcClient.membershipRequests.listForBoard.query({
+        boardId: activeBoardId ?? "",
+      }),
+    enabled: Boolean(activeBoardId) && isActiveAdmin,
+  });
+  const pendingRequests = pendingRes?.data?.length ?? 0;
 
   const handleSignOut = async () => {
     await signOut();
@@ -111,6 +125,17 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
             ))}
           </div>
         )}
+
+        {!collapsed && (
+          <button
+            type="button"
+            className={styles.discoverLink}
+            onClick={() => router.push("/boards/discover")}
+          >
+            <MagnifyingGlass size={13} />
+            <span>{t("discoverBoards")}</span>
+          </button>
+        )}
       </div>
 
       <nav className={styles.nav}>
@@ -149,6 +174,15 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
                 ) : (
                   <span className={styles.navUnreadBadge}>
                     {unreadAnnouncements}
+                  </span>
+                )
+              ) : null}
+              {item.id === "members" && pendingRequests > 0 ? (
+                collapsed ? (
+                  <span className={styles.navUnreadDot} aria-hidden="true" />
+                ) : (
+                  <span className={styles.navUnreadBadge}>
+                    {pendingRequests}
                   </span>
                 )
               ) : null}

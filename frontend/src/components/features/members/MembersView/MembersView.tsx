@@ -10,6 +10,7 @@ import { useRouter } from "@/lib/i18n/routing";
 import { trpcClient } from "@/lib/trpc/client";
 import type { BoardMember } from "@/lib/types/member";
 import { InviteLinkPanel } from "../InviteLinkPanel/InviteLinkPanel";
+import { PendingRequestsPanel } from "../PendingRequestsPanel/PendingRequestsPanel";
 import styles from "./MembersView.module.css";
 
 type Props = {
@@ -64,6 +65,7 @@ export function MembersView({ boardId, canManage }: Props) {
 
   return (
     <div className={styles.wrapper}>
+      {canManage ? <PendingRequestsPanel boardId={boardId} /> : null}
       {canManage ? <InviteLinkPanel boardId={boardId} /> : null}
 
       <div className={styles.header}>

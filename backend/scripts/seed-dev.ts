@@ -65,7 +65,11 @@ async function findUserIdByEmail(email: string): Promise<string | null> {
 }
 
 // auth ユーザーを作成(既に居れば取得)し、public."User" プロフィールを upsert する。
-async function ensureUser(u: DevUser): Promise<string> {
+// dojoStyleId を渡すと AikiNote 道場(DojoStyleMaster)に紐づける(参加申請の発見元)。
+async function ensureUser(
+  u: { email: string; username: string },
+  dojoStyleId?: string,
+): Promise<string> {
   const created = await admin.auth.admin.createUser({
     email: u.email,
     password: PASSWORD,
@@ -80,19 +84,26 @@ async function ensureUser(u: DevUser): Promise<string> {
     throw created.error ?? new Error(`auth ユーザー作成に失敗: ${u.email}`);
   }
 
-  const { error: profileError } = await admin
-    .from("User")
-    .upsert(
-      { id: userId, email: u.email, username: u.username },
-      { onConflict: "id" },
-    );
+  const { error: profileError } = await admin.from("User").upsert(
+    {
+      id: userId,
+      email: u.email,
+      username: u.username,
+      dojo_style_id: dojoStyleId ?? null,
+    },
+    { onConflict: "id" },
+  );
   if (profileError) {
     throw profileError;
   }
   return userId;
 }
 
-async function seedBoard(ownerId: string, memberId: string): Promise<void> {
+async function seedBoard(
+  ownerId: string,
+  memberId: string,
+  applicantId: string,
+): Promise<void> {
   const ab = admin.schema("aikiboard");
 
   const { data: existing, error: existingError } = await ab
@@ -267,7 +278,21 @@ async function seedBoard(ownerId: string, memberId: string): Promise<void> {
     }
   }
 
-  console.log(`ボード(${BOARD_SLUG})とサンプル稽古・お知らせを作成しました。`);
+  // applicant(蕨合気道会の道場に紐づく非メンバー)からの参加申請を1件入れる。
+  // 管理者でログインするとメンバー画面に「承認待ち」として表示される。
+  const { error: requestError } = await ab.from("membership_requests").insert({
+    board_id: boardId,
+    user_id: applicantId,
+    message: "一般稽古に参加しています。よろしくお願いします。",
+    status: "pending",
+  });
+  if (requestError) {
+    throw requestError;
+  }
+
+  console.log(
+    `ボード(${BOARD_SLUG})とサンプル稽古・お知らせ・参加申請を作成しました。`,
+  );
 }
 
 async function main(): Promise<void> {
@@ -283,14 +308,25 @@ async function main(): Promise<void> {
     console.log(`auth ユーザーを用意: ${u.email}(${u.role})`);
   }
 
-  await seedBoard(ids.owner, ids.member);
+  // 参加申請の動作確認用: 蕨合気道会の道場に紐づくが、まだ非メンバーの申請者。
+  const applicantId = await ensureUser(
+    { email: "dev-applicant@aiki-board.com", username: "dev_applicant" },
+    DOJO_MASTER_ID,
+  );
+  console.log("auth ユーザーを用意: dev-applicant@aiki-board.com(applicant)");
+
+  await seedBoard(ids.owner, ids.member, applicantId);
 
   console.log("\n✅ seed 完了。ローカルログイン情報:");
   for (const u of USERS) {
     console.log(`  - ${u.role}: ${u.email} / ${PASSWORD}`);
   }
+  console.log(`  - applicant: dev-applicant@aiki-board.com / ${PASSWORD}`);
   console.log(
-    `  ログイン後、ボード「蕨合気道会」(/d/${BOARD_SLUG})で稽古カレンダーを確認できます。`,
+    `  ログイン後、ボード「蕨合気道会」(/d/${BOARD_SLUG})で各機能を確認できます。`,
+  );
+  console.log(
+    "  applicant でログインすると「道場ボードを探す」から参加申請でき、owner/admin のメンバー画面に承認待ちが表示されます。",
   );
 }
 

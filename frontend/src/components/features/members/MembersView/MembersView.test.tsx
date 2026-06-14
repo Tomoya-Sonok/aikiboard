@@ -23,6 +23,12 @@ vi.mock("@/lib/trpc/client", () => ({
       create: { mutate: async () => ({ success: true }) },
       revoke: { mutate: async () => ({ success: true }) },
     },
+    // PendingRequestsPanel が使う(admin 描画時)。
+    membershipRequests: {
+      listForBoard: { query: async () => ({ success: true, data: [] }) },
+      approve: { mutate: async () => ({ success: true }) },
+      reject: { mutate: async () => ({ success: true }) },
+    },
   },
 }));
 
