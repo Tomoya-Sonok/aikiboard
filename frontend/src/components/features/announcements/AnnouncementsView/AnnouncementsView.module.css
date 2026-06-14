@@ -18,6 +18,25 @@
   color: var(--ab-text-primary);
 }
 
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  padding: var(--ab-space-2) var(--ab-space-4);
+  background: var(--ab-dou);
+  color: var(--ab-text-on-brand);
+  border: none;
+  border-radius: var(--ab-radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.addBtn:hover {
+  background: var(--ab-dou-light);
+}
+
 .list {
   display: flex;
   flex-direction: column;

@@ -1,13 +1,17 @@
 "use client";
 
-import { Megaphone } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { Megaphone, Plus } from "@phosphor-icons/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { type CalendarLocale, formatJstDateLong } from "@/lib/calendar/format";
 import { trpcClient } from "@/lib/trpc/client";
 import type { AnnouncementSummary } from "@/lib/types/announcement";
 import { AnnouncementDetailModal } from "../AnnouncementDetailModal/AnnouncementDetailModal";
+import {
+  type AnnouncementEditing,
+  AnnouncementForm,
+} from "../AnnouncementForm/AnnouncementForm";
 import styles from "./AnnouncementsView.module.css";
 
 type Props = {
@@ -15,15 +19,19 @@ type Props = {
   canManage: boolean;
 };
 
+type FormState = { editing?: AnnouncementEditing } | null;
+
 const PAGE_SIZE = 20;
 
-export function AnnouncementsView({ boardId }: Props) {
+export function AnnouncementsView({ boardId, canManage }: Props) {
   const t = useTranslations("boards.announcements");
   const rawLocale = useLocale();
   const locale: CalendarLocale = rawLocale === "en" ? "en" : "ja";
+  const queryClient = useQueryClient();
 
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [selected, setSelected] = useState<AnnouncementSummary | null>(null);
+  const [formState, setFormState] = useState<FormState>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["announcements", boardId, "list", limit],
@@ -35,10 +43,29 @@ export function AnnouncementsView({ boardId }: Props) {
   const total = data?.data?.total ?? 0;
   const hasMore = items.length < total;
 
+  const refresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["announcements", boardId] });
+  };
+
+  const handleEdit = (editing: AnnouncementEditing) => {
+    setSelected(null);
+    setFormState({ editing });
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <h1 className={styles.heading}>{t("title")}</h1>
+        {canManage ? (
+          <button
+            type="button"
+            className={styles.addBtn}
+            onClick={() => setFormState({})}
+          >
+            <Plus size={14} weight="bold" />
+            <span>{t("create")}</span>
+          </button>
+        ) : null}
       </div>
 
       {isLoading && items.length === 0 ? (
@@ -111,8 +138,21 @@ export function AnnouncementsView({ boardId }: Props) {
         <AnnouncementDetailModal
           boardId={boardId}
           summary={selected}
+          canManage={canManage}
           open={selected !== null}
           onClose={() => setSelected(null)}
+          onEdit={handleEdit}
+          onChanged={refresh}
+        />
+      ) : null}
+
+      {formState ? (
+        <AnnouncementForm
+          boardId={boardId}
+          editing={formState.editing}
+          open={formState !== null}
+          onClose={() => setFormState(null)}
+          onSaved={refresh}
         />
       ) : null}
     </div>

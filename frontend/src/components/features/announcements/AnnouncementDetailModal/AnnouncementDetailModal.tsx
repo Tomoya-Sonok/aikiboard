@@ -4,6 +4,7 @@ import { EnvelopeSimple } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import { Dialog } from "@/components/shared/Dialog/Dialog";
 import { RichTextView } from "@/components/shared/RichTextView/RichTextView";
 import { type CalendarLocale, formatJstDateLong } from "@/lib/calendar/format";
@@ -13,6 +14,7 @@ import type {
   AnnouncementSummary,
 } from "@/lib/types/announcement";
 import type { ApiResponse } from "@/lib/types/api";
+import type { AnnouncementEditing } from "../AnnouncementForm/AnnouncementForm";
 import styles from "./AnnouncementDetailModal.module.css";
 
 type Props = {
@@ -20,6 +22,10 @@ type Props = {
   summary: AnnouncementSummary;
   open: boolean;
   onClose: () => void;
+  // 管理者操作(指定時のみ編集/公開/削除を表示)。
+  canManage?: boolean;
+  onEdit?: (editing: AnnouncementEditing) => void;
+  onChanged?: () => void;
 };
 
 const listKey = (boardId: string) => ["announcements", boardId, "list"];
@@ -63,6 +69,9 @@ export function AnnouncementDetailModal({
   summary,
   open,
   onClose,
+  canManage = false,
+  onEdit,
+  onChanged,
 }: Props) {
   const t = useTranslations("boards.announcements");
   const rawLocale = useLocale();
@@ -75,6 +84,54 @@ export function AnnouncementDetailModal({
     enabled: open,
   });
   const detail = detailRes?.data;
+
+  const publishMutation = useMutation({
+    mutationFn: () =>
+      trpcClient.announcements.publish.mutate({ id: summary.id }),
+    onSuccess: () => {
+      onChanged?.();
+      onClose();
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: () =>
+      trpcClient.announcements.remove.mutate({ id: summary.id }),
+    onSuccess: () => {
+      onChanged?.();
+      onClose();
+    },
+  });
+
+  const handlePublish = () => {
+    const message = summary.notifyEmail
+      ? t("publishConfirmEmail")
+      : t("publishConfirm");
+    if (window.confirm(message)) {
+      publishMutation.mutate();
+    }
+  };
+
+  const handleRemove = () => {
+    if (window.confirm(t("deleteConfirm"))) {
+      removeMutation.mutate();
+    }
+  };
+
+  const handleEdit = () => {
+    if (!detail || !onEdit) {
+      return;
+    }
+    onEdit({
+      id: detail.id,
+      title: detail.title,
+      bodyRich: detail.bodyRich,
+      notifyEmail: detail.notifyEmail,
+      isDraft: detail.isDraft,
+    });
+  };
+
+  const busy = publishMutation.isPending || removeMutation.isPending;
 
   const markReadMutation = useMutation({
     mutationFn: () =>
@@ -137,6 +194,26 @@ export function AnnouncementDetailModal({
         ) : (
           <p className={styles.loading}>{t("loadError")}</p>
         )}
+
+        {canManage ? (
+          <div className={styles.actions}>
+            <Button
+              variant="secondary"
+              onClick={handleEdit}
+              disabled={busy || !detail}
+            >
+              {t("edit")}
+            </Button>
+            {summary.isDraft ? (
+              <Button onClick={handlePublish} disabled={busy}>
+                {t("publish")}
+              </Button>
+            ) : null}
+            <Button variant="secondary" onClick={handleRemove} disabled={busy}>
+              {t("delete")}
+            </Button>
+          </div>
+        ) : null}
       </div>
     </Dialog>
   );
