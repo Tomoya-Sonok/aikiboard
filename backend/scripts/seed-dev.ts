@@ -200,7 +200,74 @@ async function seedBoard(ownerId: string, memberId: string): Promise<void> {
   if (eventsError) {
     throw eventsError;
   }
-  console.log(`ボード(${BOARD_SLUG})とサンプル稽古を作成しました。`);
+
+  // サンプルお知らせ(本文は ProseMirror/Tiptap JSON。ホワイトリスト準拠)。
+  //   1) 公開済み(member 既読)/ 2) 公開済み(未読)/ 3) 下書き(管理者のみ閲覧)。
+  const dayMs = 24 * 60 * 60 * 1000;
+  const doc = (title: string, body: string) => ({
+    type: "doc",
+    content: [
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: title }],
+      },
+      { type: "paragraph", content: [{ type: "text", text: body }] },
+    ],
+  });
+  const { data: anns, error: annError } = await ab
+    .from("announcements")
+    .insert([
+      {
+        board_id: boardId,
+        title: "7月の審査について",
+        body_rich: doc(
+          "昇級・昇段審査のお知らせ",
+          "7月14日(日)に審査を実施します。受験希望者は7月7日までにお知らせください。",
+        ),
+        notify_email: false,
+        created_by_user_id: ownerId,
+        published_at: new Date(Date.now() - 5 * dayMs).toISOString(),
+      },
+      {
+        board_id: boardId,
+        title: "夏季合宿のご案内",
+        body_rich: doc(
+          "夏季合宿",
+          "8月10日〜12日、箱根にて夏季合宿を予定しています。詳細は追ってお知らせします。",
+        ),
+        notify_email: true,
+        created_by_user_id: ownerId,
+        published_at: new Date(Date.now() - 2 * dayMs).toISOString(),
+      },
+      {
+        board_id: boardId,
+        title: "道場清掃のお願い(下書き)",
+        body_rich: doc(
+          "大掃除",
+          "6月28日の稽古後に大掃除を行います。雑巾等をご持参ください。",
+        ),
+        notify_email: false,
+        created_by_user_id: ownerId,
+        published_at: null,
+      },
+    ])
+    .select("id, title");
+  if (annError || !anns) {
+    throw annError ?? new Error("お知らせ作成に失敗");
+  }
+  // 1件目(審査)を member が既読にした状態にする。
+  const readTarget = anns.find((a) => a.title === "7月の審査について");
+  if (readTarget) {
+    const { error: readError } = await ab
+      .from("announcement_reads")
+      .insert({ announcement_id: readTarget.id, user_id: memberId });
+    if (readError) {
+      throw readError;
+    }
+  }
+
+  console.log(`ボード(${BOARD_SLUG})とサンプル稽古・お知らせを作成しました。`);
 }
 
 async function main(): Promise<void> {

@@ -34,6 +34,17 @@ export const formatJstDateLong = (
     weekday: "short",
   }).format(new Date(iso));
 
+// ダッシュボードのリストなどで使う短い日付(月/日)。
+export const formatJstShortDate = (
+  iso: string,
+  locale: CalendarLocale,
+): string =>
+  new Intl.DateTimeFormat(intlLocale(locale), {
+    timeZone: "Asia/Tokyo",
+    month: "numeric",
+    day: "numeric",
+  }).format(new Date(iso));
+
 // 日付ブロック用に「日・月・曜日」を JST で分解する。
 export const formatJstDateParts = (
   iso: string,

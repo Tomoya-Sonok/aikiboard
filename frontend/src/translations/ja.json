@@ -89,7 +89,8 @@
       "viewAll": "すべて見る",
       "recentFeed": "最近のフィード",
       "toFeed": "フィードへ",
-      "noUpcoming": "今後の稽古予定はありません"
+      "noUpcoming": "今後の稽古予定はありません",
+      "noAnnouncements": "まだお知らせはありません"
     },
     "calendar": {
       "title": "稽古カレンダー",

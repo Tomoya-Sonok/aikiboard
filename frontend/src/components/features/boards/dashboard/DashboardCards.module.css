@@ -252,6 +252,13 @@
   align-items: start;
   padding: 14px 20px;
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.12s ease;
+}
+
+.announceRow:hover {
+  background: var(--ab-washi-dark);
 }
 
 .borderTop {

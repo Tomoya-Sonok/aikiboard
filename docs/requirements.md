@@ -16,6 +16,7 @@
 | v1.4 | 2026-06-03 | Phase 1 第1機能(認証 + 3階層ロール + ボード作成)を実装(#51〜#54)。access_token 検証は JWKS(ES256)本線へ(ADR 0002 B-5 追補)、aikiboard スキーマを REST 公開 + service_role 権限付与(migration `009`)。次は ボードダッシュボード/画面導線の整理 |
 | v1.5 | 2026-06-04 | ログイン後ダッシュボード(ガワ)と画面導線を実装(#58〜#63)。ログイン後は最後に開いた(or 先頭の)ボードの `/d/<slug>` へ直行、所属 0 件は `/boards/new` へ誘導。`/boards`(所属一覧)は着地導線にせず、サイドバーの Slack 風切替が担う。ボード作成時に Free サブスクを自動生成。アイコンは PhosphorIcons に統一(AikiNote と同方針)。「10.4 画面 URL・導線」を新設 |
 | v1.6 | 2026-06-04 | Phase 1 第3機能(稽古カレンダー + 出欠管理)を実装(#64〜#67)。定期稽古(自前 RRULE サブセットの on-the-fly 展開、Asia/Tokyo 基準)+「この回だけ休講/上書き」(`event_overrides`)+ 開催日単位の出欠(`event_rsvps` PK 再構成・migration `010`)+ 参加者名簿/管理者の出欠集計 + ダッシュボード「次の稽古」実データ接続。`boardMember`/`boardAdmin` ミドルウェア導入。未認証の公開カレンダー閲覧は後続。詳細は 4.1 実装メモ |
+| v1.7 | 2026-06-14 | Phase 1 第4機能(お知らせ配信)を実装(#70〜#73)。管理者→メンバーの一方向配信。下書き保存→公開の2段階フロー、本文は Tiptap(ProseMirror)WYSIWYG(見出し/太字/リンク/寄せ)で `body_rich`(JSONB)に保存、既読/未読管理 + ダッシュボード/サイドバーの未読バッジ。`notify_email` ON の公開時に Resend でメンバー全員へメール一斉送信(batch API・1人1通)。下書きの可視性を管理者のみへ絞る RLS(migration `011`)。詳細は 4.2 実装メモ |
 
 ---
 
@@ -188,6 +189,14 @@ AikiBoard オーナーは自分の道場が道場マスタに未登録の場合�
 - お知らせ一覧画面(既読 / 未読管理)
 - リッチテキスト対応(見出し・太字・リンク程度)
 - 管理者がお知らせ作成時に「メールでも通知する」フラグを ON にすることで、メンバーの登録メールにもメール送信
+
+> **実装メモ(2026-06-14、#70〜#73 で一巡)**: お知らせの一覧・詳細・作成/編集/削除・公開・既読/未読管理・メール通知まで実装済み。
+> - **下書き → 公開の2段階フロー**: 作成は常に下書き(`published_at` が NULL)で保存し、別途「公開」で `published_at` をセットする一方向操作。下書きは**管理者のみ閲覧可**(メンバーには 404)。公開済みの再編集は可能だが再メールはしない。
+> - **本文(リッチテキスト)**: **Tiptap(ProseMirror)WYSIWYG** で編集し、`body_rich`(JSONB)に ProseMirror JSON を保存。対応は **見出し(H2/H3)・太字・リンク・左/中央/右寄せ**(WordPress 風ツールバー)。ノード/マークは backend の zod **ホワイトリスト**で厳格検証(`doc/paragraph/heading[1-3]/text/hardBreak` + `bold/link[http(s)のみ]` + `textAlign`)。閲覧は JSON を歩く自前 React レンダラ(`dangerouslySetInnerHTML` 不使用で構造的に XSS 不可)。
+> - **既読管理**: 公開済みお知らせの詳細を開いた時点で既読化(`announcement_reads`)。一覧の未読ドット・ダッシュボードカード・サイドバーの未読バッジに反映(楽観更新)。
+> - **メール通知**: `notify_email` ON の公開時に、ボードのメンバー全員へ **Resend の batch API**(fetch 直叩き、1人1通で宛先の相互漏洩を防止、100通ごと分割)でメール送信。`waitUntil` の fire-and-forget で公開処理は止めない。ProseMirror JSON → メール HTML は自前シリアライザ。**本番は `aiki-board.com` のドメイン認証(SPF/DKIM)+ `RESEND_API_KEY` の Workers Secret 登録が前提**。
+> - **RLS**: 下書きの可視性を「メンバー かつ(公開済み OR 管理者)」へ絞り、`announcement_reads` の INSERT も「公開済み + 自分がメンバー」に限定(migration `011`、防御層)。
+> - **権限**: 作成/編集/削除/公開 = owner・admin、閲覧/既読 = メンバー全員。
 
 ### 4.3 道場内フィード + スレッド
 
