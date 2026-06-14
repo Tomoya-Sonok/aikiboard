@@ -20,6 +20,9 @@ export type AppBindings = {
   SUPABASE_JWT_SECRET?: string;
   NEXT_PUBLIC_APP_URL?: string;
   APP_URL?: string;
+  // お知らせのメール一斉送信(Resend)。機密値は wrangler secret で登録する。
+  RESEND_API_KEY?: string;
+  RESEND_FROM_EMAIL?: string;
 };
 
 export type BoardRole = "owner" | "admin" | "member";
