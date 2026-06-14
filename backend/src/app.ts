@@ -10,6 +10,8 @@ import announcementsRoute from "./routes/announcements/index.js";
 import boardsRoute from "./routes/boards/index.js";
 import dojoMastersRoute from "./routes/dojo-masters/index.js";
 import eventsRoute from "./routes/events/index.js";
+import invitationsRoute from "./routes/invitations/index.js";
+import membersRoute from "./routes/members/index.js";
 import usersRoute from "./routes/users/index.js";
 
 export type AppBindings = {
@@ -112,6 +114,8 @@ app.route("/api/boards", boardsRoute);
 app.route("/api/dojo-masters", dojoMastersRoute);
 app.route("/api/events", eventsRoute);
 app.route("/api/announcements", announcementsRoute);
+app.route("/api/members", membersRoute);
+app.route("/api/invitations", invitationsRoute);
 
 export type AppType = typeof app;
 
