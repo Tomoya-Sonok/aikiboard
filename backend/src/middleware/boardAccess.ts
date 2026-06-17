@@ -4,8 +4,10 @@
 // 閲覧者のロールを確認する。以降の機能(お知らせ・フィード等)でも再利用する。
 //
 // ボード ID の解決順序(重要 = 権限詐称の防止):
-//   1. ルートパラメータ `:id`(= eventId)があれば、必ずそのイベントの board_id を使う。
+//   1. ルートパラメータ `:id`(= 対象リソースの id)があれば、必ずそのリソースの board_id を使う。
 //      → `?boardId=` や body で別ボードを指定して権限を偽装する攻撃を防ぐ。
+//      どのテーブルから board_id を引くかは createBoardGuard の idTable で指定する
+//      (events 既定。お知らせは "announcements" を渡す)。
 //   2. それが無ければ query `boardId`(一覧取得)。
 //   3. それも無ければ JSON body の `boardId`(作成 POST)。
 //
@@ -24,20 +26,26 @@ const ADMIN_ROLES: BoardRole[] = ["owner", "admin"];
 
 type ResolveResult = { boardId: string | null; dbError: boolean };
 
-async function resolveBoardId(c: Context<GuardEnv>): Promise<ResolveResult> {
+// :id ルートで board_id を引くテーブル。リソースごとに切り替える。
+type IdTable = "events" | "announcements";
+
+async function resolveBoardId(
+  c: Context<GuardEnv>,
+  idTable: IdTable,
+): Promise<ResolveResult> {
   const supabase = c.get("supabase");
 
-  // 1. :id(eventId)があればイベントの board_id を正とする。
-  const eventId = c.req.param("id");
-  if (eventId) {
+  // 1. :id(対象リソースの id)があれば、そのリソースの board_id を正とする。
+  const resourceId = c.req.param("id");
+  if (resourceId) {
     if (!supabase) {
       return { boardId: null, dbError: false };
     }
     const { data, error } = await supabase
       .schema("aikiboard")
-      .from("events")
+      .from(idTable)
       .select("board_id")
-      .eq("id", eventId)
+      .eq("id", resourceId)
       .maybeSingle();
     // 一時的な DB エラーを「存在しない(404)」に倒さず、呼び出し側で 500 にする。
     if (error) {
@@ -72,7 +80,7 @@ async function resolveBoardId(c: Context<GuardEnv>): Promise<ResolveResult> {
   return { boardId: null, dbError: false };
 }
 
-const createBoardGuard = (level: AccessLevel) =>
+const createBoardGuard = (level: AccessLevel, idTable: IdTable = "events") =>
   createMiddleware<GuardEnv>(async (c, next) => {
     const supabase = c.get("supabase");
     if (!supabase) {
@@ -83,7 +91,7 @@ const createBoardGuard = (level: AccessLevel) =>
       return c.json({ success: false, error: "認証エラー" }, 401);
     }
 
-    const { boardId, dbError } = await resolveBoardId(c);
+    const { boardId, dbError } = await resolveBoardId(c, idTable);
     if (dbError) {
       logger.error("ボード解決時の DB エラー", {
         feature: "boardAccess",
@@ -130,3 +138,13 @@ export const boardMemberMiddleware = createBoardGuard("member");
 
 // owner または admin であることを要求する(稽古の作成・編集・削除・出欠集計など)。
 export const boardAdminMiddleware = createBoardGuard("admin");
+
+// お知らせ用(:id はお知らせの id → announcements から board_id を引く)。
+export const announcementMemberMiddleware = createBoardGuard(
+  "member",
+  "announcements",
+);
+export const announcementAdminMiddleware = createBoardGuard(
+  "admin",
+  "announcements",
+);

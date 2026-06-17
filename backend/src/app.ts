@@ -6,6 +6,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { resolveSupabaseClient } from "./lib/supabase.js";
+import announcementsRoute from "./routes/announcements/index.js";
 import boardsRoute from "./routes/boards/index.js";
 import dojoMastersRoute from "./routes/dojo-masters/index.js";
 import eventsRoute from "./routes/events/index.js";
@@ -107,6 +108,7 @@ app.route("/api/users", usersRoute);
 app.route("/api/boards", boardsRoute);
 app.route("/api/dojo-masters", dojoMastersRoute);
 app.route("/api/events", eventsRoute);
+app.route("/api/announcements", announcementsRoute);
 
 export type AppType = typeof app;
 
