@@ -1,10 +1,17 @@
 "use client";
 
-import { Bell, CaretDown, Globe, MagnifyingGlass } from "@phosphor-icons/react";
+import {
+  Bell,
+  CaretDown,
+  Globe,
+  List,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { usePathname } from "@/lib/i18n/routing";
 import type { BoardDetail } from "@/lib/types/board";
+import { useUiStore } from "@/stores/uiStore";
 import styles from "./BoardHeader.module.css";
 
 type Props = {
@@ -29,6 +36,7 @@ export function BoardHeader({ board }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
   const { user } = useAuth();
+  const openMobileNav = useUiStore((s) => s.openMobileNav);
   const section = sectionFromPath(pathname, board.slug);
   const title =
     section === "calendar" ? t("boards.calendar.title") : t(`nav.${section}`);
@@ -38,6 +46,14 @@ export function BoardHeader({ board }: Props) {
 
   return (
     <header className={styles.header}>
+      <button
+        type="button"
+        className={styles.menuBtn}
+        onClick={openMobileNav}
+        aria-label={t("nav.openNav")}
+      >
+        <List size={18} />
+      </button>
       <div className={styles.titleArea}>
         <h1 className={styles.title}>{title}</h1>
         <span className={styles.boardName}>{board.name}</span>

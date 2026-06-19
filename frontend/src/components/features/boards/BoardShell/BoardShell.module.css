@@ -21,8 +21,24 @@
   padding: var(--ab-space-6) var(--ab-layout-content-pad) var(--ab-space-12);
 }
 
+/* SP ドロワーの背景。PC では出さない(保険。JS も mobileNavOpen 時しか描画しない)。 */
+.backdrop {
+  display: none;
+}
+
 @media (max-width: 639px) {
   .content {
     padding: var(--ab-space-4);
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: var(--ab-z-drawer);
+    padding: 0;
+    border: none;
+    background: var(--ab-overlay);
+    cursor: pointer;
   }
 }
