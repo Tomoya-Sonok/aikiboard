@@ -31,7 +31,8 @@ type IdTable =
   | "events"
   | "announcements"
   | "invitations"
-  | "membership_requests";
+  | "membership_requests"
+  | "board_posts";
 
 async function resolveBoardId(
   c: Context<GuardEnv>,
@@ -163,4 +164,11 @@ export const invitationAdminMiddleware = createBoardGuard(
 export const membershipRequestAdminMiddleware = createBoardGuard(
   "admin",
   "membership_requests",
+);
+
+// 道場内フィード用(:id は投稿の id → board_posts から board_id を引く)。
+// 投稿の閲覧・作成はメンバー、削除可否(投稿者本人 or 管理者)はハンドラ側で判定する。
+export const boardPostMemberMiddleware = createBoardGuard(
+  "member",
+  "board_posts",
 );
