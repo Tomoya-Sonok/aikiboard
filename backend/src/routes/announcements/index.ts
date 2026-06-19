@@ -16,6 +16,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
+import { logActivity } from "../../lib/activity.js";
 import { sendAnnouncementEmails } from "../../lib/announcement-email.js";
 import { logger } from "../../lib/logger.js";
 import { notifyBoardMembers } from "../../lib/notifications.js";
@@ -598,12 +599,20 @@ announcementsRoute.post(
       announcementId: id,
     });
 
-    // 公開をボードメンバー(投稿者除く)にアプリ内通知する。
+    // 公開をボードメンバー(投稿者除く)にアプリ内通知 + 操作履歴に記録する。
     if (boardId) {
       await notifyBoardMembers(supabase, {
         boardId,
         actorUserId: (current.created_by_user_id as string | null) ?? null,
         type: "announcement.published",
+        targetType: "announcement",
+        targetId: id,
+        title: (current.title as string | null) ?? "",
+      });
+      await logActivity(supabase, {
+        boardId,
+        userId: c.get("userId") ?? null,
+        action: "announcement.published",
         targetType: "announcement",
         targetId: id,
         title: (current.title as string | null) ?? "",

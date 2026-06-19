@@ -19,6 +19,7 @@
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
+import { logActivity } from "../../lib/activity.js";
 import {
   crossPostToAikinote,
   isOwnAikinotePost,
@@ -553,17 +554,26 @@ boardPostsRoute.post(
       });
     }
 
-    // フィード新規投稿をボードメンバー(投稿者除く)に通知する。
+    // フィード新規投稿をボードメンバー(投稿者除く)に通知 + 操作履歴に記録する。
+    const postTitle =
+      parsed.data.body.trim().length > 0
+        ? snippet(parsed.data.body.trim())
+        : "(画像・動画)";
     await notifyBoardMembers(supabase, {
       boardId,
       actorUserId: userId as string,
       type: "post.created",
       targetType: "post",
       targetId: post.id,
-      title:
-        parsed.data.body.trim().length > 0
-          ? snippet(parsed.data.body.trim())
-          : "(画像・動画)",
+      title: postTitle,
+    });
+    await logActivity(supabase, {
+      boardId,
+      userId: userId as string,
+      action: "post.created",
+      targetType: "post",
+      targetId: post.id,
+      title: postTitle,
     });
 
     logger.info("フィード投稿を作成した", {

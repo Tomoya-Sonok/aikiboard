@@ -10,6 +10,7 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
+import { getEntitledFeatures } from "../../lib/features.js";
 import { logger } from "../../lib/logger.js";
 import { authMiddleware } from "../../middleware/auth.js";
 
@@ -230,6 +231,9 @@ boardsRoute.get("/:slug", authMiddleware, async (c) => {
     }
   }
 
+  // 契約プランで利用可能な feature code(フロントの有料機能ゲート・PRO 表示に使う)。
+  const features = [...(await getEntitledFeatures(supabase, board.id))];
+
   return c.json({
     success: true,
     data: {
@@ -244,6 +248,7 @@ boardsRoute.get("/:slug", authMiddleware, async (c) => {
       memberCount: membersRes.data?.length ?? 0,
       viewerRole,
       isMember,
+      features,
     },
   });
 });

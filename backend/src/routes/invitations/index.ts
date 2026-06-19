@@ -14,6 +14,7 @@
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
+import { logActivity } from "../../lib/activity.js";
 import { logger } from "../../lib/logger.js";
 import { authMiddleware } from "../../middleware/auth.js";
 import {
@@ -317,6 +318,16 @@ invitationsRoute.post("/token/:token/join", authMiddleware, async (c) => {
     boardId: resolved.boardId,
     userId,
   });
+
+  // 招待からの参加を操作履歴に記録する(参加者本人が actor / 対象)。
+  await logActivity(supabase, {
+    boardId: resolved.boardId,
+    userId: userId ?? null,
+    action: "member.joined",
+    targetType: "member",
+    targetId: userId ?? null,
+  });
+
   return c.json({
     success: true,
     data: { boardSlug: resolved.board.slug, alreadyMember: false },

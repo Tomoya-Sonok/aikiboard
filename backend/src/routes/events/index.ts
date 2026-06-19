@@ -17,6 +17,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
+import { logActivity } from "../../lib/activity.js";
 import { logger } from "../../lib/logger.js";
 import { notifyBoardMembers } from "../../lib/notifications.js";
 import {
@@ -480,12 +481,20 @@ eventsRoute.post("/", authMiddleware, boardAdminMiddleware, async (c) => {
     eventId: event.id,
   });
 
-  // 稽古の追加をボードメンバー(作成者除く)に通知する。
+  // 稽古の追加をボードメンバー(作成者除く)に通知 + 操作履歴に記録する。
   if (boardId) {
     await notifyBoardMembers(supabase, {
       boardId,
       actorUserId: userId as string,
       type: "event.created",
+      targetType: "event",
+      targetId: event.id,
+      title: place,
+    });
+    await logActivity(supabase, {
+      boardId,
+      userId: userId as string,
+      action: "event.created",
       targetType: "event",
       targetId: event.id,
       title: place,
@@ -546,6 +555,17 @@ eventsRoute.patch("/:id", authMiddleware, boardAdminMiddleware, async (c) => {
     return c.json({ success: false, error: "稽古の更新に失敗しました" }, 500);
   }
 
+  const boardId = c.get("boardId");
+  if (boardId) {
+    await logActivity(supabase, {
+      boardId,
+      userId: c.get("userId") ?? null,
+      action: "event.updated",
+      targetType: "event",
+      targetId: eventId,
+    });
+  }
+
   return c.json({ success: true, message: "稽古を更新しました" });
 });
 
@@ -567,6 +587,17 @@ eventsRoute.delete("/:id", authMiddleware, boardAdminMiddleware, async (c) => {
   if (error) {
     logger.error("events の削除に失敗", { feature: "events", eventId });
     return c.json({ success: false, error: "稽古の削除に失敗しました" }, 500);
+  }
+
+  const boardId = c.get("boardId");
+  if (boardId) {
+    await logActivity(supabase, {
+      boardId,
+      userId: c.get("userId") ?? null,
+      action: "event.deleted",
+      targetType: "event",
+      targetId: eventId,
+    });
   }
 
   return c.json({ success: true, message: "稽古を削除しました" });
@@ -733,6 +764,18 @@ eventsRoute.put(
     if (error) {
       logger.error("出欠の保存に失敗", { feature: "events", eventId, userId });
       return c.json({ success: false, error: "出欠の保存に失敗しました" }, 500);
+    }
+
+    const boardId = c.get("boardId");
+    if (boardId) {
+      await logActivity(supabase, {
+        boardId,
+        userId: userId as string,
+        action: "rsvp.responded",
+        targetType: "event",
+        targetId: eventId,
+        extra: { status: parsed.data.status },
+      });
     }
 
     return c.json({ success: true, message: "出欠を更新しました" });

@@ -15,6 +15,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
+import { logActivity } from "../../lib/activity.js";
 import { logger } from "../../lib/logger.js";
 import { authMiddleware } from "../../middleware/auth.js";
 import {
@@ -449,6 +450,18 @@ const decide = async (
     requestId: id,
     decision,
   });
+
+  // 承認でメンバーが増えた場合のみ操作履歴に記録する(承認者が actor、申請者が対象)。
+  if (decision === "approved" && boardId) {
+    await logActivity(supabase, {
+      boardId,
+      userId: actorId ?? null,
+      action: "member.joined",
+      targetType: "member",
+      targetId: applicantId,
+    });
+  }
+
   return c.json({
     success: true,
     message: decision === "approved" ? "承認しました" : "却下しました",
