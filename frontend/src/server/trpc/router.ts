@@ -9,6 +9,7 @@ import { boardSettingsRouter } from "./routers/boardSettings";
 import { boardsRouter } from "./routers/boards";
 import { dojoMastersRouter } from "./routers/dojoMasters";
 import { eventsRouter } from "./routers/events";
+import { financeRouter } from "./routers/finance";
 import { invitationsRouter } from "./routers/invitations";
 import { membersRouter } from "./routers/members";
 import { membershipRequestsRouter } from "./routers/membershipRequests";
@@ -31,6 +32,7 @@ export const appRouter = createTRPCRouter({
   boardSettings: boardSettingsRouter,
   publicBoards: publicBoardsRouter,
   archives: archivesRouter,
+  finance: financeRouter,
 });
 
 export type AppRouter = typeof appRouter;

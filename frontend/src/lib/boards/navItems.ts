@@ -39,7 +39,7 @@ export const BOARD_NAV_ITEMS: BoardNavItem[] = [
     labelKey: "money",
     icon: CurrencyJpy,
     pro: true,
-    enabled: false,
+    enabled: true,
   },
   { id: "members", labelKey: "members", icon: UsersThree, enabled: true },
   {
