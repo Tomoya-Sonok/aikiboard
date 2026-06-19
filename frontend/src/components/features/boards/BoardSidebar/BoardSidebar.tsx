@@ -138,56 +138,58 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
       </div>
 
       <nav className={styles.nav}>
-        {BOARD_NAV_ITEMS.map((item) => {
-          const isActive = item.id === activeSection;
-          const NavIcon = item.icon;
-          return (
-            <button
-              type="button"
-              key={item.id}
-              className={`${styles.navItem} ${isActive ? styles.navItemActive : ""} ${item.enabled ? "" : styles.navItemDisabled}`}
-              onClick={() => {
-                if (!item.enabled) {
-                  return;
-                }
-                navigate(
-                  item.id === "home"
-                    ? `/d/${activeSlug}`
-                    : `/d/${activeSlug}/${item.id}`,
-                );
-              }}
-              disabled={!item.enabled}
-              title={item.enabled ? undefined : t("comingSoon")}
-            >
-              <span className={styles.navAccent} />
-              <NavIcon size={16} className={styles.navIcon} />
-              {!collapsed && (
-                <span className={styles.navLabel}>{t(item.labelKey)}</span>
-              )}
-              {!collapsed && item.pro && (
-                <span className={styles.proBadge}>{t("pro")}</span>
-              )}
-              {item.id === "announce" && unreadAnnouncements > 0 ? (
-                collapsed ? (
-                  <span className={styles.navUnreadDot} aria-hidden="true" />
-                ) : (
-                  <span className={styles.navUnreadBadge}>
-                    {unreadAnnouncements}
-                  </span>
-                )
-              ) : null}
-              {item.id === "members" && pendingRequests > 0 ? (
-                collapsed ? (
-                  <span className={styles.navUnreadDot} aria-hidden="true" />
-                ) : (
-                  <span className={styles.navUnreadBadge}>
-                    {pendingRequests}
-                  </span>
-                )
-              ) : null}
-            </button>
-          );
-        })}
+        {BOARD_NAV_ITEMS.filter((item) => !item.adminOnly || isActiveAdmin).map(
+          (item) => {
+            const isActive = item.id === activeSection;
+            const NavIcon = item.icon;
+            return (
+              <button
+                type="button"
+                key={item.id}
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""} ${item.enabled ? "" : styles.navItemDisabled}`}
+                onClick={() => {
+                  if (!item.enabled) {
+                    return;
+                  }
+                  navigate(
+                    item.id === "home"
+                      ? `/d/${activeSlug}`
+                      : `/d/${activeSlug}/${item.id}`,
+                  );
+                }}
+                disabled={!item.enabled}
+                title={item.enabled ? undefined : t("comingSoon")}
+              >
+                <span className={styles.navAccent} />
+                <NavIcon size={16} className={styles.navIcon} />
+                {!collapsed && (
+                  <span className={styles.navLabel}>{t(item.labelKey)}</span>
+                )}
+                {!collapsed && item.pro && (
+                  <span className={styles.proBadge}>{t("pro")}</span>
+                )}
+                {item.id === "announce" && unreadAnnouncements > 0 ? (
+                  collapsed ? (
+                    <span className={styles.navUnreadDot} aria-hidden="true" />
+                  ) : (
+                    <span className={styles.navUnreadBadge}>
+                      {unreadAnnouncements}
+                    </span>
+                  )
+                ) : null}
+                {item.id === "members" && pendingRequests > 0 ? (
+                  collapsed ? (
+                    <span className={styles.navUnreadDot} aria-hidden="true" />
+                  ) : (
+                    <span className={styles.navUnreadBadge}>
+                      {pendingRequests}
+                    </span>
+                  )
+                ) : null}
+              </button>
+            );
+          },
+        )}
       </nav>
 
       <div className={styles.footer}>

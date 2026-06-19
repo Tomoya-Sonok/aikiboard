@@ -1,0 +1,101 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-1);
+}
+
+.row {
+  display: flex;
+  gap: var(--ab-space-3);
+}
+
+.row .field {
+  flex: 1;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ab-text-secondary);
+}
+
+.req {
+  color: var(--ab-danger);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: var(--ab-space-2) var(--ab-space-3);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-canvas);
+  color: var(--ab-text-primary);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--ab-dou);
+}
+
+.counter {
+  align-self: flex-end;
+  font-size: 11px;
+  color: var(--ab-text-tertiary);
+}
+
+.error {
+  color: var(--ab-danger);
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ab-space-2);
+}
+
+.cancel {
+  padding: var(--ab-space-2) var(--ab-space-4);
+  background: transparent;
+  border: 1px solid var(--ab-border-strong);
+  border-radius: var(--ab-radius-pill);
+  color: var(--ab-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.save {
+  padding: var(--ab-space-2) var(--ab-space-5);
+  background: var(--ab-dou);
+  color: var(--ab-text-on-brand);
+  border: none;
+  border-radius: var(--ab-radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save:hover:not(:disabled) {
+  background: var(--ab-dou-light);
+}
+
+.save:disabled,
+.cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

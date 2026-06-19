@@ -11,7 +11,7 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 
 ## 適用順序
 
-`001` → `002` → ... → `015` の順で実行する(番号 = 依存順)。
+`001` → `002` → ... → `016` の順で実行する(番号 = 依存順)。
 
 | ファイル | 内容 |
 |---|---|
@@ -30,6 +30,7 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 | `013_membership_requests.sql` | AikiNote 道場からの参加申請(`membership_requests`)+ RLS。申請者は自分の申請、管理者はボードの申請を閲覧。pending 重複防止の部分 UNIQUE index 付き |
 | `014_create_board_media_bucket.sql` | 道場内フィード(4.3)・アーカイブ(4.4)の画像/動画添付を保存する **Supabase Storage バケット** `board-media`(非公開)。アップロードは backend の署名付き URL 経由、表示は短命の署名付き DL URL 経由(storage RLS 不要)。本番でも SQL Editor で実行すればバケットが作られる(代替: Dashboard → Storage → New bucket で同名・非公開・100MB 上限で作成) |
 | `015_create_notifications.sql` | アプリ内通知(4.9)の `notifications` テーブル + RLS(受信者本人のみ閲覧/更新/削除、INSERT は service_role)。お知らせ公開・フィード投稿・スレッド返信・稽古作成で受信者ごとに 1 行作る。表示用の actor 名/タイトルは metadata に非正規化 |
+| `016_create_board_todos.sql` | ボードごとの Todo 管理(運営タスク)。`board_todos`(タイトル/担当者/備考/ステータス/期限)+ RLS は owner/admin のみ(member は SELECT 不可)。担当者は owner/admin に限定 |
 
 > **REST 公開設定**: backend / frontend が aikiboard を REST(PostgREST)経由で扱うには、Supabase の **Exposed schemas に `aikiboard` を含める**必要がある。ローカルは `backend/supabase/config.toml` の `[api] schemas`(設定済み、`supabase start` で反映)。**本番は Dashboard → Settings → API → Exposed schemas に `aikiboard` を追加する**(Phase 1 ボード機能のデプロイ前に必須)。
 
@@ -37,7 +38,7 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 
 1. Supabase Dashboard を開く(AikiNote と同一プロジェクト)
 2. **SQL Editor** → **+ New query**
-3. `001_*.sql` の中身を貼り付け **Run**。エラーが無ければ次のファイルへ。`015` まで実行する
+3. `001_*.sql` の中身を貼り付け **Run**。エラーが無ければ次のファイルへ。`016` まで実行する
 4. **Database → Schemas → aikiboard** でテーブル一覧と RLS の有効化を確認
 5. 適用状況は PR テンプレの「DB マイグレーション → 本番適用済み」チェックで追跡する(`000_seed_*.sql` は本番では実行しない)
 
@@ -55,7 +56,7 @@ AikiBoard の `aikiboard` スキーマ用 SQL マイグレーション群です�
 
 ### migrations の適用
 
-`cd backend && pnpm exec supabase db reset` で `000`〜`015` を番号順に再適用する。
+`cd backend && pnpm exec supabase db reset` で `000`〜`016` を番号順に再適用する。
 
 - migration の実体は `backend/src/migrations/`。`backend/supabase/migrations` はそこへの **symlink**(supabase CLI は `supabase/migrations` 固定のため、配置を一致させずに接続している)
 - `000_seed_public_schema_for_local_dev.sql` は `public."User"` / `public."DojoStyleMaster"` の最小ダミー。**ローカル専用で本番には絶対適用しない**(本番 Dashboard では 001 以降のみ実行)
