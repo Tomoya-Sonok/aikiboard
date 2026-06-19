@@ -7,6 +7,7 @@ import { dojoMastersRouter } from "./routers/dojoMasters";
 import { eventsRouter } from "./routers/events";
 import { invitationsRouter } from "./routers/invitations";
 import { membersRouter } from "./routers/members";
+import { membershipRequestsRouter } from "./routers/membershipRequests";
 import { usersRouter } from "./routers/users";
 
 export const appRouter = createTRPCRouter({
@@ -17,6 +18,7 @@ export const appRouter = createTRPCRouter({
   announcements: announcementsRouter,
   members: membersRouter,
   invitations: invitationsRouter,
+  membershipRequests: membershipRequestsRouter,
 });
 
 export type AppRouter = typeof appRouter;

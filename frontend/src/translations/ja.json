@@ -271,6 +271,30 @@
       "invalidTitle": "招待リンクが無効です",
       "invalidDesc": "この招待リンクは期限切れか、失効しています。管理者に新しいリンクを依頼してください。",
       "toHome": "ホームへ"
+    },
+    "requests": {
+      "title": "参加申請",
+      "unknownUser": "（不明なユーザー）",
+      "requestedAt": "{date} に申請",
+      "approve": "承認",
+      "reject": "却下"
+    },
+    "discover": {
+      "title": "道場ボードに参加",
+      "lead": "AikiNote で登録した所属道場のボードに参加申請できます。",
+      "loading": "読み込み中…",
+      "empty": "参加できる道場ボードが見つかりませんでした。AikiNote で所属道場を設定するか、管理者に招待リンクを依頼してください。",
+      "memberCount": "{count}人が参加",
+      "private": "非公開",
+      "request": "参加を申請",
+      "reRequest": "再申請",
+      "pending": "申請中",
+      "requestTitle": "「{name}」に参加申請",
+      "messageLabel": "ひとこと（任意）",
+      "messagePlaceholder": "例: 一般稽古に参加している田中です。よろしくお願いします。",
+      "send": "申請する",
+      "sending": "送信中…",
+      "sendError": "申請に失敗しました。時間をおいて再度お試しください。"
     }
   },
   "nav": {
@@ -292,6 +316,7 @@
     "searchPlaceholder": "道場ボード内を検索",
     "notifications": "通知",
     "language": "言語",
-    "account": "アカウント"
+    "account": "アカウント",
+    "discoverBoards": "道場ボードを探す"
   }
 }
