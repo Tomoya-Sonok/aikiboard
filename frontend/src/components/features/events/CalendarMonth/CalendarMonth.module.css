@@ -351,20 +351,61 @@
   color: var(--ab-text-tertiary);
 }
 
+/* ── SP: 月切替ヘッダー + セル高 64px(デザイン仕様 prompts B-5)──
+   外側余白は共通シェル(.content)が持つので wrapper には padding を付けない。 */
 @media (max-width: 639px) {
-  .wrapper {
-    padding: var(--ab-space-3) var(--ab-space-3) var(--ab-space-6);
+  .toolbar {
+    gap: var(--ab-space-2);
   }
 
+  .monthLabel {
+    font-size: var(--ab-fs-xl);
+  }
+
+  /* 月/週/リスト切替(週・リストは未実装)と凡例は SP では畳み、月切替を主役に。 */
+  .viewToggle,
   .legend {
     display: none;
   }
 
+  /* 「稽古を追加」はアイコンのみ(ラベルは aria-label で担保)。 */
+  .addBtn {
+    padding: 6px;
+  }
+
+  .addBtnLabel {
+    display: none;
+  }
+
+  /* 月グリッドは 7 列のままセル高 64px。余白を詰める。 */
   .grid {
-    grid-auto-rows: minmax(76px, 1fr);
+    grid-auto-rows: minmax(64px, 1fr);
   }
 
   .cell {
-    min-height: 76px;
+    min-height: 64px;
+    gap: 2px;
+    padding: 4px 4px 5px;
+  }
+
+  /* SP は hover が無く日別の + は機能しないため隠し、狭い列幅を有効活用する。 */
+  .addDay {
+    display: none;
+  }
+
+  .weekHeaderCell {
+    padding: var(--ab-space-1) 0;
+    letter-spacing: 0;
+    text-align: center;
+  }
+
+  /* 列幅が狭いためチップは時刻 + 人数のみ表示(場所/メモは省略。タップで詳細)。 */
+  .chip {
+    padding: 2px 3px 2px 4px;
+  }
+
+  .chipPlace,
+  .chipNote {
+    display: none;
   }
 }
