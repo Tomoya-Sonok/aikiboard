@@ -21,6 +21,7 @@
 | v1.9 | 2026-06-19 | 参加申請(4.5.2)の **導線分担を見直し**。申請の「発見・送信」(`道場ボードを探す`・申請ダイアログ)は AikiBoard の画面から撤去し、**AikiNote 側に導線を置く方針**へ。AikiBoard 側は **承認(承認待ち一覧・承認/却下)のみ**を担う。backend の `membership_requests` テーブル・route・migration `013` は据え置き(`discoverable`/`mine`/`create` エンドポイントは AikiNote から呼ぶ前提で残置)。詳細は 4.5 実装メモ |
 | v2.0 | 2026-06-19 | Phase 1 第6機能(道場内フィード + スレッド + AikiNote 連携)を実装(#86〜#89)。テキスト + 画像/動画の投稿(Supabase Storage 非公開バケット `board-media`・署名付き URL、migration `014`)、フラット1階層のスレッド返信、AikiNote 稽古日誌(`public."SocialPost"`)の引用共有、投稿の AikiNote クロスポスト(主道場名義)。詳細は 4.3 / 5.3 実装メモ |
 | v2.1 | 2026-06-19 | Phase 1 第7機能(通知)を実装(#90〜#91)。ボードスコープの**アプリ内通知**(`notifications`、migration `015`)。お知らせ公開・フィード投稿・スレッド返信・稽古作成で発火し、ヘッダーのベルに未読バッジ + ドロップダウンで表示。プッシュ通知は Phase 2。詳細は 4.9 実装メモ |
+| v2.2 | 2026-06-19 | Phase 1 第8機能(アクティビティログ、有料)を実装(#92〜#93)。**feature_flag 基盤**(`hasFeature`/`requireFeature`/`BoardDetail.features`)を併せて導入。操作履歴を各機能で記録(`logActivity`)し、管理者向けに閲覧。決済未実装のため本番は全ボード Free で有料機能はロック(`FeatureLocked` で PRO 案内)。詳細は 4.6 実装メモ |
 
 ---
 
@@ -271,6 +272,11 @@ AikiBoard オーナーは自分の道場が道場マスタに未登録の場合�
 - 例: 「○○さんが稽古スケジュールを追加」「○○さんがお知らせを投稿」「○○さんが参加表明」
 - 管理者(オーナー・アドミン)のみ閲覧可能
 - **有料プラン限定** (Mini / Standard)
+
+> **実装メモ(2026-06-19、#92〜#93 で一巡)**: 操作履歴の記録 + 管理者向け閲覧を実装済み。
+> - **feature_flag 基盤**: `lib/features.ts`(`hasFeature`/`getEntitledFeatures`)+ `requireFeature` ミドルウェアを新設。`board_subscriptions`→`plans`→`plan_features` を辿り、失効中/契約無しは Free にフォールバック。`BoardDetail.features` に契約プランの feature code を載せフロントの PRO ゲートに使う。**決済(Stripe)未実装のため本番は全ボード Free = 有料機能ロック**(正しい挙動)。ローカルは seed の dev ボードを Standard 契約にして確認可能。
+> - **記録**: `lib/activity.ts` の `logActivity` を各機能に配線(稽古 作成/更新/削除・出欠表明・お知らせ公開・フィード投稿・メンバー 参加/退会/削除)。actor 名は metadata に非正規化。失敗は本処理を止めない。
+> - **閲覧**: `GET /api/activity-logs`(管理者 + `requireFeature("activity_log")`)。フロントは `ActivityView`(アイコン + メッセージ + 日時)。プラン未契約は `FeatureLocked`(PRO アップセル)を表示。
 
 ### 4.7 道場ページ(公開プロフィール、集客用)
 

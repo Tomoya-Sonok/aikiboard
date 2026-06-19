@@ -47,7 +47,7 @@ export const BOARD_NAV_ITEMS: BoardNavItem[] = [
     labelKey: "activity",
     icon: Pulse,
     pro: true,
-    enabled: false,
+    enabled: true,
   },
   { id: "settings", labelKey: "settings", icon: GearSix, enabled: false },
 ];

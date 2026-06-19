@@ -1,0 +1,128 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-4);
+  max-width: 760px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-1);
+}
+
+.heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--ab-text-tertiary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-sm);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ab-space-3);
+  padding: var(--ab-space-3) var(--ab-space-4);
+  border-bottom: 1px solid var(--ab-border-subtle);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.iconWrap {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-washi-dark);
+  color: var(--ab-text-secondary);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.message {
+  font-size: 14px;
+  color: var(--ab-text-primary);
+}
+
+.detail {
+  font-size: 12px;
+  color: var(--ab-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--ab-text-tertiary);
+  white-space: nowrap;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ab-space-2);
+  padding: var(--ab-space-12) 0;
+}
+
+.emptyIcon {
+  color: var(--ab-text-disabled);
+}
+
+.empty {
+  color: var(--ab-text-tertiary);
+  font-size: 14px;
+  text-align: center;
+}
+
+.loadMore {
+  align-self: center;
+  padding: var(--ab-space-2) var(--ab-space-5);
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-strong);
+  border-radius: var(--ab-radius-pill);
+  color: var(--ab-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.loadMore:hover {
+  background: var(--ab-washi-dark);
+}
+
+@media (max-width: 520px) {
+  .time {
+    display: none;
+  }
+}
