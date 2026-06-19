@@ -18,6 +18,8 @@ enabled = true
 head_sampling_rate = 1
 
 # 公開可能な環境変数(機密値は wrangler secret put で別途登録)
+# 機密値: SUPABASE_SERVICE_ROLE_KEY / RESEND_API_KEY は `wrangler secret put` で登録する。
 [vars]
 NEXT_PUBLIC_APP_URL = "https://aiki-board.com"
 APP_URL = "https://aiki-board.com"
+RESEND_FROM_EMAIL = "AikiBoard <noreply@aiki-board.com>"

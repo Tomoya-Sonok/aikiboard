@@ -5,16 +5,18 @@
 //   - 作成 / 編集 / 削除 / 公開    : announcementAdminMiddleware(owner/admin)
 //
 // 下書き(published_at IS NULL)は管理者のみ閲覧でき、メンバーには存在を伏せる(404)。
-// 公開は published_at をセットする一方向操作。公開時のメール通知(notify_email)は
-// 別 PR で publish ハンドラに接続する。
+// 公開は published_at をセットする一方向操作。notify_email が ON のときは公開時に
+// メンバー全員へ Resend でメール送信する(fire-and-forget、lib/announcement-email.ts)。
 //
 // 認可について(events と同じ前提): backend は service_role で RLS をバイパスするため、
 // この経路の認可は boardAccess ミドルウェアが唯一の砦。RLS は frontend が anon キーで
 // 直接読む経路の二重防御(migration 011 で下書きの可視性も絞っている)。
 
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
+import { sendAnnouncementEmails } from "../../lib/announcement-email.js";
 import { logger } from "../../lib/logger.js";
 import {
   bodyRichSchema,
@@ -30,6 +32,116 @@ import {
 type AnnouncementsEnv = { Bindings: AppBindings; Variables: AppVariables };
 
 const announcementsRoute = new Hono<AnnouncementsEnv>();
+
+const getEnv = (
+  c: Context<AnnouncementsEnv>,
+  key: keyof AppBindings,
+): string | undefined =>
+  c.env?.[key] ??
+  (typeof process !== "undefined" ? process.env?.[key] : undefined);
+
+// 公開時のメール通知(fire-and-forget)。宛先解決から送信まで一括で行い、呼び出し側は
+// waitUntil に渡すだけ。失敗は各所でログ化し、公開処理自体は止めない。
+const notifyOnPublish = async (
+  supabase: SupabaseClient,
+  boardId: string,
+  announcementId: string,
+  env: {
+    resendApiKey: string | undefined;
+    resendFromEmail: string | undefined;
+  },
+  appUrl: string,
+): Promise<void> => {
+  try {
+    await notifyOnPublishInner(supabase, boardId, announcementId, env, appUrl);
+  } catch (error) {
+    // fire-and-forget: 通知の失敗は公開に影響させない。
+    logger.error("お知らせメール通知で予期しない例外", {
+      feature: "announcements",
+      announcementId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+const notifyOnPublishInner = async (
+  supabase: SupabaseClient,
+  boardId: string,
+  announcementId: string,
+  env: {
+    resendApiKey: string | undefined;
+    resendFromEmail: string | undefined;
+  },
+  appUrl: string,
+): Promise<void> => {
+  const aikiboard = supabase.schema("aikiboard");
+
+  const [annRes, boardRes, membersRes] = await Promise.all([
+    aikiboard
+      .from("announcements")
+      .select("title, body_rich")
+      .eq("id", announcementId)
+      .maybeSingle(),
+    aikiboard
+      .from("boards")
+      .select("name, slug")
+      .eq("id", boardId)
+      .maybeSingle(),
+    aikiboard.from("board_members").select("user_id").eq("board_id", boardId),
+  ]);
+
+  if (annRes.error || !annRes.data || boardRes.error || !boardRes.data) {
+    logger.error("お知らせメールの下準備に失敗", {
+      feature: "announcements",
+      announcementId,
+      boardId,
+    });
+    return;
+  }
+  if (membersRes.error) {
+    logger.error("お知らせメールの宛先取得に失敗", {
+      feature: "announcements",
+      announcementId,
+      boardId,
+    });
+    return;
+  }
+
+  const userIds = (membersRes.data ?? []).map((m) => m.user_id as string);
+  if (userIds.length === 0) {
+    return;
+  }
+  const { data: users, error: usersError } = await supabase
+    .from("User")
+    .select("email")
+    .in("id", userIds);
+  if (usersError) {
+    logger.error("お知らせメールのアドレス解決に失敗", {
+      feature: "announcements",
+      announcementId,
+    });
+    return;
+  }
+  const recipients = [
+    ...new Set(
+      (users ?? [])
+        .map((u) => (u.email as string | null) ?? "")
+        .filter((e) => e.length > 0),
+    ),
+  ];
+
+  await sendAnnouncementEmails(
+    {
+      boardName: boardRes.data.name as string,
+      slug: boardRes.data.slug as string,
+      title: annRes.data.title as string,
+      bodyRich: annRes.data.body_rich,
+      appUrl,
+      recipients,
+    },
+    env,
+  );
+};
 
 // 一覧の抜粋の最大文字数。
 const EXCERPT_MAX = 120;
@@ -450,7 +562,7 @@ announcementsRoute.post(
 
     const { data: current, error: fetchError } = await aikiboard
       .from("announcements")
-      .select("published_at")
+      .select("published_at, notify_email")
       .eq("id", id)
       .maybeSingle();
     if (fetchError) {
@@ -484,6 +596,29 @@ announcementsRoute.post(
       boardId,
       announcementId: id,
     });
+
+    // notify_email が ON ならメンバー全員へメール送信(fire-and-forget)。
+    // 送信の成否は公開の成否に影響させない。boardId はミドルウェアが必ず設定する。
+    if (current.notify_email === true && boardId) {
+      const appUrl = (
+        getEnv(c, "APP_URL") ??
+        getEnv(c, "NEXT_PUBLIC_APP_URL") ??
+        "https://aiki-board.com"
+      ).replace(/\/+$/, "");
+      const env = {
+        resendApiKey: getEnv(c, "RESEND_API_KEY"),
+        resendFromEmail: getEnv(c, "RESEND_FROM_EMAIL"),
+      };
+      const task = notifyOnPublish(supabase, boardId, id, env, appUrl);
+      // c.executionCtx は Workers Runtime 外(テスト/Node)では getter が throw する
+      // ことがあるため try/catch で防御する(notifyOnPublish 内部で例外は握りつぶす)。
+      try {
+        c.executionCtx.waitUntil(task);
+      } catch {
+        void task;
+      }
+    }
+
     return c.json({ success: true, message: "お知らせを公開しました" });
   },
 );
