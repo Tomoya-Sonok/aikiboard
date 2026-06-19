@@ -1,7 +1,14 @@
 "use client";
 
 import { X } from "@phosphor-icons/react";
-import { type ReactNode, useEffect, useId, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type ReactNode,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import styles from "./Dialog.module.css";
 
@@ -12,6 +19,8 @@ type DialogProps = {
   children: ReactNode;
   footer?: ReactNode;
   closeLabel?: string;
+  // パネルの最大幅(px)。既定 520。本文が広い場合のみ広げる(SP ではシート化で打ち消す)。
+  maxWidth?: number;
 };
 
 const FOCUSABLE =
@@ -26,6 +35,7 @@ export function Dialog({
   children,
   footer,
   closeLabel = "閉じる",
+  maxWidth,
 }: DialogProps) {
   const [mounted, setMounted] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -106,6 +116,11 @@ export function Dialog({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
+        style={
+          maxWidth
+            ? ({ "--ab-dialog-max-w": `${maxWidth}px` } as CSSProperties)
+            : undefined
+        }
       >
         <div className={styles.header}>
           <h2 id={titleId} className={styles.title}>

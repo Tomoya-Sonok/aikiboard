@@ -1,8 +1,9 @@
 .body {
+  /* 幅は Dialog パネル(maxWidth=640)に追従。中身は flex column で full width に伸びる。
+     かつて min-width を指定していたためパネル(520px)を超えて横スクロールが出ていた。 */
   display: flex;
   flex-direction: column;
   gap: var(--ab-space-4);
-  min-width: min(640px, 80vw);
 }
 
 .field {
@@ -48,10 +49,4 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--ab-space-2);
-}
-
-@media (max-width: 520px) {
-  .body {
-    min-width: 0;
-  }
 }
