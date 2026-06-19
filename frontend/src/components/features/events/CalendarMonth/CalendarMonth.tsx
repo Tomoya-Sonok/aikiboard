@@ -190,9 +190,10 @@ export function CalendarMonth({ boardId, canManage, memberCount }: Props) {
             type="button"
             className={styles.addBtn}
             onClick={() => openCreate()}
+            aria-label={t("addEvent")}
           >
             <Plus size={14} weight="bold" />
-            <span>{t("addEvent")}</span>
+            <span className={styles.addBtnLabel}>{t("addEvent")}</span>
           </button>
         ) : null}
       </div>
