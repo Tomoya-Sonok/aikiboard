@@ -107,6 +107,7 @@ export function AnnouncementForm({
       open={open}
       onClose={onClose}
       title={editing ? t("editTitle") : t("createTitle")}
+      maxWidth={640}
       footer={
         <div className={styles.footer}>
           {isPublishedEdit ? (

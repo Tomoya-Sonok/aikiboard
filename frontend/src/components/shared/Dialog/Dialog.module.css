@@ -12,7 +12,9 @@
 
 .panel {
   width: 100%;
-  max-width: 520px;
+  /* 既定 520px。呼び出し側が maxWidth を渡すと --ab-dialog-max-w で上書き(本文の広い
+     エディタ等のため)。SP ではフルスクリーンシート化(下の media query)で打ち消す。 */
+  max-width: var(--ab-dialog-max-w, 520px);
   background: var(--ab-surface-card);
   border-radius: var(--ab-radius-xl);
   box-shadow: var(--ab-shadow-lg);
