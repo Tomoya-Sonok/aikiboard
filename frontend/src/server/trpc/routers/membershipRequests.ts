@@ -1,13 +1,13 @@
-// membershipRequests feature router(ADR 0002 B-6)。AikiNote 道場からの参加申請。
+// membershipRequests feature router(ADR 0002 B-6)。参加申請の「承認側」(owner/admin)。
 // procedure ↔ Hono endpoint は 1:1。
+//
+// 申請を「発見・送信」する側(discoverable/mine/create)は AikiBoard の画面には置かず、
+// AikiNote 側に導線を設ける方針(要件 4.5.2)。backend のエンドポイントは AikiNote から
+// 呼ぶ前提で残してある。AikiBoard 側は承認待ち一覧・承認・却下のみを扱う。
 
 import { z } from "zod";
 import type { ApiResponse } from "@/lib/types/api";
-import type {
-  DiscoverableBoard,
-  MyRequest,
-  PendingRequest,
-} from "@/lib/types/membershipRequest";
+import type { PendingRequest } from "@/lib/types/membershipRequest";
 import { callHonoApi } from "../hono";
 import { authenticatedProcedure, createTRPCRouter } from "../index";
 
@@ -20,21 +20,6 @@ const authHeader = (accessToken: string) => ({
 });
 
 export const membershipRequestsRouter = createTRPCRouter({
-  // 自分の道場に紐づく未所属ボード一覧(+ 自分の申請状態)。
-  discoverable: authenticatedProcedure.query(({ ctx }) =>
-    callHonoApi<ApiResponse<DiscoverableBoard[]>>(
-      "/api/membership-requests/discoverable",
-      { headers: authHeader(ctx.accessToken) },
-    ),
-  ),
-
-  // 自分の申請一覧。
-  mine: authenticatedProcedure.query(({ ctx }) =>
-    callHonoApi<ApiResponse<MyRequest[]>>("/api/membership-requests/mine", {
-      headers: authHeader(ctx.accessToken),
-    }),
-  ),
-
   // 承認待ち一覧(admin)。
   listForBoard: authenticatedProcedure
     .input(z.object({ boardId: uuidLike }))

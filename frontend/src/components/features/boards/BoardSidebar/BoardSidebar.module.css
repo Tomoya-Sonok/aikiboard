@@ -147,30 +147,6 @@
   line-height: 1.2;
 }
 
-.discoverLink {
-  display: flex;
-  align-items: center;
-  gap: var(--ab-space-2);
-  width: 100%;
-  margin-top: 8px;
-  padding: 6px 8px;
-  border: 1px dashed var(--ab-sumi-light);
-  border-radius: 5px;
-  background: transparent;
-  color: var(--ab-nav-text-muted);
-  font-family: var(--ab-font-ui);
-  font-size: var(--ab-fs-xs);
-  cursor: pointer;
-  transition:
-    color 0.12s ease,
-    border-color 0.12s ease;
-}
-
-.discoverLink:hover {
-  color: var(--ab-text-inverse);
-  border-color: var(--ab-nav-text-muted);
-}
-
 .nav {
   flex: 1;
   overflow-y: auto;

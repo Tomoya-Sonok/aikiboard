@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretDoubleLeft, MagnifyingGlass, Plus } from "@phosphor-icons/react";
+import { CaretDoubleLeft, Plus } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { BOARD_NAV_ITEMS } from "@/lib/boards/navItems";
@@ -124,17 +124,6 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
               </button>
             ))}
           </div>
-        )}
-
-        {!collapsed && (
-          <button
-            type="button"
-            className={styles.discoverLink}
-            onClick={() => router.push("/boards/discover")}
-          >
-            <MagnifyingGlass size={13} />
-            <span>{t("discoverBoards")}</span>
-          </button>
         )}
       </div>
 

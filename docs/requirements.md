@@ -18,6 +18,7 @@
 | v1.6 | 2026-06-04 | Phase 1 第3機能(稽古カレンダー + 出欠管理)を実装(#64〜#67)。定期稽古(自前 RRULE サブセットの on-the-fly 展開、Asia/Tokyo 基準)+「この回だけ休講/上書き」(`event_overrides`)+ 開催日単位の出欠(`event_rsvps` PK 再構成・migration `010`)+ 参加者名簿/管理者の出欠集計 + ダッシュボード「次の稽古」実データ接続。`boardMember`/`boardAdmin` ミドルウェア導入。未認証の公開カレンダー閲覧は後続。詳細は 4.1 実装メモ |
 | v1.7 | 2026-06-14 | Phase 1 第4機能(お知らせ配信)を実装(#70〜#73)。管理者→メンバーの一方向配信。下書き保存→公開の2段階フロー、本文は Tiptap(ProseMirror)WYSIWYG(見出し/太字/リンク/寄せ)で `body_rich`(JSONB)に保存、既読/未読管理 + ダッシュボード/サイドバーの未読バッジ。`notify_email` ON の公開時に Resend でメンバー全員へメール一斉送信(batch API・1人1通)。下書きの可視性を管理者のみへ絞る RLS(migration `011`)。詳細は 4.2 実装メモ |
 | v1.8 | 2026-06-14 | Phase 1 第5機能(メンバー管理)を実装(#75〜#78)。メンバー一覧・自主退会・管理者によるメンバー削除(owner 保護)・共有招待リンク(`/invite/<token>`、マルチユース、migration `012`)・AikiNote 道場からの参加申請(`membership_requests` + 承認/却下、`dojo_style_id` でボード発見、migration `013`)。退会/削除時は出欠・既読の残置を掃除。停止(suspend)は今回スコープ外。詳細は 4.5 実装メモ |
+| v1.9 | 2026-06-19 | 参加申請(4.5.2)の **導線分担を見直し**。申請の「発見・送信」(`道場ボードを探す`・申請ダイアログ)は AikiBoard の画面から撤去し、**AikiNote 側に導線を置く方針**へ。AikiBoard 側は **承認(承認待ち一覧・承認/却下)のみ**を担う。backend の `membership_requests` テーブル・route・migration `013` は据え置き(`discoverable`/`mine`/`create` エンドポイントは AikiNote から呼ぶ前提で残置)。詳細は 4.5 実装メモ |
 
 ---
 
@@ -237,8 +238,8 @@ AikiBoard オーナーは自分の道場が道場マスタに未登録の場合�
 
 #### 4.5.2 参加フロー
 
-- **招待リンク**(URL / QR コード)経由での参加
-- **AikiNote 上の道場データからの参加申請**(AikiNote の道場マスタと紐付け)
+- **招待リンク**(URL / QR コード)経由での参加 … owner/admin が発行・共有する push 型の主導線
+- **AikiNote 上の道場データからの参加申請**(AikiNote の道場マスタと紐付け) … **申請の発見・送信導線は AikiNote 側**に置き、AikiBoard は管理者の **承認のみ**を担う(v1.9 で導線分担を確定)。AikiBoard は管理アプリであり、まだ非メンバーの利用者を発見・申請のために AikiBoard へ誘導しないため
 - 新規登録情報は AikiNote のユーザー作成フローに寄せる(AikiBoard のみ利用する場合でも AikiNote ユーザーが自動作成される。詳細は 5.1)
 
 #### 4.5.3 退会・削除
@@ -250,8 +251,10 @@ AikiBoard オーナーは自分の道場が道場マスタに未登録の場合�
 > - **メンバー一覧**: アバター・氏名・ロール・参加日を owner→admin→member 順で表示。閲覧は全メンバー。
 > - **招待リンク(共有リンク型)**: 1 本の token を全員で共有し、有効期限内 & 未失効なら何人でも参加できる(migration `012` で `invitations` をマルチユース化、`revoked_at` で失効)。参加ページ `/invite/<token>` はボードガード外(まだ非メンバー)だが認証は必須。発行・コピー・失効は管理者。
 > - **退会・削除**: 自主退会(owner 不可)/ 管理者による削除(owner・自分は不可)。**「停止(suspend)」は今回スコープ外**(削除のみ)。`board_members` に CASCADE しない `event_rsvps` / `announcement_reads` は退会・削除時に明示的に掃除する。
-> - **AikiNote 道場からの参加申請(4.5.2)**: `public."User".dojo_style_id` で道場に紐づくユーザーが、その道場のボード(`board_dojo_masters`)を「道場ボードを探す」で発見し参加申請。管理者が承認すると `board_members` に追加(`membership_requests` テーブル + 承認/却下フロー、migration `013`)。承認待ちはメンバー画面とサイドバーのバッジに表示。pending 重複は部分 UNIQUE index で防止(却下後の再申請は可)。
-> - **未着手**: メンバーの停止(suspend)、招待リンクの QR コード生成(URL は実装済み)、招待ページの未ログイン時 return URL 保持。
+> - **AikiNote 道場からの参加申請(4.5.2)**: `public."User".dojo_style_id` で道場に紐づくユーザーが、その道場のボード(`board_dojo_masters`)を発見し参加申請。管理者が承認すると `board_members` に追加(`membership_requests` テーブル + 承認/却下フロー、migration `013`)。承認待ちはメンバー画面とサイドバーのバッジに表示。pending 重複は部分 UNIQUE index で防止(却下後の再申請は可)。
+>   - **導線分担(v1.9 で見直し)**: 申請の **発見・送信側**(`/boards/discover`・「道場ボードを探す」・申請ダイアログ)は AikiBoard の画面から **撤去**。これらは **AikiNote 側に導線を新設**する(別リポジトリ・別タスク)。AikiBoard 側は **承認側のみ**(`PendingRequestsPanel` + 承認/却下 + サイドバーの承認待ちバッジ)を実装する。
+>   - backend(Hono)の `GET /api/membership-requests/discoverable`・`/mine`・`POST /api/membership-requests`(申請作成)は **据え置き**。`aikiboard` スキーマへの書き込みは AikiBoard backend 経由という境界を保つため、AikiNote 側からは `api.aiki-board.com` のこれらのエンドポイントを呼ぶ(SSO で同一 Supabase Auth を共有。`dojo_style_id` は `public."User"` 参照でアプリ非依存に動く)。
+> - **未着手**: メンバーの停止(suspend)、招待リンクの QR コード生成(URL は実装済み)、招待ページの未ログイン時 return URL 保持、**AikiNote 側の参加申請導線**(発見・申請 UI)。
 
 ### 4.6 アクティビティログ
 
