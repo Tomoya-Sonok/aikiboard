@@ -1,0 +1,57 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-4);
+  min-width: min(640px, 80vw);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-2);
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ab-text-secondary);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  font-size: 14px;
+  color: var(--ab-text-primary);
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--ab-dou);
+  cursor: pointer;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--ab-text-tertiary);
+  margin-top: calc(-1 * var(--ab-space-2));
+}
+
+.error {
+  font-size: 13px;
+  color: var(--ab-danger);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ab-space-2);
+}
+
+@media (max-width: 520px) {
+  .body {
+    min-width: 0;
+  }
+}

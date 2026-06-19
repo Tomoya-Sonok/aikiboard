@@ -1,0 +1,122 @@
+.editor {
+  border: 1px solid var(--ab-border-strong);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-card);
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ab-space-1);
+  padding: var(--ab-space-2);
+  border-bottom: 1px solid var(--ab-border-default);
+  background: var(--ab-surface-card-alt);
+}
+
+.blockSelect {
+  height: 30px;
+  padding: 0 var(--ab-space-2);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-sm);
+  background: var(--ab-surface-card);
+  color: var(--ab-text-primary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  margin: 0 var(--ab-space-1);
+  background: var(--ab-border-default);
+}
+
+.tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: var(--ab-radius-sm);
+  background: transparent;
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.tool:hover:not(:disabled) {
+  background: var(--ab-washi-dark);
+  color: var(--ab-text-primary);
+}
+
+.tool:disabled {
+  color: var(--ab-text-disabled);
+  cursor: not-allowed;
+}
+
+.toolActive {
+  background: var(--ab-dou-soft);
+  border-color: var(--ab-dou-light);
+  color: var(--ab-dou);
+}
+
+.contentWrap {
+  padding: var(--ab-space-3) var(--ab-space-4);
+}
+
+/* Tiptap の編集領域(ProseMirror)。RichTextView と見た目を揃える。 */
+.content {
+  min-height: 200px;
+  outline: none;
+  color: var(--ab-text-primary);
+  font-size: 15px;
+  line-height: 1.85;
+}
+
+.content :global(h2) {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: var(--ab-space-5) 0 var(--ab-space-2);
+}
+
+.content :global(h3) {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: var(--ab-space-5) 0 var(--ab-space-2);
+}
+
+.content :global(:first-child) {
+  margin-top: 0;
+}
+
+.content :global(p) {
+  margin: 0 0 var(--ab-space-3);
+}
+
+.content :global(a) {
+  color: var(--ab-text-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Placeholder(空のときだけ薄く表示)。 */
+.content :global(p.is-editor-empty:first-child::before) {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--ab-text-disabled);
+  pointer-events: none;
+}
+
+.removeLinkLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+}
