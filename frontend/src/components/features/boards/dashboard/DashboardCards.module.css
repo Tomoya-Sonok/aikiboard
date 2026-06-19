@@ -1,9 +1,9 @@
 .grid {
+  /* 外側余白は共通シェル(.content)が持つ。ここは段組とカード間 gap・最大幅のみ。 */
   display: flex;
   flex-direction: column;
   gap: var(--ab-layout-gutter);
   max-width: var(--ab-layout-container-max);
-  padding: var(--ab-layout-content-pad);
 }
 
 .card {
@@ -383,10 +383,6 @@
 }
 
 @media (max-width: 639px) {
-  .grid {
-    padding: var(--ab-space-4);
-  }
-
   .practiceBody {
     grid-template-columns: 1fr;
   }
