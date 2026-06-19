@@ -74,7 +74,9 @@
         "slugFormat": "Board URL may only contain lowercase letters, numbers and hyphens",
         "descriptionMax": "Description must be at most 500 characters",
         "dojoRequired": "Please enter and select a dojo to link"
-      }
+      },
+      "dojoCreate": "Add \"{name}\" as a new dojo",
+      "dojoCreating": "Adding…"
     },
     "dashboard": {
       "nextPractice": "Next practice",

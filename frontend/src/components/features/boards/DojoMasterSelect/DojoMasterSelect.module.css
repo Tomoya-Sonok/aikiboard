@@ -63,6 +63,28 @@
   color: var(--ab-text-tertiary);
 }
 
+.createItem {
+  display: block;
+  width: 100%;
+  padding: var(--ab-space-2) var(--ab-space-3);
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: var(--ab-radius-sm);
+  font-size: var(--ab-fs-sm);
+  color: var(--ab-dou);
+  cursor: pointer;
+}
+
+.createItem:hover:not(:disabled) {
+  background-color: var(--ab-washi-dark);
+}
+
+.createItem:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .suggestionItem {
   display: flex;
   align-items: center;

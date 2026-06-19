@@ -20,6 +20,17 @@ async function searchDojos(query: string): Promise<DojoMaster[]> {
   return res.data ?? [];
 }
 
+// 検索で見つからない道場を新規追加(双方向書き込み 5.2)。作成した(or 既存の)道場を返す。
+async function createDojo(name: string): Promise<DojoMaster> {
+  const res = await trpcClient.dojoMasters.create.mutate({ dojoName: name });
+  if (!res.success || !res.data) {
+    throw new Error(res.error ?? "道場の追加に失敗しました");
+  }
+  const { existed, ...dojo } = res.data;
+  void existed;
+  return dojo;
+}
+
 export default function NewBoardPage() {
   const t = useTranslations("boards.create");
   const router = useRouter();
@@ -46,6 +57,7 @@ export default function NewBoardPage() {
       <BoardCreateForm
         onSubmit={handleSubmit}
         searchDojos={searchDojos}
+        createDojo={createDojo}
         isSubmitting={mutation.isPending}
         serverError={serverError}
       />

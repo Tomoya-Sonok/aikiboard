@@ -74,7 +74,9 @@
         "slugFormat": "ボードURL は英小文字・数字・ハイフンのみ使えます",
         "descriptionMax": "説明は500文字以内で入力してください",
         "dojoRequired": "ボードに紐づける道場を入力・選択してください"
-      }
+      },
+      "dojoCreate": "「{name}」を新しい道場として追加",
+      "dojoCreating": "追加中…"
     },
     "dashboard": {
       "nextPractice": "次の稽古",
