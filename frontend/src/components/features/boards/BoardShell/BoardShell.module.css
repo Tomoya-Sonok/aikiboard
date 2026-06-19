@@ -15,4 +15,14 @@
   flex: 1;
   overflow-y: auto;
   background: var(--ab-surface-canvas);
+  /* ボード配下の全画面で共通の外側余白。デザイン正典(docs/design/claude_design_prototype.tsx
+     の content 領域)の `24px 32px 48px` に一致。各 View は外側 padding を付けず、
+     ここで一括して与える(画面ごとの付け忘れを防ぐ)。横幅制限は View 側で max-width 指定。 */
+  padding: var(--ab-space-6) var(--ab-layout-content-pad) var(--ab-space-12);
+}
+
+@media (max-width: 639px) {
+  .content {
+    padding: var(--ab-space-4);
+  }
 }
