@@ -14,6 +14,7 @@ import eventsRoute from "./routes/events/index.js";
 import invitationsRoute from "./routes/invitations/index.js";
 import membersRoute from "./routes/members/index.js";
 import membershipRequestsRoute from "./routes/membership-requests/index.js";
+import notificationsRoute from "./routes/notifications/index.js";
 import usersRoute from "./routes/users/index.js";
 
 export type AppBindings = {
@@ -120,6 +121,7 @@ app.route("/api/board-posts", boardPostsRoute);
 app.route("/api/members", membersRoute);
 app.route("/api/invitations", invitationsRoute);
 app.route("/api/membership-requests", membershipRequestsRoute);
+app.route("/api/notifications", notificationsRoute);
 
 export type AppType = typeof app;
 

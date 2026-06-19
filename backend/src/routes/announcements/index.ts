@@ -18,6 +18,7 @@ import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
 import { sendAnnouncementEmails } from "../../lib/announcement-email.js";
 import { logger } from "../../lib/logger.js";
+import { notifyBoardMembers } from "../../lib/notifications.js";
 import {
   bodyRichSchema,
   extractPlainText,
@@ -562,7 +563,7 @@ announcementsRoute.post(
 
     const { data: current, error: fetchError } = await aikiboard
       .from("announcements")
-      .select("published_at, notify_email")
+      .select("published_at, notify_email, title, created_by_user_id")
       .eq("id", id)
       .maybeSingle();
     if (fetchError) {
@@ -596,6 +597,18 @@ announcementsRoute.post(
       boardId,
       announcementId: id,
     });
+
+    // 公開をボードメンバー(投稿者除く)にアプリ内通知する。
+    if (boardId) {
+      await notifyBoardMembers(supabase, {
+        boardId,
+        actorUserId: (current.created_by_user_id as string | null) ?? null,
+        type: "announcement.published",
+        targetType: "announcement",
+        targetId: id,
+        title: (current.title as string | null) ?? "",
+      });
+    }
 
     // notify_email が ON ならメンバー全員へメール送信(fire-and-forget)。
     // 送信の成否は公開の成否に影響させない。boardId はミドルウェアが必ず設定する。

@@ -18,6 +18,7 @@ import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
 import { logger } from "../../lib/logger.js";
+import { notifyBoardMembers } from "../../lib/notifications.js";
 import {
   applyOverrides,
   expandEvent,
@@ -478,6 +479,19 @@ eventsRoute.post("/", authMiddleware, boardAdminMiddleware, async (c) => {
     boardId,
     eventId: event.id,
   });
+
+  // 稽古の追加をボードメンバー(作成者除く)に通知する。
+  if (boardId) {
+    await notifyBoardMembers(supabase, {
+      boardId,
+      actorUserId: userId as string,
+      type: "event.created",
+      targetType: "event",
+      targetId: event.id,
+      title: place,
+    });
+  }
+
   return c.json({
     success: true,
     data: { id: event.id },
