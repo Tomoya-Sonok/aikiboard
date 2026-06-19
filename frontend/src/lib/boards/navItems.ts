@@ -26,7 +26,7 @@ export const BOARD_NAV_ITEMS: BoardNavItem[] = [
   { id: "home", labelKey: "home", icon: House, enabled: true },
   { id: "calendar", labelKey: "calendar", icon: CalendarBlank, enabled: true },
   { id: "announce", labelKey: "announce", icon: Megaphone, enabled: true },
-  { id: "feed", labelKey: "feed", icon: Rss, enabled: false },
+  { id: "feed", labelKey: "feed", icon: Rss, enabled: true },
   {
     id: "archive",
     labelKey: "archive",
