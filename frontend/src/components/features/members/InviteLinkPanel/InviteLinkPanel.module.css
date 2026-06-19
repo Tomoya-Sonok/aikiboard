@@ -1,0 +1,124 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-3);
+  padding: var(--ab-space-4);
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-sm);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ab-space-3);
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+}
+
+.titleIcon {
+  color: var(--ab-dou);
+}
+
+.createBtn {
+  padding: var(--ab-space-2) var(--ab-space-4);
+  background: var(--ab-dou);
+  color: var(--ab-text-on-brand);
+  border: none;
+  border-radius: var(--ab-radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.createBtn:hover:not(:disabled) {
+  background: var(--ab-dou-light);
+}
+
+.createBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.desc {
+  font-size: 13px;
+  color: var(--ab-text-tertiary);
+  margin: 0;
+}
+
+.empty {
+  font-size: 13px;
+  color: var(--ab-text-tertiary);
+  padding: var(--ab-space-2) 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ab-space-2);
+}
+
+.url {
+  flex: 1;
+  min-width: 200px;
+  height: 34px;
+  padding: 0 var(--ab-space-3);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-sm);
+  background: var(--ab-surface-card-alt);
+  color: var(--ab-text-secondary);
+  font-family: var(--ab-font-num);
+  font-size: 13px;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-sm);
+  background: var(--ab-surface-card);
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.iconBtn:hover:not(:disabled) {
+  background: var(--ab-washi-dark);
+  color: var(--ab-text-primary);
+}
+
+.iconBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.expiry {
+  width: 100%;
+  font-size: 12px;
+  color: var(--ab-text-tertiary);
+}

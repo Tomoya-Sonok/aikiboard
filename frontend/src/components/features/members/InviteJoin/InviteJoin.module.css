@@ -1,0 +1,68 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--ab-space-6);
+  background: var(--ab-surface-canvas);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ab-space-3);
+  width: 100%;
+  max-width: 420px;
+  padding: var(--ab-space-8) var(--ab-space-6);
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-xl);
+  box-shadow: var(--ab-shadow-md);
+  text-align: center;
+}
+
+.inviteLabel {
+  font-size: 13px;
+  color: var(--ab-text-tertiary);
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+}
+
+.desc {
+  font-size: 14px;
+  color: var(--ab-text-secondary);
+  margin: 0 0 var(--ab-space-2);
+}
+
+.memberCount {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  font-size: 13px;
+  color: var(--ab-text-tertiary);
+  margin: 0 0 var(--ab-space-2);
+}
+
+.countIcon {
+  color: var(--ab-text-tertiary);
+}
+
+.iconMuted {
+  color: var(--ab-text-disabled);
+}
+
+.loading {
+  font-size: 14px;
+  color: var(--ab-text-tertiary);
+}
+
+.error {
+  font-size: 13px;
+  color: var(--ab-danger);
+  margin: 0;
+}

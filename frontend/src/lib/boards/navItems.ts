@@ -41,7 +41,7 @@ export const BOARD_NAV_ITEMS: BoardNavItem[] = [
     pro: true,
     enabled: false,
   },
-  { id: "members", labelKey: "members", icon: UsersThree, enabled: false },
+  { id: "members", labelKey: "members", icon: UsersThree, enabled: true },
   {
     id: "activity",
     labelKey: "activity",

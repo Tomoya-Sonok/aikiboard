@@ -233,6 +233,44 @@
         "undo": "Undo",
         "redo": "Redo"
       }
+    },
+    "members": {
+      "title": "Members",
+      "memberCount": "{count}",
+      "loading": "Loading…",
+      "unknownUser": "(unknown user)",
+      "you": "You",
+      "joinedAt": "Joined {date}",
+      "remove": "Remove",
+      "leave": "Leave",
+      "removeConfirm": "Remove {name} from this board?",
+      "leaveConfirm": "Leave this board?",
+      "role": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "member": "Member"
+      },
+      "inviteTitle": "Invite link",
+      "inviteDesc": "Share this link and anyone who receives it can join this board.",
+      "createInvite": "Create invite link",
+      "noInvite": "No active invite links.",
+      "inviteUrl": "Invite link URL",
+      "copy": "Copy",
+      "revoke": "Revoke",
+      "expiresAt": "Expires: {date}"
+    },
+    "invite": {
+      "loading": "Loading…",
+      "invitedTo": "You're invited to",
+      "memberCount": "{count} members",
+      "join": "Join",
+      "joining": "Joining…",
+      "joinError": "Failed to join. Please try again later.",
+      "alreadyMember": "You're already a member of this board.",
+      "openBoard": "Open board",
+      "invalidTitle": "Invalid invite link",
+      "invalidDesc": "This invite link has expired or been revoked. Please ask an admin for a new one.",
+      "toHome": "Go home"
     }
   },
   "nav": {
