@@ -27,7 +27,7 @@ const ADMIN_ROLES: BoardRole[] = ["owner", "admin"];
 type ResolveResult = { boardId: string | null; dbError: boolean };
 
 // :id ルートで board_id を引くテーブル。リソースごとに切り替える。
-type IdTable = "events" | "announcements";
+type IdTable = "events" | "announcements" | "invitations";
 
 async function resolveBoardId(
   c: Context<GuardEnv>,
@@ -147,4 +147,10 @@ export const announcementMemberMiddleware = createBoardGuard(
 export const announcementAdminMiddleware = createBoardGuard(
   "admin",
   "announcements",
+);
+
+// 招待リンク用(:id は invitation の id → invitations から board_id を引く)。
+export const invitationAdminMiddleware = createBoardGuard(
+  "admin",
+  "invitations",
 );
