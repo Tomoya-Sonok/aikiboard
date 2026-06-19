@@ -89,7 +89,8 @@
       "viewAll": "View all",
       "recentFeed": "Recent feed",
       "toFeed": "Go to feed",
-      "noUpcoming": "No upcoming practices"
+      "noUpcoming": "No upcoming practices",
+      "noAnnouncements": "No announcements yet"
     },
     "calendar": {
       "title": "Practice calendar",

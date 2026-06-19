@@ -1,10 +1,12 @@
 "use client";
 
 import { CaretDoubleLeft, Plus } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { BOARD_NAV_ITEMS } from "@/lib/boards/navItems";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { usePathname, useRouter } from "@/lib/i18n/routing";
+import { trpcClient } from "@/lib/trpc/client";
 import type { BoardSummary } from "@/lib/types/board";
 import { useUiStore } from "@/stores/uiStore";
 import styles from "./BoardSidebar.module.css";
@@ -33,6 +35,18 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
   const { user, signOut } = useAuth();
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useUiStore((s) => s.toggleSidebar);
+
+  // アクティブボードのお知らせ未読数(announce ナビのバッジ用)。
+  const activeBoardId = boards.find((b) => b.slug === activeSlug)?.id;
+  const { data: unreadRes } = useQuery({
+    queryKey: ["announcements", activeBoardId, "unreadCount"],
+    queryFn: () =>
+      trpcClient.announcements.unreadCount.query({
+        boardId: activeBoardId ?? "",
+      }),
+    enabled: Boolean(activeBoardId),
+  });
+  const unreadAnnouncements = unreadRes?.data?.count ?? 0;
 
   const handleSignOut = async () => {
     await signOut();
@@ -129,6 +143,15 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
               {!collapsed && item.pro && (
                 <span className={styles.proBadge}>{t("pro")}</span>
               )}
+              {item.id === "announce" && unreadAnnouncements > 0 ? (
+                collapsed ? (
+                  <span className={styles.navUnreadDot} aria-hidden="true" />
+                ) : (
+                  <span className={styles.navUnreadBadge}>
+                    {unreadAnnouncements}
+                  </span>
+                )
+              ) : null}
             </button>
           );
         })}

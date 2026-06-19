@@ -221,6 +221,33 @@
   letter-spacing: 0.5px;
 }
 
+/* お知らせ未読バッジ(展開時)。navLabel が flex:1 で右端へ寄る。 */
+.navUnreadBadge {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-dou);
+  color: var(--ab-text-on-brand);
+  font-size: 10px;
+  font-weight: var(--ab-fw-semibold);
+  font-family: var(--ab-font-num);
+}
+
+/* 折りたたみ時はアイコン右上に小さなドットだけ出す。 */
+.navUnreadDot {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-dou);
+}
+
 .footer {
   display: flex;
   align-items: center;

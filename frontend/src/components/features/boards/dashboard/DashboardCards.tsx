@@ -2,36 +2,11 @@
 
 import { ArrowBendUpLeft, CaretRight, Heart } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
+import { AnnouncementsCard } from "./AnnouncementsCard";
 import styles from "./DashboardCards.module.css";
 import { NextPracticeCard } from "./NextPracticeCard";
 
-// ガワ表示用のダミーデータ。お知らせ/フィードは各機能 PR で実データに差し替える。
-const ANNOUNCEMENTS = [
-  {
-    id: 1,
-    title: "7月の審査について",
-    excerpt:
-      "7月14日に昇級・昇段審査を実施します。受験希望者は7月7日までにお知らせください。",
-    date: "06/20",
-    read: false,
-  },
-  {
-    id: 2,
-    title: "夏季合宿のご案内",
-    excerpt:
-      "8月10日〜12日、箱根にて夏季合宿を予定しています。詳細は追ってお知らせします。",
-    date: "06/15",
-    read: true,
-  },
-  {
-    id: 3,
-    title: "道場清掃のお願い",
-    excerpt: "6月28日の稽古後に大掃除を行います。雑巾等をご持参ください。",
-    date: "06/10",
-    read: true,
-  },
-];
-
+// ガワ表示用のダミーデータ。フィードは各機能 PR で実データに差し替える。
 const FEED = [
   {
     id: 1,
@@ -50,7 +25,8 @@ type Props = {
   slug: string;
 };
 
-// ボードホームのダッシュボード本体。「次の稽古」は実データ、お知らせ/フィードは各機能 PR で差し替える。
+// ボードホームのダッシュボード本体。「次の稽古」「お知らせ」は実データ、フィードは
+// 各機能 PR で差し替える。
 export function DashboardCards({ boardId, slug }: Props) {
   const t = useTranslations("boards.dashboard");
 
@@ -58,39 +34,7 @@ export function DashboardCards({ boardId, slug }: Props) {
     <div className={styles.grid}>
       <NextPracticeCard boardId={boardId} slug={slug} />
 
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <span className={styles.sectionLabel}>
-            {t("announcements")}
-            <span className={styles.countPill}>1</span>
-          </span>
-          <span className={styles.ghostLink}>
-            {t("viewAll")}
-            <CaretRight size={13} />
-          </span>
-        </div>
-        <div>
-          {ANNOUNCEMENTS.map((a, i) => (
-            <div
-              key={a.id}
-              className={`${styles.announceRow} ${i === 0 ? "" : styles.borderTop}`}
-            >
-              <span
-                className={`${styles.unreadDot} ${a.read ? styles.readDot : ""}`}
-              />
-              <div className={styles.announceMain}>
-                <div
-                  className={`${styles.announceTitle} ${a.read ? styles.announceTitleRead : ""}`}
-                >
-                  {a.title}
-                </div>
-                <div className={styles.announceExcerpt}>{a.excerpt}</div>
-              </div>
-              <div className={styles.announceDate}>{a.date}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <AnnouncementsCard boardId={boardId} slug={slug} />
 
       <section className={styles.card}>
         <div className={styles.cardHeader}>
