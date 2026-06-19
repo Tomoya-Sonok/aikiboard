@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  Bell,
-  CaretDown,
-  Globe,
-  List,
-  MagnifyingGlass,
-} from "@phosphor-icons/react";
+import { CaretDown, Globe, List, MagnifyingGlass } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
+import { NotificationBell } from "@/components/features/notifications/NotificationBell/NotificationBell";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { usePathname } from "@/lib/i18n/routing";
 import type { BoardDetail } from "@/lib/types/board";
@@ -73,14 +68,7 @@ export function BoardHeader({ board }: Props) {
       >
         <Globe size={15} />
       </button>
-      <button
-        type="button"
-        className={styles.iconBtn}
-        aria-label={t("nav.notifications")}
-      >
-        <Bell size={15} />
-        <span className={styles.notifyDot} />
-      </button>
+      <NotificationBell boardId={board.id} slug={board.slug} />
       <div className={styles.divider} />
       <button
         type="button"
