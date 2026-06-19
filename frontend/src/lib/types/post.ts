@@ -17,6 +17,25 @@ export type PostAuthor = {
   profileImageUrl: string | null;
 };
 
+// 引用した AikiNote 投稿(SocialPost)の表示用(5.3.2)。
+export type QuotedAikinotePost = {
+  id: string;
+  content: string;
+  postType: string;
+  authorName: string;
+  createdAt: string;
+  isDeleted: boolean;
+};
+
+// 引用ピッカー用の自分の AikiNote 投稿(SocialPost)サマリ。
+export type AikinotePostSummary = {
+  id: string;
+  content: string;
+  postType: string;
+  visibility: string;
+  createdAt: string;
+};
+
 // GET /api/board-posts の一覧 1 件 / GET /api/board-posts/:id の詳細。
 export type FeedPost = {
   id: string;
@@ -26,6 +45,7 @@ export type FeedPost = {
   replyCount: number;
   crossPostToAikinote: boolean;
   syncedFromPostId: string | null;
+  quotedAikinotePost: QuotedAikinotePost | null;
   createdAt: string;
   canDelete: boolean;
 };

@@ -77,6 +77,118 @@
   background: rgba(0, 0, 0, 0.78);
 }
 
+.quoteChip {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  padding: var(--ab-space-2) var(--ab-space-3);
+  border: 1px solid var(--ab-border-default);
+  border-left: 3px solid var(--ab-dou);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-card-alt);
+}
+
+.quoteIcon {
+  flex-shrink: 0;
+  color: var(--ab-dou);
+}
+
+.quoteText {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--ab-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quoteRemove {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-washi-dark);
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+}
+
+.crossPost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  font-size: 13px;
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+}
+
+.quotePickerWrap {
+  position: relative;
+}
+
+.picker {
+  position: absolute;
+  bottom: 42px;
+  left: 0;
+  z-index: var(--ab-z-dropdown);
+  width: 280px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: var(--ab-space-2);
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  box-shadow: var(--ab-shadow-md);
+}
+
+.pickerTitle {
+  padding: var(--ab-space-1) var(--ab-space-2);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ab-text-tertiary);
+}
+
+.pickerEmpty {
+  padding: var(--ab-space-3) var(--ab-space-2);
+  font-size: 13px;
+  color: var(--ab-text-tertiary);
+}
+
+.pickerList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pickerItem {
+  width: 100%;
+  padding: var(--ab-space-2);
+  border: none;
+  border-radius: var(--ab-radius-sm);
+  background: transparent;
+  color: var(--ab-text-primary);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pickerItem:hover {
+  background: var(--ab-washi-dark);
+}
+
 .error {
   color: var(--ab-danger);
   font-size: 13px;

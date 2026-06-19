@@ -4,6 +4,7 @@
 import { z } from "zod";
 import type { ApiResponse } from "@/lib/types/api";
 import type {
+  AikinotePostSummary,
   FeedListResult,
   FeedPost,
   ThreadReply,
@@ -55,13 +56,15 @@ export const boardPostsRouter = createTRPCRouter({
       }),
     ),
 
-  // 投稿作成(メンバー)。本文 + 添付(任意)。
+  // 投稿作成(メンバー)。本文 + 添付(任意) + AikiNote 連携(クロスポスト/引用)。
   create: authenticatedProcedure
     .input(
       z.object({
         boardId: uuidLike,
         body: z.string().max(5000),
         attachments: z.array(attachmentInput).max(4).optional(),
+        crossPostToAikinote: z.boolean().optional(),
+        syncedFromPostId: uuidLike.optional(),
       }),
     )
     .mutation(({ input, ctx }) =>
@@ -71,6 +74,17 @@ export const boardPostsRouter = createTRPCRouter({
         body: JSON.stringify(input),
       }),
     ),
+
+  // 引用ピッカー用: 自分の AikiNote 投稿一覧(5.3.2)。
+  aikinotePosts: authenticatedProcedure
+    .input(z.object({ boardId: uuidLike }))
+    .query(({ input, ctx }) => {
+      const qs = new URLSearchParams({ boardId: input.boardId });
+      return callHonoApi<ApiResponse<AikinotePostSummary[]>>(
+        `/api/board-posts/aikinote-posts?${qs.toString()}`,
+        { headers: authHeader(ctx.accessToken) },
+      );
+    }),
 
   // 削除(投稿者本人 or owner/admin)。
   remove: authenticatedProcedure

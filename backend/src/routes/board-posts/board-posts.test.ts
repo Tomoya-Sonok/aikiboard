@@ -29,6 +29,9 @@ function createMock(opts: {
   insertResult?: { data: { id: string } | null; error: unknown };
   threadInsertResult?: { data: { id: string } | null; error: unknown };
   attachInsertError?: unknown;
+  // AikiNote 連携: 引用 post の所有者(isOwnAikinotePost 用)と一覧。
+  aikinoteOwnerId?: string | null;
+  aikinotePosts?: Record<string, unknown>[];
 }) {
   const role: Role = opts.role === undefined ? "member" : opts.role;
   const resolvedBoardId =
@@ -120,14 +123,37 @@ function createMock(opts: {
     }),
   };
 
+  const socialPostResolver = (state: ChainState) => {
+    if (state.op === "insert") {
+      return { data: { id: "sp1" }, error: null };
+    }
+    // isOwnAikinotePost: select("user_id, is_deleted").eq("id").maybeSingle()
+    if (state.single) {
+      if (opts.aikinoteOwnerId === undefined || opts.aikinoteOwnerId === null) {
+        return { data: null, error: null };
+      }
+      return {
+        data: { user_id: opts.aikinoteOwnerId, is_deleted: false },
+        error: null,
+      };
+    }
+    // listOwnAikinotePosts / resolveQuotedPosts(await)
+    return { data: opts.aikinotePosts ?? [], error: null };
+  };
+
   return {
     supabase: {
       schema: () => aikiboard,
       storage,
-      from: (table: string) =>
-        table === "User"
-          ? makeChain(() => ({ data: opts.users ?? [], error: null }))
-          : makeChain(() => ({ data: [], error: null })),
+      from: (table: string) => {
+        if (table === "User") {
+          return makeChain(() => ({ data: opts.users ?? [], error: null }));
+        }
+        if (table === "SocialPost") {
+          return makeChain(socialPostResolver);
+        }
+        return makeChain(() => ({ data: [], error: null }));
+      },
     } as unknown as SupabaseClient,
   };
 }
@@ -151,6 +177,7 @@ function makeChain(resolver: (state: ChainState) => unknown) {
     in: () => chain,
     order: () => chain,
     range: () => chain,
+    limit: () => chain,
     gte: () => chain,
     lt: () => chain,
     insert: () => {
@@ -516,5 +543,85 @@ describe("DELETE /api/board-posts/:id/threads/:threadId", () => {
     });
 
     expect(res.status).toBe(404);
+  });
+});
+
+describe("AikiNote 連携(引用・クロスポスト)", () => {
+  const QUOTE_ID = "00000000-0000-0000-0000-0000000000d1";
+
+  it("AikiNote にも流す(クロスポスト)つきで投稿できる", async () => {
+    const { supabase } = createMock({ role: "member" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, "/api/board-posts", {
+      method: "POST",
+      body: {
+        boardId: BOARD_ID,
+        body: "稽古日誌をシェアします",
+        crossPostToAikinote: true,
+      },
+      sub: "user-1",
+    });
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ success: true });
+  });
+
+  it("本人の AikiNote 投稿は引用できる", async () => {
+    const { supabase } = createMock({
+      role: "member",
+      aikinoteOwnerId: "user-1",
+    });
+    const app = buildApp(supabase);
+
+    const res = await request(app, "/api/board-posts", {
+      method: "POST",
+      body: { boardId: BOARD_ID, body: "引用です", syncedFromPostId: QUOTE_ID },
+      sub: "user-1",
+    });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("他人の AikiNote 投稿は引用できない(400)", async () => {
+    const { supabase } = createMock({
+      role: "member",
+      aikinoteOwnerId: "someone-else",
+    });
+    const app = buildApp(supabase);
+
+    const res = await request(app, "/api/board-posts", {
+      method: "POST",
+      body: { boardId: BOARD_ID, body: "引用です", syncedFromPostId: QUOTE_ID },
+      sub: "user-1",
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("GET /aikinote-posts は本人の投稿を返す", async () => {
+    const { supabase } = createMock({
+      role: "member",
+      aikinotePosts: [
+        {
+          id: QUOTE_ID,
+          content: "今日の稽古メモ",
+          post_type: "training_record",
+          visibility: "public",
+          created_at: "2026-06-01T00:00:00.000Z",
+        },
+      ],
+    });
+    const app = buildApp(supabase);
+
+    const res = await request(
+      app,
+      `/api/board-posts/aikinote-posts?boardId=${BOARD_ID}`,
+      { method: "GET", sub: "user-1" },
+    );
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { data: { content: string }[] };
+    expect(json.data[0].content).toBe("今日の稽古メモ");
   });
 });

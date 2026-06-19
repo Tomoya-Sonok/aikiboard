@@ -19,6 +19,7 @@
 | v1.7 | 2026-06-14 | Phase 1 第4機能(お知らせ配信)を実装(#70〜#73)。管理者→メンバーの一方向配信。下書き保存→公開の2段階フロー、本文は Tiptap(ProseMirror)WYSIWYG(見出し/太字/リンク/寄せ)で `body_rich`(JSONB)に保存、既読/未読管理 + ダッシュボード/サイドバーの未読バッジ。`notify_email` ON の公開時に Resend でメンバー全員へメール一斉送信(batch API・1人1通)。下書きの可視性を管理者のみへ絞る RLS(migration `011`)。詳細は 4.2 実装メモ |
 | v1.8 | 2026-06-14 | Phase 1 第5機能(メンバー管理)を実装(#75〜#78)。メンバー一覧・自主退会・管理者によるメンバー削除(owner 保護)・共有招待リンク(`/invite/<token>`、マルチユース、migration `012`)・AikiNote 道場からの参加申請(`membership_requests` + 承認/却下、`dojo_style_id` でボード発見、migration `013`)。退会/削除時は出欠・既読の残置を掃除。停止(suspend)は今回スコープ外。詳細は 4.5 実装メモ |
 | v1.9 | 2026-06-19 | 参加申請(4.5.2)の **導線分担を見直し**。申請の「発見・送信」(`道場ボードを探す`・申請ダイアログ)は AikiBoard の画面から撤去し、**AikiNote 側に導線を置く方針**へ。AikiBoard 側は **承認(承認待ち一覧・承認/却下)のみ**を担う。backend の `membership_requests` テーブル・route・migration `013` は据え置き(`discoverable`/`mine`/`create` エンドポイントは AikiNote から呼ぶ前提で残置)。詳細は 4.5 実装メモ |
+| v2.0 | 2026-06-19 | Phase 1 第6機能(道場内フィード + スレッド + AikiNote 連携)を実装(#86〜#89)。テキスト + 画像/動画の投稿(Supabase Storage 非公開バケット `board-media`・署名付き URL、migration `014`)、フラット1階層のスレッド返信、AikiNote 稽古日誌(`public."SocialPost"`)の引用共有、投稿の AikiNote クロスポスト(主道場名義)。詳細は 4.3 / 5.3 実装メモ |
 
 ---
 
@@ -211,6 +212,13 @@ AikiBoard オーナーは自分の道場が道場マスタに未登録の場合�
 - 各投稿に対して **スレッド形式** で返信・議論可能(フラット 1 階層)
 - 投稿時に「**AikiNote にも流す**」をチェックすると、AikiNote 道場アカウント経由で AikiNote 側のフィードにもクロスポストされる(詳細は 5.3)
 
+> **実装メモ(2026-06-19、#86〜#89 で一巡)**: フィード(投稿の作成/削除・画像/動画添付)・スレッド返信・AikiNote 引用共有/クロスポストまで実装済み。
+> - **投稿**: メンバー・管理者の双方が投稿でき、削除は投稿者本人 or owner/admin。本文 + 画像/動画(最大4件)。サイドバーの feed ナビから `/d/<slug>/feed`。
+> - **メディア**: Supabase Storage の **非公開バケット `board-media`**(migration `014`)に保存。アップロードは backend(service_role)が発行する**署名付きアップロード URL** 経由、表示は都度発行の**短命の署名付き DL URL** 経由(メンバー限定を担保、storage RLS 不要)。パス規約 `feed/<board_id>/<uuid>` を backend が生成し越境を防止。
+> - **スレッド**: 各投稿への返信(`threads`、テキストのみ)。返信一覧 + 返信入力のモーダル。削除は返信者本人 or owner/admin。返信数はフィード一覧に表示。
+> - **AikiNote 連携**: 5.3 実装メモを参照。
+> - 認可は events/お知らせと同様、backend は service_role で RLS バイパスのためミドルウェア(`boardPostMemberMiddleware`)が砦。RLS(`board_posts`/`board_post_attachments`/`threads`)は migration `008` で定義済み(anon 直アクセス向け防御層)。
+
 ### 4.4 アーカイブ(新規・MVP 必須)
 
 > 道場内のフィード(双方向コミュニケーション)やお知らせとは別に、管理者が階層構造でページを作成して稽古の積み重ねを長期保存できる機能です。需要が高く、MVP に必須として組み込みます。
@@ -362,6 +370,11 @@ AikiBoard オーナーは自分の道場が道場マスタに未登録の場合�
 
 - **外部 API コールは不要**(同一 Supabase プロジェクト内のリレーションで完結)。
 - `aikiboard.board_posts.synced_from_post_id`(`public.posts` への FK、nullable)で AikiNote 側の元投稿を参照。
+
+> **実装メモ(2026-06-19、#89 で実装)**: AikiNote のフィード本体は実テーブル名 **`public."SocialPost"`**(本ドキュメントの "public.posts" の実体。aikinote backend migration `002` 準拠)。同一 Supabase 内のリレーションで完結し外部 API は不要。
+> - **引用共有(5.3.2)**: 投稿フォームの「稽古日誌を引用」で**自分の `SocialPost`** を 1 件選び `board_posts.synced_from_post_id` に保存。フィード表示時に backend が `SocialPost`(本文・著者・削除フラグ)を解決し引用カードを描く。引用作成時は所有者検証(他人の投稿の引用詐称を 400 で防止)。MVP は本人の投稿に限定(他者の公開投稿の引用は将来対応)。
+> - **クロスポスト(5.3.1)**: 「AikiNote にも流す」を ON で投稿すると、ボードの**主道場(`board_dojo_masters.is_primary`)名義**で `SocialPost` を 1 件挿入(`user_id`=投稿者、`visibility='public'`、`author_dojo_style_id`/`author_dojo_name`=主道場、`content` は AikiNote 上限 2000 字に切り詰め)。失敗してもボード投稿は止めない(fire-and-forget 相当)。
+> - **⚠️ AikiNote 本番フィードへの書き込み**: クロスポストは AikiNote の本番 `SocialPost` に行を挿入する。ユーザーが投稿ごとにオプトインした場合のみ実行。ローカルは 000 seed に最小 `SocialPost` を再現して動作確認可能。
 
 ### 5.4 DB・認証統合方針(概要)
 

@@ -19,6 +19,13 @@
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
+import {
+  crossPostToAikinote,
+  isOwnAikinotePost,
+  listOwnAikinotePosts,
+  type QuotedAikinotePost,
+  resolveQuotedPosts,
+} from "../../lib/aikinote.js";
 import { logger } from "../../lib/logger.js";
 import {
   createSignedUpload,
@@ -66,10 +73,18 @@ const createSchema = z
     boardId: uuidLike,
     body: z.string().max(BODY_MAX),
     attachments: z.array(attachmentSchema).max(MAX_ATTACHMENTS).optional(),
+    // AikiNote にも流す(5.3.1 クロスポスト、投稿ごとのオプトイン)。
+    crossPostToAikinote: z.boolean().optional(),
+    // AikiNote 稽古日誌の引用共有(5.3.2)。本人の SocialPost id。
+    syncedFromPostId: uuidLike.optional(),
   })
-  .refine((v) => v.body.trim().length > 0 || (v.attachments?.length ?? 0) > 0, {
-    message: "本文か添付のどちらかが必要です",
-  });
+  .refine(
+    (v) =>
+      v.body.trim().length > 0 ||
+      (v.attachments?.length ?? 0) > 0 ||
+      v.syncedFromPostId != null,
+    { message: "本文・添付・引用のいずれかが必要です" },
+  );
 
 const uploadUrlSchema = z.object({
   boardId: uuidLike,
@@ -137,6 +152,7 @@ const toPostDto = (
   attachmentsByPost: Map<string, AttachmentRow[]>,
   signedUrls: Map<string, string>,
   replyCountByPost: Map<string, number>,
+  quotedByPostId: Map<string, QuotedAikinotePost>,
   viewerUserId: string | undefined,
   isAdmin: boolean,
 ) => {
@@ -150,6 +166,9 @@ const toPostDto = (
       url: signedUrls.get(a.url) ?? null,
       metadata: a.metadata ?? {},
     }));
+  const quoted = row.synced_from_post_id
+    ? (quotedByPostId.get(row.synced_from_post_id) ?? null)
+    : null;
   return {
     id: row.id,
     body: row.body,
@@ -162,6 +181,7 @@ const toPostDto = (
     replyCount: replyCountByPost.get(row.id) ?? 0,
     crossPostToAikinote: row.cross_post_to_aikinote,
     syncedFromPostId: row.synced_from_post_id,
+    quotedAikinotePost: quoted,
     createdAt: row.created_at,
     canDelete: isAdmin || row.author_user_id === viewerUserId,
   };
@@ -219,6 +239,13 @@ const hydratePosts = async (
     supabase,
     [...attachmentsByPost.values()].flat().map((a) => a.url),
   );
+  // 引用共有(synced_from_post_id)があれば AikiNote の SocialPost を解決する。
+  const quotedByPostId = await resolveQuotedPosts(
+    supabase,
+    rows
+      .map((r) => r.synced_from_post_id)
+      .filter((id): id is string => id != null),
+  );
 
   return rows.map((r) =>
     toPostDto(
@@ -227,6 +254,7 @@ const hydratePosts = async (
       attachmentsByPost,
       signedUrls,
       replyCountByPost,
+      quotedByPostId,
       viewerUserId,
       isAdmin,
     ),
@@ -344,6 +372,26 @@ boardPostsRoute.get(
 );
 
 // ────────────────────────────────────────────────────────────────
+// GET /api/board-posts/aikinote-posts?boardId= — 引用ピッカー用(メンバー)
+//   閲覧者本人の AikiNote 投稿(SocialPost)一覧を新しい順で返す(5.3.2)。
+//   静的セグメントなので /:id より前に定義する。
+// ────────────────────────────────────────────────────────────────
+boardPostsRoute.get(
+  "/aikinote-posts",
+  authMiddleware,
+  boardPostMemberMiddleware,
+  async (c) => {
+    const supabase = c.get("supabase");
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+    const userId = c.get("userId");
+    const posts = await listOwnAikinotePosts(supabase, userId as string);
+    return c.json({ success: true, data: posts });
+  },
+);
+
+// ────────────────────────────────────────────────────────────────
 // GET /api/board-posts/:id — 投稿 1 件(メンバー)。スレッド画面の先頭表示用。
 // ────────────────────────────────────────────────────────────────
 boardPostsRoute.get(
@@ -412,6 +460,8 @@ boardPostsRoute.post(
       return c.json({ success: false, error: "入力内容に誤りがあります" }, 400);
     }
     const attachments = parsed.data.attachments ?? [];
+    const syncedFromPostId = parsed.data.syncedFromPostId ?? null;
+    const wantsCrossPost = parsed.data.crossPostToAikinote === true;
 
     // 添付パスが当該ボード配下(feed/<boardId>/...)かを検証(越境防止)。
     // attachment_type は contentType 由来だが、パスの拡張子と種別の整合も担保する。
@@ -424,12 +474,24 @@ boardPostsRoute.post(
       }
     }
 
-    const { data: post, error } = await aikiboardInsertPost(
-      supabase,
+    // 引用共有: 指定の AikiNote 投稿が本人のものか検証(他人の投稿の引用詐称を防ぐ)。
+    if (
+      syncedFromPostId &&
+      !(await isOwnAikinotePost(supabase, syncedFromPostId, userId as string))
+    ) {
+      return c.json(
+        { success: false, error: "引用できる投稿ではありません" },
+        400,
+      );
+    }
+
+    const { data: post, error } = await aikiboardInsertPost(supabase, {
       boardId,
-      userId as string,
-      parsed.data.body,
-    );
+      userId: userId as string,
+      body: parsed.data.body,
+      crossPostToAikinote: wantsCrossPost,
+      syncedFromPostId,
+    });
     if (error || !post) {
       logger.error("board_post の作成に失敗", {
         feature: "board-posts",
@@ -470,6 +532,18 @@ boardPostsRoute.post(
       }
     }
 
+    // AikiNote クロスポスト(5.3.1)。本文がある場合のみ、ボードの主道場名義で SocialPost を
+    // 1 件作る。失敗してもボード投稿は止めない(fire-and-forget 相当)。
+    if (wantsCrossPost && parsed.data.body.trim().length > 0) {
+      const primary = await resolvePrimaryDojo(supabase, boardId);
+      await crossPostToAikinote(supabase, {
+        userId: userId as string,
+        content: parsed.data.body,
+        dojoStyleId: primary.dojoStyleId,
+        dojoName: primary.dojoName,
+      });
+    }
+
     logger.info("フィード投稿を作成した", {
       feature: "board-posts",
       boardId,
@@ -485,21 +559,61 @@ boardPostsRoute.post(
 
 const aikiboardInsertPost = (
   supabase: NonNullable<AppVariables["supabase"]>,
-  boardId: string,
-  userId: string,
-  body: string,
+  params: {
+    boardId: string;
+    userId: string;
+    body: string;
+    crossPostToAikinote: boolean;
+    syncedFromPostId: string | null;
+  },
 ) =>
   supabase
     .schema("aikiboard")
     .from("board_posts")
     .insert({
-      board_id: boardId,
-      author_user_id: userId,
-      body,
-      cross_post_to_aikinote: false,
+      board_id: params.boardId,
+      author_user_id: params.userId,
+      body: params.body,
+      cross_post_to_aikinote: params.crossPostToAikinote,
+      synced_from_post_id: params.syncedFromPostId,
     })
     .select("id")
     .single();
+
+// クロスポスト時の道場アカウント名義。ボードの主道場(board_dojo_masters.is_primary)から
+// DojoStyleMaster.dojo_name を引く。無ければ board 名で代替する。
+const resolvePrimaryDojo = async (
+  supabase: NonNullable<AppVariables["supabase"]>,
+  boardId: string,
+): Promise<{ dojoStyleId: string | null; dojoName: string | null }> => {
+  const aikiboard = supabase.schema("aikiboard");
+  const { data: link } = await aikiboard
+    .from("board_dojo_masters")
+    .select("dojo_master_id")
+    .eq("board_id", boardId)
+    .eq("is_primary", true)
+    .maybeSingle();
+  const dojoStyleId = (link?.dojo_master_id as string | undefined) ?? null;
+
+  let dojoName: string | null = null;
+  if (dojoStyleId) {
+    const { data: dojo } = await supabase
+      .from("DojoStyleMaster")
+      .select("dojo_name")
+      .eq("id", dojoStyleId)
+      .maybeSingle();
+    dojoName = (dojo?.dojo_name as string | undefined) ?? null;
+  }
+  if (!dojoName) {
+    const { data: board } = await aikiboard
+      .from("boards")
+      .select("name")
+      .eq("id", boardId)
+      .maybeSingle();
+    dojoName = (board?.name as string | undefined) ?? null;
+  }
+  return { dojoStyleId, dojoName };
+};
 
 // ────────────────────────────────────────────────────────────────
 // DELETE /api/board-posts/:id — 削除(投稿者本人 or owner/admin)。

@@ -258,7 +258,15 @@
       "noReplies": "まだ返信はありません",
       "replyPlaceholder": "返信を入力…",
       "replyError": "返信に失敗しました",
-      "replyDeleteConfirm": "この返信を削除しますか?"
+      "replyDeleteConfirm": "この返信を削除しますか?",
+      "crossPost": "AikiNote にも流す",
+      "quoteAikinote": "稽古日誌を引用",
+      "quotePickerTitle": "引用する稽古日誌を選ぶ",
+      "noAikinotePosts": "引用できる AikiNote 投稿がありません",
+      "removeQuote": "引用を外す",
+      "quoteFromAikinote": "AikiNote から引用",
+      "quoteDeleted": "引用元の投稿は削除されました",
+      "crossPosted": "AikiNote にも投稿"
     },
     "members": {
       "title": "メンバー",
