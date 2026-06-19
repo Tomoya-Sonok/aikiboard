@@ -10,6 +10,25 @@
   font-family: var(--ab-font-ui);
 }
 
+/* ハンバーガー(SP のみ表示。PC では非表示)。 */
+.menuBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+}
+
+.menuBtn:hover {
+  background: var(--ab-washi-dark);
+}
+
 .titleArea {
   display: flex;
   align-items: baseline;
@@ -132,13 +151,27 @@
   font-weight: var(--ab-fw-semibold);
 }
 
-/* SP では検索ボックスを隠してはみ出しを防ぐ(本格対応は後続)。 */
+/* SP: ハンバーガーを出し、はみ出す補助情報(検索ボックス・ボード名サブ)を畳む。 */
 @media (max-width: 639px) {
   .header {
-    padding: 0 var(--ab-space-4);
+    gap: var(--ab-space-2);
+    padding: 0 var(--ab-space-3);
+  }
+
+  .menuBtn {
+    display: inline-flex;
   }
 
   .search {
     display: none;
+  }
+
+  /* ボード名はドロワー内に出るのでヘッダーでは省く。タイトルも一段小さく。 */
+  .boardName {
+    display: none;
+  }
+
+  .title {
+    font-size: var(--ab-fs-lg);
   }
 }

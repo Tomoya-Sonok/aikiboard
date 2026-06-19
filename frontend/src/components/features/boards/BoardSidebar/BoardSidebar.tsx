@@ -35,6 +35,14 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
   const { user, signOut } = useAuth();
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useUiStore((s) => s.toggleSidebar);
+  const mobileNavOpen = useUiStore((s) => s.mobileNavOpen);
+  const closeMobileNav = useUiStore((s) => s.closeMobileNav);
+
+  // SP のドロワーから遷移したらドロワーを閉じる(PC では closeMobileNav は無害)。
+  const navigate = (href: string) => {
+    closeMobileNav();
+    router.push(href);
+  };
 
   // アクティブボードのお知らせ未読数(announce ナビのバッジ用)。
   const activeBoard = boards.find((b) => b.slug === activeSlug);
@@ -71,7 +79,9 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
   const userInitial = (userLabel || "?").charAt(0).toUpperCase();
 
   return (
-    <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""}`}>
+    <aside
+      className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""} ${mobileNavOpen ? styles.mobileOpen : ""}`}
+    >
       <div className={styles.logoRow}>
         {!collapsed && <span className={styles.logo}>AikiBoard</span>}
         <button
@@ -92,7 +102,7 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
               key={board.id}
               title={board.name}
               className={`${styles.boardIcon} ${board.slug === activeSlug ? styles.boardIconActive : ""}`}
-              onClick={() => router.push(`/d/${board.slug}`)}
+              onClick={() => navigate(`/d/${board.slug}`)}
             >
               {Array.from(board.name)[0] ?? "?"}
             </button>
@@ -101,7 +111,7 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
             type="button"
             className={styles.addBoard}
             title={t("newBoard")}
-            onClick={() => router.push("/boards/new")}
+            onClick={() => navigate("/boards/new")}
           >
             <Plus size={14} />
           </button>
@@ -114,7 +124,7 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
                 type="button"
                 key={board.id}
                 className={`${styles.boardLabel} ${board.slug === activeSlug ? styles.boardLabelActive : ""}`}
-                onClick={() => router.push(`/d/${board.slug}`)}
+                onClick={() => navigate(`/d/${board.slug}`)}
               >
                 <span className={styles.boardName}>{board.name}</span>
                 <span className={styles.boardMeta}>
@@ -140,7 +150,7 @@ export function BoardSidebar({ boards, activeSlug }: Props) {
                 if (!item.enabled) {
                   return;
                 }
-                router.push(
+                navigate(
                   item.id === "home"
                     ? `/d/${activeSlug}`
                     : `/d/${activeSlug}/${item.id}`,

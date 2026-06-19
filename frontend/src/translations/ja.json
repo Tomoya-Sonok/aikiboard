@@ -299,6 +299,8 @@
     "searchPlaceholder": "道場ボード内を検索",
     "notifications": "通知",
     "language": "言語",
-    "account": "アカウント"
+    "account": "アカウント",
+    "openNav": "メニューを開く",
+    "closeNav": "メニューを閉じる"
   }
 }

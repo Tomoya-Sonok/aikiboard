@@ -76,3 +76,18 @@
   padding: var(--ab-space-4) var(--ab-space-5);
   border-top: 1px solid var(--ab-border-subtle);
 }
+
+/* SP: モーダルをフルスクリーンシート化(デザイン仕様 prompts B-5: 上から 16px、残り全域)。
+   maxWidth 指定(--ab-dialog-max-w)があっても max-width:none で打ち消す。 */
+@media (max-width: 639px) {
+  .overlay {
+    padding: 16px 0 0;
+    align-items: stretch;
+  }
+
+  .panel {
+    max-width: none;
+    max-height: none;
+    border-radius: var(--ab-radius-xl) var(--ab-radius-xl) 0 0;
+  }
+}

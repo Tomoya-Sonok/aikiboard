@@ -299,3 +299,34 @@
 .signOut:hover {
   color: var(--ab-nav-text);
 }
+
+/* ── SP: サイドバーをハンバーガードロワー化(デザイン仕様 prompts B-5 / brief 5-D) ──
+   既定は画面外(translateX(-100%))に隠し、mobileNavOpen で滑り込ませる。
+   PC レイアウトは変更しない(この media query 内のみ)。 */
+@media (max-width: 639px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: calc(var(--ab-z-drawer) + 1);
+    width: min(280px, 84vw);
+    transform: translateX(-100%);
+    box-shadow: var(--ab-shadow-lg);
+    transition: transform var(--ab-duration-base) var(--ab-ease-standard);
+  }
+
+  /* SP では「折りたたみ(58px)」は使わず常にフル幅のドロワーにする。 */
+  .sidebar.collapsed {
+    width: min(280px, 84vw);
+  }
+
+  .mobileOpen {
+    transform: translateX(0);
+  }
+
+  /* ドロワーは背景タップ/項目選択で閉じるため、PC 用の折りたたみボタンは隠す。 */
+  .collapseBtn {
+    display: none;
+  }
+}
