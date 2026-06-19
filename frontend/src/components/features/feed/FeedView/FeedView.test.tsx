@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -8,6 +14,11 @@ import { FeedView } from "./FeedView";
 
 const listQuery = vi.fn();
 const removeMutate = vi.fn(async () => ({ success: true }));
+const listThreadsQuery = vi.fn(async () => ({ success: true, data: [] }));
+const createThreadMutate = vi.fn(async () => ({
+  success: true,
+  data: { id: "t1" },
+}));
 
 vi.mock("@/lib/trpc/client", () => ({
   trpcClient: {
@@ -16,6 +27,9 @@ vi.mock("@/lib/trpc/client", () => ({
       remove: { mutate: (...a: unknown[]) => removeMutate(...a) },
       create: { mutate: async () => ({ success: true, data: { id: "x" } }) },
       createUploadUrl: { mutate: async () => ({ success: true, data: {} }) },
+      listThreads: { query: (...a: unknown[]) => listThreadsQuery(...a) },
+      createThread: { mutate: (...a: unknown[]) => createThreadMutate(...a) },
+      removeThread: { mutate: async () => ({ success: true }) },
     },
   },
 }));
@@ -104,6 +118,35 @@ describe("FeedView", () => {
     await waitFor(() =>
       expect(removeMutate).toHaveBeenCalledWith({
         id: "00000000-0000-0000-0000-0000000000b1",
+      }),
+    );
+  });
+
+  it("返信ボタンでスレッドを開き、返信を送信できる", async () => {
+    listThreadsQuery.mockResolvedValue({ success: true, data: [] });
+    renderWithProviders(<FeedView boardId={BOARD_ID} />);
+
+    await waitFor(() =>
+      expect(screen.getByText("本日の稽古お疲れさまでした")).toBeTruthy(),
+    );
+    // replyCount=2 の投稿の返信ボタン(「返信 2 件」)を押してスレッドを開く。
+    fireEvent.click(screen.getByRole("button", { name: /返信 2 件/ }));
+
+    await waitFor(() =>
+      expect(listThreadsQuery).toHaveBeenCalledWith({
+        postId: "00000000-0000-0000-0000-0000000000b1",
+      }),
+    );
+
+    const dialog = await screen.findByRole("dialog");
+    const textarea = within(dialog).getByPlaceholderText("返信を入力…");
+    fireEvent.change(textarea, { target: { value: "了解しました" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: "返信" }));
+
+    await waitFor(() =>
+      expect(createThreadMutate).toHaveBeenCalledWith({
+        postId: "00000000-0000-0000-0000-0000000000b1",
+        body: "了解しました",
       }),
     );
   });

@@ -5,8 +5,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { trpcClient } from "@/lib/trpc/client";
+import type { FeedPost } from "@/lib/types/post";
 import { PostCard } from "../PostCard/PostCard";
 import { PostComposer } from "../PostComposer/PostComposer";
+import { PostThreadModal } from "../PostThreadModal/PostThreadModal";
 import styles from "./FeedView.module.css";
 
 type Props = {
@@ -19,6 +21,7 @@ export function FeedView({ boardId }: Props) {
   const t = useTranslations("boards.feed");
   const queryClient = useQueryClient();
   const [limit, setLimit] = useState(PAGE_SIZE);
+  const [threadPost, setThreadPost] = useState<FeedPost | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["boardPosts", boardId, "list", limit],
@@ -58,7 +61,12 @@ export function FeedView({ boardId }: Props) {
       ) : (
         <div className={styles.list}>
           {items.map((post) => (
-            <PostCard key={post.id} post={post} onDelete={handleDelete} />
+            <PostCard
+              key={post.id}
+              post={post}
+              onDelete={handleDelete}
+              onOpenThread={setThreadPost}
+            />
           ))}
         </div>
       )}
@@ -71,6 +79,15 @@ export function FeedView({ boardId }: Props) {
         >
           {t("loadMore")}
         </button>
+      ) : null}
+
+      {threadPost ? (
+        <PostThreadModal
+          post={threadPost}
+          open={threadPost !== null}
+          onClose={() => setThreadPost(null)}
+          onChanged={refresh}
+        />
       ) : null}
     </div>
   );

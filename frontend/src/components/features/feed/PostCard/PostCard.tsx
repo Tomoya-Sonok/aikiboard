@@ -16,9 +16,11 @@ type Props = {
   post: FeedPost;
   // 削除実行(mutation + 一覧の再取得)は親が担う。
   onDelete: (id: string) => Promise<void>;
+  // 返信(スレッド)を開く。
+  onOpenThread: (post: FeedPost) => void;
 };
 
-export function PostCard({ post, onDelete }: Props) {
+export function PostCard({ post, onDelete, onOpenThread }: Props) {
   const t = useTranslations("boards.feed");
   const rawLocale = useLocale();
   const locale: CalendarLocale = rawLocale === "en" ? "en" : "ja";
@@ -122,12 +124,16 @@ export function PostCard({ post, onDelete }: Props) {
       ) : null}
 
       <div className={styles.footer}>
-        <span className={styles.replies}>
+        <button
+          type="button"
+          className={styles.replies}
+          onClick={() => onOpenThread(post)}
+        >
           <ChatCircle size={16} />
           {post.replyCount > 0
             ? t("replyCount", { count: post.replyCount })
             : t("reply")}
-        </span>
+        </button>
       </div>
     </article>
   );
