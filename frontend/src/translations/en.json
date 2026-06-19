@@ -278,23 +278,6 @@
       "requestedAt": "Requested {date}",
       "approve": "Approve",
       "reject": "Reject"
-    },
-    "discover": {
-      "title": "Join a dojo board",
-      "lead": "Request to join the board of your dojo registered on AikiNote.",
-      "loading": "Loading…",
-      "empty": "No dojo boards available to join. Set your dojo on AikiNote, or ask an admin for an invite link.",
-      "memberCount": "{count} members",
-      "private": "Private",
-      "request": "Request to join",
-      "reRequest": "Request again",
-      "pending": "Pending",
-      "requestTitle": "Request to join \"{name}\"",
-      "messageLabel": "Message (optional)",
-      "messagePlaceholder": "e.g. I'm Tanaka from the general class. Looking forward to joining.",
-      "send": "Send request",
-      "sending": "Sending…",
-      "sendError": "Failed to send. Please try again later."
     }
   },
   "nav": {
@@ -316,7 +299,6 @@
     "searchPlaceholder": "Search this board",
     "notifications": "Notifications",
     "language": "Language",
-    "account": "Account",
-    "discoverBoards": "Find dojo boards"
+    "account": "Account"
   }
 }
