@@ -186,6 +186,15 @@
         "decliners": "Declined",
         "noResponses": "No responses yet"
       }
+    },
+    "announcements": {
+      "title": "Announcements",
+      "draft": "Draft",
+      "empty": "No announcements yet",
+      "loading": "Loading…",
+      "loadError": "Failed to load the announcement",
+      "loadMore": "Load more",
+      "notifiedByEmail": "Email sent"
     }
   },
   "nav": {

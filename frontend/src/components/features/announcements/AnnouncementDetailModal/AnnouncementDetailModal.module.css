@@ -1,0 +1,48 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-4);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ab-space-3);
+  padding-bottom: var(--ab-space-3);
+  border-bottom: 1px solid var(--ab-border-subtle);
+  font-size: 13px;
+  color: var(--ab-text-secondary);
+}
+
+.date {
+  color: var(--ab-text-secondary);
+}
+
+.author {
+  color: var(--ab-text-tertiary);
+}
+
+.notify {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  color: var(--ab-info);
+}
+
+.draftBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--ab-space-2);
+  border-radius: var(--ab-radius-sm);
+  background: var(--ab-warning-soft);
+  color: var(--ab-warning);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.loading {
+  color: var(--ab-text-tertiary);
+  font-size: 14px;
+  padding: var(--ab-space-4) 0;
+}
