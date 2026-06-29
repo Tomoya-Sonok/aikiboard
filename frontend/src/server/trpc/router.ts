@@ -4,6 +4,7 @@ import { createTRPCRouter } from "./index";
 import { activityLogsRouter } from "./routers/activityLogs";
 import { announcementsRouter } from "./routers/announcements";
 import { boardPostsRouter } from "./routers/boardPosts";
+import { boardSettingsRouter } from "./routers/boardSettings";
 import { boardsRouter } from "./routers/boards";
 import { dojoMastersRouter } from "./routers/dojoMasters";
 import { eventsRouter } from "./routers/events";
@@ -11,6 +12,7 @@ import { invitationsRouter } from "./routers/invitations";
 import { membersRouter } from "./routers/members";
 import { membershipRequestsRouter } from "./routers/membershipRequests";
 import { notificationsRouter } from "./routers/notifications";
+import { publicBoardsRouter } from "./routers/publicBoards";
 import { usersRouter } from "./routers/users";
 
 export const appRouter = createTRPCRouter({
@@ -25,6 +27,8 @@ export const appRouter = createTRPCRouter({
   membershipRequests: membershipRequestsRouter,
   notifications: notificationsRouter,
   activityLogs: activityLogsRouter,
+  boardSettings: boardSettingsRouter,
+  publicBoards: publicBoardsRouter,
 });
 
 export type AppRouter = typeof appRouter;

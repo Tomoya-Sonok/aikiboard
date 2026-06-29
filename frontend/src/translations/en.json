@@ -301,6 +301,31 @@
       "description": "This feature is available on the Mini / Standard plans.",
       "note": "Plan upgrades are coming soon."
     },
+    "settings": {
+      "title": "Board settings",
+      "previewPublic": "View public page",
+      "isPublic": "Enable public page",
+      "isPublicHint": "Visitors who are not logged in can view the dojo page (including the practice calendar).",
+      "theme": "Theme color",
+      "basics": "Basic info",
+      "logoUrl": "Logo image URL",
+      "description": "Introduction",
+      "organization": "Style / organization",
+      "publicPage": "Public page content",
+      "instructorIntro": "Instructor introduction",
+      "access": "Access / practice location",
+      "showCalendar": "Show practice calendar on the public page",
+      "showContact": "Show contact info on the public page",
+      "contact": "Contact",
+      "contactEmail": "Email",
+      "contactPhone": "Phone",
+      "contactUrl": "Website URL",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "saveError": "Failed to save",
+      "loading": "Loading…"
+    },
     "members": {
       "title": "Members",
       "memberCount": "{count}",
@@ -346,6 +371,16 @@
       "approve": "Approve",
       "reject": "Reject"
     }
+  },
+  "public": {
+    "instructor": "Instructor",
+    "access": "Access",
+    "calendar": "Practice calendar",
+    "contact": "Contact",
+    "website": "Website",
+    "memberLogin": "Members: log in here",
+    "loading": "Loading…",
+    "noEvents": "No public practice scheduled"
   },
   "nav": {
     "home": "Home",

@@ -49,5 +49,5 @@ export const BOARD_NAV_ITEMS: BoardNavItem[] = [
     pro: true,
     enabled: true,
   },
-  { id: "settings", labelKey: "settings", icon: GearSix, enabled: false },
+  { id: "settings", labelKey: "settings", icon: GearSix, enabled: true },
 ];

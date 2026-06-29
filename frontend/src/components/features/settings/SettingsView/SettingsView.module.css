@@ -1,0 +1,166 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-5);
+  max-width: 640px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ab-space-3);
+}
+
+.heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+}
+
+.previewLink {
+  font-size: 13px;
+  color: var(--ab-dou);
+}
+
+.loading {
+  color: var(--ab-text-tertiary);
+  font-size: 14px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-3);
+  padding: var(--ab-space-4);
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-sm);
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+}
+
+.toggleRow,
+.checkRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ab-space-2);
+  cursor: pointer;
+}
+
+.toggleRow span,
+.checkRow span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--ab-text-primary);
+}
+
+.toggleTitle {
+  font-weight: 600;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--ab-text-tertiary);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ab-space-2);
+}
+
+.swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ab-radius-md);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.swatch:hover {
+  transform: scale(1.08);
+}
+
+.swatchActive {
+  border-color: var(--ab-text-primary);
+  box-shadow: 0 0 0 2px var(--ab-surface-card);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-1);
+}
+
+.label {
+  font-size: 13px;
+  color: var(--ab-text-secondary);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: var(--ab-space-2) var(--ab-space-3);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-canvas);
+  color: var(--ab-text-primary);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--ab-dou);
+}
+
+.error {
+  color: var(--ab-danger);
+  font-size: 13px;
+}
+
+.message {
+  color: var(--ab-success, var(--ab-dou));
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save {
+  padding: var(--ab-space-2) var(--ab-space-6);
+  background: var(--ab-dou);
+  color: var(--ab-text-on-brand);
+  border: none;
+  border-radius: var(--ab-radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.save:hover:not(:disabled) {
+  background: var(--ab-dou-light);
+}
+
+.save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,0 +1,134 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-6);
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--ab-space-8) var(--ab-space-4) var(--ab-space-16);
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-4);
+}
+
+.logo {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--ab-radius-lg);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.logoFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: var(--ab-radius-lg);
+  background: var(--ab-dou);
+  color: var(--ab-text-on-brand);
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.heroMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-1);
+  min-width: 0;
+}
+
+.name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+}
+
+.dojos {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  font-size: 13px;
+  color: var(--ab-text-secondary);
+}
+
+.org {
+  font-size: 13px;
+  color: var(--ab-text-tertiary);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-2);
+}
+
+.sectionTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+  padding-bottom: var(--ab-space-1);
+  border-bottom: 2px solid var(--ab-dou);
+  align-self: flex-start;
+}
+
+.description {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--ab-text-primary);
+  white-space: pre-wrap;
+}
+
+.text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--ab-text-secondary);
+  white-space: pre-wrap;
+}
+
+.contacts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-2);
+}
+
+.contact {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  font-size: 14px;
+  color: var(--ab-dou);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.contact:hover {
+  text-decoration: underline;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--ab-space-6);
+  padding-top: var(--ab-space-4);
+  border-top: 1px solid var(--ab-border-subtle);
+}
+
+.memberLink {
+  font-size: 13px;
+  color: var(--ab-text-secondary);
+}
+
+.brand {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ab-text-tertiary);
+}
