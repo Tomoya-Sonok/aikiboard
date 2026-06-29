@@ -28,6 +28,10 @@ import {
 } from "../../lib/aikinote.js";
 import { logger } from "../../lib/logger.js";
 import {
+  createNotifications,
+  notifyBoardMembers,
+} from "../../lib/notifications.js";
+import {
   createSignedUpload,
   isAllowedContentType,
   isPathInBoard,
@@ -36,6 +40,11 @@ import {
 } from "../../lib/storage.js";
 import { authMiddleware } from "../../middleware/auth.js";
 import { boardPostMemberMiddleware } from "../../middleware/boardAccess.js";
+
+// 通知タイトル用に本文を短く切り詰める。
+const NOTIFY_SNIPPET = 60;
+const snippet = (s: string): string =>
+  s.length > NOTIFY_SNIPPET ? `${s.slice(0, NOTIFY_SNIPPET)}…` : s;
 
 type BoardPostsEnv = { Bindings: AppBindings; Variables: AppVariables };
 
@@ -544,6 +553,19 @@ boardPostsRoute.post(
       });
     }
 
+    // フィード新規投稿をボードメンバー(投稿者除く)に通知する。
+    await notifyBoardMembers(supabase, {
+      boardId,
+      actorUserId: userId as string,
+      type: "post.created",
+      targetType: "post",
+      targetId: post.id,
+      title:
+        parsed.data.body.trim().length > 0
+          ? snippet(parsed.data.body.trim())
+          : "(画像・動画)",
+    });
+
     logger.info("フィード投稿を作成した", {
       feature: "board-posts",
       boardId,
@@ -772,6 +794,25 @@ boardPostsRoute.post(
         postId,
       });
       return c.json({ success: false, error: "返信の作成に失敗しました" }, 500);
+    }
+
+    // 投稿者に「返信がついた」ことを通知する(返信者本人が投稿者なら除外される)。
+    const { data: postRow } = await supabase
+      .schema("aikiboard")
+      .from("board_posts")
+      .select("author_user_id")
+      .eq("id", postId)
+      .maybeSingle();
+    if (postRow?.author_user_id) {
+      await createNotifications(supabase, {
+        boardId: boardId as string,
+        recipientUserIds: [postRow.author_user_id as string],
+        actorUserId: userId as string,
+        type: "thread.replied",
+        targetType: "post",
+        targetId: postId,
+        title: snippet(parsed.data.body),
+      });
     }
 
     return c.json({
