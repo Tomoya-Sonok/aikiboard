@@ -1,0 +1,47 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  padding: var(--ab-space-12) 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ab-space-3);
+  max-width: 420px;
+  padding: var(--ab-space-8);
+  text-align: center;
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-sm);
+}
+
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-washi-dark);
+  color: var(--ab-dou);
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+}
+
+.desc {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ab-text-secondary);
+}
+
+.note {
+  font-size: 12px;
+  color: var(--ab-text-tertiary);
+}

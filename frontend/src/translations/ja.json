@@ -279,6 +279,28 @@
       "msgThread": "{name} さんがあなたの投稿に返信しました",
       "msgEvent": "{name} さんが稽古を追加しました"
     },
+    "activity": {
+      "title": "アクティビティログ",
+      "subtitle": "ボード内の操作履歴(管理者のみ)",
+      "empty": "まだ操作履歴はありません",
+      "loading": "読み込み中…",
+      "loadMore": "もっと見る",
+      "someone": "メンバー",
+      "event_created": "{name} さんが稽古を追加しました",
+      "event_updated": "{name} さんが稽古を編集しました",
+      "event_deleted": "{name} さんが稽古を削除しました",
+      "announcement_published": "{name} さんがお知らせを公開しました",
+      "post_created": "{name} さんがフィードに投稿しました",
+      "rsvp_responded": "{name} さんが出欠を表明しました",
+      "member_joined": "{name} さんがボードに参加しました",
+      "member_left": "{name} さんが退会しました",
+      "member_removed": "{name} さんがメンバーを削除しました"
+    },
+    "featureLocked": {
+      "title": "{feature} は有料プランの機能です",
+      "description": "この機能は Mini / Standard プランでご利用いただけます。",
+      "note": "プランのアップグレードは近日対応予定です。"
+    },
     "members": {
       "title": "メンバー",
       "memberCount": "{count}人",

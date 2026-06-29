@@ -279,6 +279,28 @@
       "msgThread": "{name} replied to your post",
       "msgEvent": "{name} added a practice"
     },
+    "activity": {
+      "title": "Activity log",
+      "subtitle": "Operation history in this board (admins only)",
+      "empty": "No activity yet",
+      "loading": "Loading…",
+      "loadMore": "Load more",
+      "someone": "A member",
+      "event_created": "{name} added a practice",
+      "event_updated": "{name} edited a practice",
+      "event_deleted": "{name} deleted a practice",
+      "announcement_published": "{name} published an announcement",
+      "post_created": "{name} posted to the feed",
+      "rsvp_responded": "{name} responded to attendance",
+      "member_joined": "{name} joined the board",
+      "member_left": "{name} left the board",
+      "member_removed": "{name} removed a member"
+    },
+    "featureLocked": {
+      "title": "{feature} is a paid feature",
+      "description": "This feature is available on the Mini / Standard plans.",
+      "note": "Plan upgrades are coming soon."
+    },
     "members": {
       "title": "Members",
       "memberCount": "{count}",
