@@ -3,6 +3,7 @@
 import { createTRPCRouter } from "./index";
 import { activityLogsRouter } from "./routers/activityLogs";
 import { announcementsRouter } from "./routers/announcements";
+import { archivesRouter } from "./routers/archives";
 import { boardPostsRouter } from "./routers/boardPosts";
 import { boardSettingsRouter } from "./routers/boardSettings";
 import { boardsRouter } from "./routers/boards";
@@ -29,6 +30,7 @@ export const appRouter = createTRPCRouter({
   activityLogs: activityLogsRouter,
   boardSettings: boardSettingsRouter,
   publicBoards: publicBoardsRouter,
+  archives: archivesRouter,
 });
 
 export type AppRouter = typeof appRouter;

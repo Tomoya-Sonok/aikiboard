@@ -32,7 +32,8 @@ type IdTable =
   | "announcements"
   | "invitations"
   | "membership_requests"
-  | "board_posts";
+  | "board_posts"
+  | "archives";
 
 async function resolveBoardId(
   c: Context<GuardEnv>,
@@ -172,3 +173,8 @@ export const boardPostMemberMiddleware = createBoardGuard(
   "member",
   "board_posts",
 );
+
+// アーカイブ用(:id はアーカイブの id → archives から board_id を引く)。
+// 閲覧=メンバー、作成/編集/削除=admin。さらに requireFeature("archive") でプラン判定する。
+export const archiveMemberMiddleware = createBoardGuard("member", "archives");
+export const archiveAdminMiddleware = createBoardGuard("admin", "archives");

@@ -32,7 +32,7 @@ export const BOARD_NAV_ITEMS: BoardNavItem[] = [
     labelKey: "archive",
     icon: Archive,
     pro: true,
-    enabled: false,
+    enabled: true,
   },
   {
     id: "money",
