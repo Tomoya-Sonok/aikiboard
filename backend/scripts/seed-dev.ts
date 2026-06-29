@@ -153,15 +153,17 @@ async function seedBoard(
     is_primary: true,
   });
 
-  const { data: freePlan } = await ab
+  // ローカル開発では Standard を割り当て、有料機能(アクティビティログ/アーカイブ/会計/
+  // 公開ページ等)も動作確認できるようにする(本番は決済実装まで全ボード Free)。
+  const { data: devPlan } = await ab
     .from("plans")
     .select("id")
-    .eq("code", "free")
+    .eq("code", "standard")
     .maybeSingle();
-  if (freePlan) {
+  if (devPlan) {
     await ab.from("board_subscriptions").insert({
       board_id: boardId,
-      plan_id: freePlan.id,
+      plan_id: devPlan.id,
       status: "active",
     });
   }

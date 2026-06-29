@@ -13,6 +13,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type { AppBindings, AppVariables, BoardRole } from "../../app.js";
+import { logActivity } from "../../lib/activity.js";
 import { logger } from "../../lib/logger.js";
 import { authMiddleware } from "../../middleware/auth.js";
 import {
@@ -185,6 +186,15 @@ membersRoute.post(
 
     await cleanupMemberData(supabase, boardId ?? "", userId ?? "");
     logger.info("メンバーが退会した", { feature: "members", boardId, userId });
+    if (boardId) {
+      await logActivity(supabase, {
+        boardId,
+        userId: userId ?? null,
+        action: "member.left",
+        targetType: "member",
+        targetId: userId ?? null,
+      });
+    }
     return c.json({ success: true, message: "退会しました" });
   },
 );
@@ -251,6 +261,15 @@ membersRoute.delete(
       boardId,
       targetId,
     });
+    if (boardId) {
+      await logActivity(supabase, {
+        boardId,
+        userId: actorId ?? null,
+        action: "member.removed",
+        targetType: "member",
+        targetId,
+      });
+    }
     return c.json({ success: true, message: "メンバーを削除しました" });
   },
 );

@@ -6,6 +6,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { resolveSupabaseClient } from "./lib/supabase.js";
+import activityLogsRoute from "./routes/activity-logs/index.js";
 import announcementsRoute from "./routes/announcements/index.js";
 import boardPostsRoute from "./routes/board-posts/index.js";
 import boardsRoute from "./routes/boards/index.js";
@@ -122,6 +123,7 @@ app.route("/api/members", membersRoute);
 app.route("/api/invitations", invitationsRoute);
 app.route("/api/membership-requests", membershipRequestsRoute);
 app.route("/api/notifications", notificationsRoute);
+app.route("/api/activity-logs", activityLogsRoute);
 
 export type AppType = typeof app;
 

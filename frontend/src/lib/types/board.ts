@@ -27,4 +27,6 @@ export type BoardDetail = {
   memberCount: number;
   viewerRole: BoardRole | null;
   isMember: boolean;
+  // 契約プランで利用可能な feature code(有料機能のゲート・PRO 表示に使う)。
+  features: string[];
 };
