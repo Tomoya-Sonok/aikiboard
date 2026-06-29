@@ -268,6 +268,17 @@
       "quoteDeleted": "The quoted post was deleted",
       "crossPosted": "Also posted to AikiNote"
     },
+    "notifications": {
+      "title": "Notifications",
+      "readAll": "Mark all read",
+      "empty": "No notifications",
+      "loading": "Loading…",
+      "someone": "A member",
+      "msgAnnouncement": "{name} published an announcement",
+      "msgPost": "{name} posted to the feed",
+      "msgThread": "{name} replied to your post",
+      "msgEvent": "{name} added a practice"
+    },
     "members": {
       "title": "Members",
       "memberCount": "{count}",
