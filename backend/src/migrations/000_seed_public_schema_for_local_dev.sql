@@ -20,7 +20,10 @@ CREATE TABLE IF NOT EXISTS public."DojoStyleMaster" (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   dojo_name TEXT NOT NULL UNIQUE,
   dojo_name_kana TEXT,
+  -- AikiNote 実テーブルに合わせる(新規追加 = 双方向書き込み 5.2 で利用)。
+  region TEXT,
   is_approved BOOLEAN NOT NULL DEFAULT false,
+  created_by_user_id UUID,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

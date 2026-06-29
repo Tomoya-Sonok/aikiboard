@@ -24,6 +24,8 @@ export type BoardCreateValues = {
 type BoardCreateFormProps = {
   onSubmit: (values: BoardCreateValues) => void | Promise<void>;
   searchDojos: (query: string) => Promise<DojoMaster[]>;
+  // 検索で見つからない道場を新規追加する(双方向書き込み 5.2)。
+  createDojo?: (name: string) => Promise<DojoMaster>;
   isSubmitting?: boolean;
   serverError?: string | null;
 };
@@ -58,6 +60,7 @@ type FormValues = {
 export function BoardCreateForm({
   onSubmit,
   searchDojos,
+  createDojo,
   isSubmitting = false,
   serverError = null,
 }: BoardCreateFormProps) {
@@ -127,6 +130,7 @@ export function BoardCreateForm({
           setDojoError(null);
         }}
         searchDojos={searchDojos}
+        createDojo={createDojo}
         error={dojoError ?? undefined}
         required
       />

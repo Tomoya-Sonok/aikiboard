@@ -7,7 +7,8 @@
 //   - 候補は道場名のみ表示(+ 承認済みバッジ)。外側クリックで閉じる
 //   - 選択後は「道場名(タップで再編集)+ クリア(×)」表示
 // 検索関数は注入(searchDojos)するため Storybook / テストでモックできる。
-// 紐付けは MVP では単一選択(先頭 = primary)。複数紐付け・新規道場追加は将来対応。
+// 紐付けは MVP では単一選択(先頭 = primary)。複数紐付けは将来対応。
+// 検索で見つからない道場は createDojo(注入)で新規追加できる(双方向書き込み 5.2)。
 
 import { CheckCircle, X } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
@@ -27,6 +28,8 @@ type DojoMasterSelectProps = {
   value: DojoMaster | null;
   onChange: (dojo: DojoMaster | null) => void;
   searchDojos: (query: string) => Promise<DojoMaster[]>;
+  // 検索で見つからない道場を新規追加する(双方向書き込み 5.2)。省略時は追加ボタンを出さない。
+  createDojo?: (name: string) => Promise<DojoMaster>;
   error?: string;
   required?: boolean;
 };
@@ -36,6 +39,7 @@ export function DojoMasterSelect({
   value,
   onChange,
   searchDojos,
+  createDojo,
   error,
   required,
 }: DojoMasterSelectProps) {
@@ -46,6 +50,7 @@ export function DojoMasterSelect({
   const [debounced, setDebounced] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [creating, setCreating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -94,6 +99,19 @@ export function DojoMasterSelect({
     setQuery("");
     setIsOpen(false);
     setActiveIndex(-1);
+  };
+
+  const handleCreate = async () => {
+    if (!createDojo || creating || debounced.length === 0) {
+      return;
+    }
+    setCreating(true);
+    try {
+      const created = await createDojo(debounced);
+      handleSelect(created);
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -201,7 +219,20 @@ export function DojoMasterSelect({
             {isFetching ? (
               <div className={styles.stateItem}>{t("dojoSearching")}</div>
             ) : results.length === 0 ? (
-              <div className={styles.stateItem}>{t("dojoNoResults")}</div>
+              createDojo ? (
+                <button
+                  type="button"
+                  className={styles.createItem}
+                  onClick={handleCreate}
+                  disabled={creating}
+                >
+                  {creating
+                    ? t("dojoCreating")
+                    : t("dojoCreate", { name: debounced })}
+                </button>
+              ) : (
+                <div className={styles.stateItem}>{t("dojoNoResults")}</div>
+              )
             ) : (
               results.map((dojo, index) => (
                 <button

@@ -12,6 +12,9 @@ type DojoMaster = {
   is_approved: boolean;
 };
 
+// 新規追加の戻り(既存と一致したら existed=true)。
+type CreatedDojoMaster = DojoMaster & { existed: boolean };
+
 export const dojoMastersRouter = createTRPCRouter({
   // 承認済み道場を名称/かなで部分一致検索。
   search: authenticatedProcedure
@@ -38,4 +41,21 @@ export const dojoMastersRouter = createTRPCRouter({
         },
       );
     }),
+
+  // 新規道場を追加(双方向書き込み、要件 5.2)。既存一致なら既存を返す。
+  create: authenticatedProcedure
+    .input(
+      z.object({
+        dojoName: z.string().trim().min(1).max(100),
+        dojoNameKana: z.string().trim().max(100).optional(),
+        region: z.string().trim().max(100).optional(),
+      }),
+    )
+    .mutation(({ input, ctx }) =>
+      callHonoApi<ApiResponse<CreatedDojoMaster>>("/api/dojo-masters", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${ctx.accessToken}` },
+        body: JSON.stringify(input),
+      }),
+    ),
 });
