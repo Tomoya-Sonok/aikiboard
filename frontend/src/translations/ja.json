@@ -253,7 +253,12 @@
       "deleteError": "削除に失敗しました",
       "mediaUnavailable": "メディアを読み込めませんでした",
       "reply": "返信",
-      "replyCount": "返信 {count} 件"
+      "replyCount": "返信 {count} 件",
+      "threadTitle": "スレッド",
+      "noReplies": "まだ返信はありません",
+      "replyPlaceholder": "返信を入力…",
+      "replyError": "返信に失敗しました",
+      "replyDeleteConfirm": "この返信を削除しますか?"
     },
     "members": {
       "title": "メンバー",

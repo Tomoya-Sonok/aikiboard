@@ -253,7 +253,12 @@
       "deleteError": "Failed to delete",
       "mediaUnavailable": "Could not load media",
       "reply": "Reply",
-      "replyCount": "{count} replies"
+      "replyCount": "{count} replies",
+      "threadTitle": "Thread",
+      "noReplies": "No replies yet",
+      "replyPlaceholder": "Write a reply…",
+      "replyError": "Failed to reply",
+      "replyDeleteConfirm": "Delete this reply?"
     },
     "members": {
       "title": "Members",

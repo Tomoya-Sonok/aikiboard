@@ -1,9 +1,10 @@
 // 道場内フィード API(要件 4.3)。メンバー・管理者の双方が投稿でき、各投稿は
-// テキスト + 画像/動画(board_post_attachments)を持つ。スレッド返信は別ルート(threads)。
+// テキスト + 画像/動画(board_post_attachments)を持つ。各投稿へのスレッド返信
+// (フラット 1 階層、threads テーブル)も本ルートに同居する(:id でボードを解決できるため)。
 //
 // 認証は authMiddleware、ボード権限は boardAccess(board_posts 版)で確認する。
-//   - 一覧 / 詳細 / 作成 / アップロード URL 発行: boardPostMemberMiddleware(メンバー以上)
-//   - 削除: メンバー判定の上で「投稿者本人 or owner/admin」のみ(ハンドラで判定)
+//   - 一覧 / 詳細 / 作成 / アップロード URL 発行 / 返信一覧・作成: boardPostMemberMiddleware(メンバー以上)
+//   - 投稿削除・返信削除: メンバー判定の上で「本人 or owner/admin」のみ(ハンドラで判定)
 //
 // 認可について(events / announcements と同じ前提): backend は service_role で RLS を
 // バイパスするため、この経路の認可は boardAccess ミドルウェアが唯一の砦。RLS は frontend が
@@ -559,6 +560,164 @@ boardPostsRoute.delete(
     );
 
     return c.json({ success: true, message: "投稿を削除しました" });
+  },
+);
+
+// ────────────────────────────────────────────────────────────────
+// スレッド(投稿への返信)。フラット 1 階層(要件 4.3)。
+//   board は :id(投稿の id)から board_posts 経由で解決する(boardPostMemberMiddleware)。
+//   返信はテキストのみ(threads.body)。閲覧/作成=メンバー、削除=返信者本人 or owner/admin。
+// ────────────────────────────────────────────────────────────────
+
+const threadCreateSchema = z.object({ body: z.string().min(1).max(BODY_MAX) });
+
+// GET /api/board-posts/:id/threads — 返信一覧(メンバー)。古い順(読み進める順)。
+boardPostsRoute.get(
+  "/:id/threads",
+  authMiddleware,
+  boardPostMemberMiddleware,
+  async (c) => {
+    const supabase = c.get("supabase");
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+    const userId = c.get("userId");
+    const boardRole = c.get("boardRole");
+    const isAdmin = boardRole === "owner" || boardRole === "admin";
+    const postId = c.req.param("id");
+    const aikiboard = supabase.schema("aikiboard");
+
+    const { data, error } = await aikiboard
+      .from("threads")
+      .select("id, author_user_id, body, created_at")
+      .eq("post_id", postId)
+      .order("created_at", { ascending: true });
+    if (error) {
+      logger.error("threads の取得に失敗", {
+        feature: "board-posts",
+        postId,
+      });
+      return c.json({ success: false, error: "返信の取得に失敗しました" }, 500);
+    }
+    const rows = data ?? [];
+    const authors = await resolveAuthors(
+      supabase,
+      rows.map((r) => r.author_user_id as string),
+    );
+    const items = rows.map((r) => ({
+      id: r.id as string,
+      body: r.body as string,
+      author: {
+        userId: r.author_user_id as string,
+        username: authors.get(r.author_user_id as string)?.username ?? "",
+        profileImageUrl:
+          authors.get(r.author_user_id as string)?.profileImageUrl ?? null,
+      },
+      createdAt: r.created_at as string,
+      canDelete: isAdmin || r.author_user_id === userId,
+    }));
+
+    return c.json({ success: true, data: items });
+  },
+);
+
+// POST /api/board-posts/:id/threads — 返信作成(メンバー)。
+boardPostsRoute.post(
+  "/:id/threads",
+  authMiddleware,
+  boardPostMemberMiddleware,
+  async (c) => {
+    const supabase = c.get("supabase");
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+    const userId = c.get("userId");
+    const boardId = c.get("boardId");
+    const postId = c.req.param("id");
+
+    const body = await parseJson(c);
+    const parsed = threadCreateSchema.safeParse(body);
+    if (!parsed.success) {
+      return c.json({ success: false, error: "入力内容に誤りがあります" }, 400);
+    }
+
+    const { data, error } = await supabase
+      .schema("aikiboard")
+      .from("threads")
+      .insert({
+        post_id: postId,
+        author_user_id: userId,
+        body: parsed.data.body,
+      })
+      .select("id")
+      .single();
+    if (error || !data) {
+      logger.error("thread の作成に失敗", {
+        feature: "board-posts",
+        boardId,
+        postId,
+      });
+      return c.json({ success: false, error: "返信の作成に失敗しました" }, 500);
+    }
+
+    return c.json({
+      success: true,
+      data: { id: data.id },
+      message: "返信しました",
+    });
+  },
+);
+
+// DELETE /api/board-posts/:id/threads/:threadId — 返信削除(返信者本人 or owner/admin)。
+boardPostsRoute.delete(
+  "/:id/threads/:threadId",
+  authMiddleware,
+  boardPostMemberMiddleware,
+  async (c) => {
+    const supabase = c.get("supabase");
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+    const userId = c.get("userId");
+    const boardRole = c.get("boardRole");
+    const isAdmin = boardRole === "owner" || boardRole === "admin";
+    const postId = c.req.param("id");
+    const threadId = c.req.param("threadId");
+    const aikiboard = supabase.schema("aikiboard");
+
+    const { data: thread, error: fetchError } = await aikiboard
+      .from("threads")
+      .select("author_user_id, post_id")
+      .eq("id", threadId)
+      .maybeSingle();
+    if (fetchError) {
+      logger.error("thread の取得に失敗(delete)", {
+        feature: "board-posts",
+        threadId,
+      });
+      return c.json({ success: false, error: "削除に失敗しました" }, 500);
+    }
+    // 別投稿の返信 id を渡して消す越境を防ぐ(post_id とルートの :id の一致を要求)。
+    if (!thread || thread.post_id !== postId) {
+      return c.json({ success: false, error: "対象が見つかりません" }, 404);
+    }
+    if (!isAdmin && thread.author_user_id !== userId) {
+      return c.json({ success: false, error: "権限がありません" }, 403);
+    }
+
+    const { error } = await aikiboard
+      .from("threads")
+      .delete()
+      .eq("id", threadId);
+    if (error) {
+      logger.error("thread の削除に失敗", {
+        feature: "board-posts",
+        threadId,
+      });
+      return c.json({ success: false, error: "削除に失敗しました" }, 500);
+    }
+
+    return c.json({ success: true, message: "返信を削除しました" });
   },
 );
 

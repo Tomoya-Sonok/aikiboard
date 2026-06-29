@@ -152,6 +152,17 @@
   display: inline-flex;
   align-items: center;
   gap: var(--ab-space-1);
+  padding: var(--ab-space-1) var(--ab-space-2);
+  border: none;
+  border-radius: var(--ab-radius-pill);
+  background: transparent;
   font-size: 13px;
   color: var(--ab-text-tertiary);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.replies:hover {
+  background: var(--ab-washi-dark);
+  color: var(--ab-text-secondary);
 }

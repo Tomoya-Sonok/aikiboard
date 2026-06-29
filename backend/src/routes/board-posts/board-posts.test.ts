@@ -22,9 +22,12 @@ function createMock(opts: {
   listRows?: Record<string, unknown>[];
   listCount?: number;
   attachmentRows?: Record<string, unknown>[];
-  threadRows?: { post_id: string }[];
+  threadRows?: Record<string, unknown>[];
+  // DELETE /:id/threads/:threadId が引く返信行(author_user_id, post_id)。
+  threadRow?: Record<string, unknown> | null;
   users?: { id: string; username: string; profile_image_url: string | null }[];
   insertResult?: { data: { id: string } | null; error: unknown };
+  threadInsertResult?: { data: { id: string } | null; error: unknown };
   attachInsertError?: unknown;
 }) {
   const role: Role = opts.role === undefined ? "member" : opts.role;
@@ -83,7 +86,21 @@ function createMock(opts: {
         return makeChain(attachmentsResolver);
       }
       if (table === "threads") {
-        return makeChain(() => ({ data: opts.threadRows ?? [], error: null }));
+        return makeChain((state: ChainState) => {
+          if (state.op === "insert") {
+            return (
+              opts.threadInsertResult ?? { data: { id: "t1" }, error: null }
+            );
+          }
+          if (state.op === "delete") {
+            return { error: null };
+          }
+          // DELETE の author/post 判定: select("author_user_id, post_id").maybeSingle()
+          if (state.single) {
+            return { data: opts.threadRow ?? null, error: null };
+          }
+          return { data: opts.threadRows ?? [], error: null };
+        });
       }
       return makeChain(() => ({ data: [], error: null }));
     },
@@ -397,5 +414,107 @@ describe("DELETE /api/board-posts/:id", () => {
     });
 
     expect(res.status).toBe(200);
+  });
+});
+
+describe("GET /api/board-posts/:id/threads", () => {
+  it("返信を著者名つき・古い順で返す", async () => {
+    const { supabase } = createMock({
+      role: "member",
+      threadRows: [
+        {
+          id: "t1",
+          author_user_id: "u1",
+          body: "ありがとうございます",
+          created_at: "2026-06-01T00:00:00.000Z",
+        },
+      ],
+      users: [{ id: "u1", username: "門人", profile_image_url: null }],
+    });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/board-posts/${POST_ID}/threads`, {
+      method: "GET",
+    });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as {
+      data: { author: { username: string }; canDelete: boolean }[];
+    };
+    expect(json.data[0].author.username).toBe("門人");
+  });
+});
+
+describe("POST /api/board-posts/:id/threads", () => {
+  it("メンバーは返信できる", async () => {
+    const { supabase } = createMock({ role: "member" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/board-posts/${POST_ID}/threads`, {
+      method: "POST",
+      body: { body: "お疲れさまでした" },
+    });
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ success: true });
+  });
+
+  it("空の返信は 400", async () => {
+    const { supabase } = createMock({ role: "member" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/board-posts/${POST_ID}/threads`, {
+      method: "POST",
+      body: { body: "" },
+    });
+
+    expect(res.status).toBe(400);
+  });
+});
+
+describe("DELETE /api/board-posts/:id/threads/:threadId", () => {
+  it("返信者本人は削除できる", async () => {
+    const { supabase } = createMock({
+      role: "member",
+      threadRow: { author_user_id: "user-1", post_id: POST_ID },
+    });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/board-posts/${POST_ID}/threads/t1`, {
+      method: "DELETE",
+      sub: "user-1",
+    });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("他人の返信は一般メンバーには削除させない(403)", async () => {
+    const { supabase } = createMock({
+      role: "member",
+      threadRow: { author_user_id: "someone-else", post_id: POST_ID },
+    });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/board-posts/${POST_ID}/threads/t1`, {
+      method: "DELETE",
+      sub: "user-1",
+    });
+
+    expect(res.status).toBe(403);
+  });
+
+  it("別投稿の返信 id を渡すと 404(越境防止)", async () => {
+    const { supabase } = createMock({
+      role: "admin",
+      threadRow: { author_user_id: "user-1", post_id: "other-post" },
+    });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/board-posts/${POST_ID}/threads/t1`, {
+      method: "DELETE",
+      sub: "user-1",
+    });
+
+    expect(res.status).toBe(404);
   });
 });

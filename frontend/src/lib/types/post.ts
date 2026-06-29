@@ -37,6 +37,15 @@ export type FeedListResult = {
   offset: number;
 };
 
+// GET /api/board-posts/:id/threads の返信 1 件。
+export type ThreadReply = {
+  id: string;
+  body: string;
+  author: PostAuthor;
+  createdAt: string;
+  canDelete: boolean;
+};
+
 // POST /api/board-posts/upload-url の戻り。
 export type UploadUrlResult = {
   path: string;

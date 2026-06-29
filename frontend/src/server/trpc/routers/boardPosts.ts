@@ -6,6 +6,7 @@ import type { ApiResponse } from "@/lib/types/api";
 import type {
   FeedListResult,
   FeedPost,
+  ThreadReply,
   UploadUrlResult,
 } from "@/lib/types/post";
 import { callHonoApi } from "../hono";
@@ -79,6 +80,43 @@ export const boardPostsRouter = createTRPCRouter({
         method: "DELETE",
         headers: authHeader(ctx.accessToken),
       }),
+    ),
+
+  // 返信一覧(古い順)。
+  listThreads: authenticatedProcedure
+    .input(z.object({ postId: uuidLike }))
+    .query(({ input, ctx }) =>
+      callHonoApi<ApiResponse<ThreadReply[]>>(
+        `/api/board-posts/${input.postId}/threads`,
+        { headers: authHeader(ctx.accessToken) },
+      ),
+    ),
+
+  // 返信作成(メンバー)。
+  createThread: authenticatedProcedure
+    .input(z.object({ postId: uuidLike, body: z.string().min(1).max(5000) }))
+    .mutation(({ input, ctx }) =>
+      callHonoApi<ApiResponse<{ id: string }>>(
+        `/api/board-posts/${input.postId}/threads`,
+        {
+          method: "POST",
+          headers: authHeader(ctx.accessToken),
+          body: JSON.stringify({ body: input.body }),
+        },
+      ),
+    ),
+
+  // 返信削除(返信者本人 or owner/admin)。
+  removeThread: authenticatedProcedure
+    .input(z.object({ postId: uuidLike, threadId: uuidLike }))
+    .mutation(({ input, ctx }) =>
+      callHonoApi<ApiResponse<never>>(
+        `/api/board-posts/${input.postId}/threads/${input.threadId}`,
+        {
+          method: "DELETE",
+          headers: authHeader(ctx.accessToken),
+        },
+      ),
     ),
 
   // 署名付きアップロード URL の発行(メンバー)。
