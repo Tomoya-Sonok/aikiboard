@@ -96,6 +96,57 @@
   word-break: break-word;
 }
 
+.quote {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-1);
+  padding: var(--ab-space-3);
+  border: 1px solid var(--ab-border-subtle);
+  border-left: 3px solid var(--ab-dou);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-card-alt);
+}
+
+.quoteBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ab-dou);
+}
+
+.quoteAuthor {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ab-text-secondary);
+}
+
+.quoteBody {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ab-text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.quoteDeleted {
+  font-size: 13px;
+  color: var(--ab-text-tertiary);
+  font-style: italic;
+}
+
+.crossBadge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--ab-space-2);
+  border-radius: var(--ab-radius-sm);
+  background: var(--ab-surface-card-alt);
+  color: var(--ab-text-tertiary);
+  font-size: 11px;
+}
+
 .media {
   display: grid;
   gap: var(--ab-space-2);

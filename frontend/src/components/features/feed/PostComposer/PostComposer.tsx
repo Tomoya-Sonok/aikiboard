@@ -1,6 +1,7 @@
 "use client";
 
-import { ImageSquare, VideoCamera, X } from "@phosphor-icons/react";
+import { ImageSquare, Quotes, VideoCamera, X } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { Avatar } from "@/components/shared/Avatar/Avatar";
@@ -11,6 +12,7 @@ import {
 } from "@/lib/feed/uploadAttachment";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { trpcClient } from "@/lib/trpc/client";
+import type { AikinotePostSummary } from "@/lib/types/post";
 import styles from "./PostComposer.module.css";
 
 type Props = {
@@ -26,6 +28,7 @@ type Picked = {
 
 const MAX_ATTACHMENTS = 4;
 const BODY_MAX = 5000;
+const QUOTE_EXCERPT = 80;
 
 const ACCEPT = [...ALLOWED_MIME].join(",");
 
@@ -36,16 +39,26 @@ export function PostComposer({ boardId, onPosted }: Props) {
 
   const [body, setBody] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
+  const [crossPost, setCrossPost] = useState(false);
+  const [quoted, setQuoted] = useState<AikinotePostSummary | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { data: quoteData, isLoading: quoteLoading } = useQuery({
+    queryKey: ["boardPosts", boardId, "aikinotePosts"],
+    queryFn: () => trpcClient.boardPosts.aikinotePosts.query({ boardId }),
+    enabled: pickerOpen,
+  });
+  const quoteOptions = quoteData?.data ?? [];
+
   const canSubmit =
-    !submitting && (body.trim().length > 0 || picked.length > 0);
+    !submitting &&
+    (body.trim().length > 0 || picked.length > 0 || quoted !== null);
 
   const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
     const files = Array.from(e.target.files ?? []);
-    // input は再選択時に同じファイルでも change が発火するよう毎回リセットする。
     e.target.value = "";
     if (files.length === 0) {
       return;
@@ -85,6 +98,8 @@ export function PostComposer({ boardId, onPosted }: Props) {
     }
     setPicked([]);
     setBody("");
+    setCrossPost(false);
+    setQuoted(null);
   };
 
   const handleSubmit = async () => {
@@ -102,6 +117,8 @@ export function PostComposer({ boardId, onPosted }: Props) {
         boardId,
         body: body.trim(),
         attachments: attachments.length > 0 ? attachments : undefined,
+        crossPostToAikinote: crossPost || undefined,
+        syncedFromPostId: quoted?.id,
       });
       if (!res.success) {
         throw new Error(res.error ?? t("postError"));
@@ -114,6 +131,9 @@ export function PostComposer({ boardId, onPosted }: Props) {
       setSubmitting(false);
     }
   };
+
+  const excerpt = (s: string) =>
+    s.length > QUOTE_EXCERPT ? `${s.slice(0, QUOTE_EXCERPT)}…` : s;
 
   return (
     <div className={styles.composer}>
@@ -160,7 +180,33 @@ export function PostComposer({ boardId, onPosted }: Props) {
         </div>
       ) : null}
 
+      {quoted ? (
+        <div className={styles.quoteChip}>
+          <Quotes size={14} className={styles.quoteIcon} />
+          <span className={styles.quoteText}>{excerpt(quoted.content)}</span>
+          <button
+            type="button"
+            className={styles.quoteRemove}
+            onClick={() => setQuoted(null)}
+            aria-label={t("removeQuote")}
+          >
+            <X size={12} weight="bold" />
+          </button>
+        </div>
+      ) : null}
+
       {error ? <p className={styles.error}>{error}</p> : null}
+
+      <div className={styles.options}>
+        <label className={styles.crossPost}>
+          <input
+            type="checkbox"
+            checked={crossPost}
+            onChange={(e) => setCrossPost(e.target.checked)}
+          />
+          <span>{t("crossPost")}</span>
+        </label>
+      </div>
 
       <div className={styles.bottom}>
         <div className={styles.tools}>
@@ -176,6 +222,44 @@ export function PostComposer({ boardId, onPosted }: Props) {
           <span className={styles.toolHintIcon} aria-hidden="true">
             <VideoCamera size={18} />
           </span>
+          <div className={styles.quotePickerWrap}>
+            <button
+              type="button"
+              className={styles.toolBtn}
+              onClick={() => setPickerOpen((o) => !o)}
+              disabled={submitting}
+              title={t("quoteAikinote")}
+            >
+              <Quotes size={18} />
+            </button>
+            {pickerOpen ? (
+              <div className={styles.picker}>
+                <p className={styles.pickerTitle}>{t("quotePickerTitle")}</p>
+                {quoteLoading ? (
+                  <p className={styles.pickerEmpty}>{t("loading")}</p>
+                ) : quoteOptions.length === 0 ? (
+                  <p className={styles.pickerEmpty}>{t("noAikinotePosts")}</p>
+                ) : (
+                  <ul className={styles.pickerList}>
+                    {quoteOptions.map((p) => (
+                      <li key={p.id}>
+                        <button
+                          type="button"
+                          className={styles.pickerItem}
+                          onClick={() => {
+                            setQuoted(p);
+                            setPickerOpen(false);
+                          }}
+                        >
+                          {excerpt(p.content)}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : null}
+          </div>
           <input
             ref={fileInputRef}
             type="file"

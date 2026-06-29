@@ -41,6 +41,24 @@ CREATE TABLE IF NOT EXISTS public."User" (
 );
 
 -- ────────────────────────────────────────────────────────────────
+-- public."SocialPost": AikiNote フィード(SocialPost)の最小再現
+--   AikiBoard の フィード連携(引用共有 5.3.2 / クロスポスト 5.3.1)の読み書き先。
+--   本番は AikiNote 側が管理する実テーブル。ここはローカルで連携を回すための最小列のみ。
+-- ────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public."SocialPost" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  content TEXT NOT NULL,
+  post_type TEXT NOT NULL DEFAULT 'post',
+  visibility TEXT NOT NULL DEFAULT 'public',
+  author_dojo_style_id UUID,
+  author_dojo_name TEXT,
+  is_deleted BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ────────────────────────────────────────────────────────────────
 -- ダミーデータ（固定 UUID で開発時に参照しやすくする）
 -- ────────────────────────────────────────────────────────────────
 INSERT INTO public."DojoStyleMaster" (id, dojo_name, dojo_name_kana, is_approved)

@@ -14,6 +14,7 @@ import { FeedView } from "./FeedView";
 
 const listQuery = vi.fn();
 const removeMutate = vi.fn(async () => ({ success: true }));
+const createMutate = vi.fn(async () => ({ success: true, data: { id: "x" } }));
 const listThreadsQuery = vi.fn(async () => ({ success: true, data: [] }));
 const createThreadMutate = vi.fn(async () => ({
   success: true,
@@ -25,8 +26,9 @@ vi.mock("@/lib/trpc/client", () => ({
     boardPosts: {
       list: { query: (...a: unknown[]) => listQuery(...a) },
       remove: { mutate: (...a: unknown[]) => removeMutate(...a) },
-      create: { mutate: async () => ({ success: true, data: { id: "x" } }) },
+      create: { mutate: (...a: unknown[]) => createMutate(...a) },
       createUploadUrl: { mutate: async () => ({ success: true, data: {} }) },
+      aikinotePosts: { query: async () => ({ success: true, data: [] }) },
       listThreads: { query: (...a: unknown[]) => listThreadsQuery(...a) },
       createThread: { mutate: (...a: unknown[]) => createThreadMutate(...a) },
       removeThread: { mutate: async () => ({ success: true }) },
@@ -88,6 +90,7 @@ describe("FeedView", () => {
       data: { items: POSTS, total: 2, limit: 20, offset: 0 },
     });
     removeMutate.mockClear();
+    createMutate.mockClear();
   });
 
   it("投稿一覧を著者名つきで表示する", async () => {
@@ -119,6 +122,31 @@ describe("FeedView", () => {
       expect(removeMutate).toHaveBeenCalledWith({
         id: "00000000-0000-0000-0000-0000000000b1",
       }),
+    );
+  });
+
+  it("「AikiNote にも流す」をチェックして投稿すると crossPostToAikinote を渡す", async () => {
+    renderWithProviders(<FeedView boardId={BOARD_ID} />);
+
+    await waitFor(() =>
+      expect(screen.getByText("本日の稽古お疲れさまでした")).toBeTruthy(),
+    );
+    fireEvent.change(screen.getByPlaceholderText(/共有しましょう/), {
+      target: { value: "クロスポストのテスト" },
+    });
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "AikiNote にも流す" }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "投稿する" }));
+
+    await waitFor(() =>
+      expect(createMutate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          boardId: BOARD_ID,
+          body: "クロスポストのテスト",
+          crossPostToAikinote: true,
+        }),
+      ),
     );
   });
 

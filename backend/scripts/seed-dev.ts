@@ -278,6 +278,30 @@ async function seedBoard(
     }
   }
 
+  // 引用共有(5.3.2)の動作確認用に、member の AikiNote 投稿(SocialPost)を 2 件入れる。
+  // フィードの投稿フォームの「稽古日誌を引用」で選択できる。
+  const { error: socialError } = await admin.from("SocialPost").insert([
+    {
+      user_id: memberId,
+      content: "今日は四方投げを重点的に稽古した。崩しの方向を意識する。",
+      post_type: "training_record",
+      visibility: "public",
+      author_dojo_style_id: DOJO_MASTER_ID,
+      author_dojo_name: "蕨合気道会",
+    },
+    {
+      user_id: memberId,
+      content: "演武会に向けて基本技を見直し中。呼吸法も大切に。",
+      post_type: "post",
+      visibility: "public",
+      author_dojo_style_id: DOJO_MASTER_ID,
+      author_dojo_name: "蕨合気道会",
+    },
+  ]);
+  if (socialError) {
+    throw socialError;
+  }
+
   // applicant(蕨合気道会の道場に紐づく非メンバー)からの参加申請を1件入れる。
   // 管理者でログインするとメンバー画面に「承認待ち」として表示される。
   const { error: requestError } = await ab.from("membership_requests").insert({

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatCircle, DotsThree, Trash } from "@phosphor-icons/react";
+import { ChatCircle, DotsThree, Quotes, Trash } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Avatar } from "@/components/shared/Avatar/Avatar";
@@ -92,6 +92,31 @@ export function PostCard({ post, onDelete, onOpenThread }: Props) {
       </div>
 
       {post.body ? <p className={styles.body}>{post.body}</p> : null}
+
+      {post.quotedAikinotePost ? (
+        <div className={styles.quote}>
+          <span className={styles.quoteBadge}>
+            <Quotes size={12} weight="fill" />
+            {t("quoteFromAikinote")}
+          </span>
+          {post.quotedAikinotePost.isDeleted ? (
+            <p className={styles.quoteDeleted}>{t("quoteDeleted")}</p>
+          ) : (
+            <>
+              <p className={styles.quoteAuthor}>
+                {post.quotedAikinotePost.authorName || "—"}
+              </p>
+              <p className={styles.quoteBody}>
+                {post.quotedAikinotePost.content}
+              </p>
+            </>
+          )}
+        </div>
+      ) : null}
+
+      {post.crossPostToAikinote ? (
+        <span className={styles.crossBadge}>{t("crossPosted")}</span>
+      ) : null}
 
       {imageCount > 0 ? (
         <div className={`${styles.media} ${gridClass}`}>
