@@ -2,6 +2,7 @@
 
 import { createTRPCRouter } from "./index";
 import { announcementsRouter } from "./routers/announcements";
+import { boardPostsRouter } from "./routers/boardPosts";
 import { boardsRouter } from "./routers/boards";
 import { dojoMastersRouter } from "./routers/dojoMasters";
 import { eventsRouter } from "./routers/events";
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   dojoMasters: dojoMastersRouter,
   events: eventsRouter,
   announcements: announcementsRouter,
+  boardPosts: boardPostsRouter,
   members: membersRouter,
   invitations: invitationsRouter,
   membershipRequests: membershipRequestsRouter,

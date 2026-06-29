@@ -234,6 +234,27 @@
         "redo": "やり直す"
       }
     },
+    "feed": {
+      "title": "フィード",
+      "placeholder": "稽古の様子や連絡を共有しましょう…",
+      "post": "投稿する",
+      "posting": "投稿中…",
+      "postError": "投稿に失敗しました",
+      "empty": "まだ投稿はありません。最初の投稿をしてみましょう。",
+      "loading": "読み込み中…",
+      "loadMore": "もっと見る",
+      "addImage": "画像・動画を追加",
+      "removeAttachment": "添付を外す",
+      "fileRejected": "対応していないファイル、またはサイズが大きすぎます(最大100MB)。",
+      "tooManyFiles": "添付は最大{max}件までです。",
+      "menu": "メニュー",
+      "delete": "削除",
+      "deleteConfirm": "この投稿を削除しますか?",
+      "deleteError": "削除に失敗しました",
+      "mediaUnavailable": "メディアを読み込めませんでした",
+      "reply": "返信",
+      "replyCount": "返信 {count} 件"
+    },
     "members": {
       "title": "メンバー",
       "memberCount": "{count}人",

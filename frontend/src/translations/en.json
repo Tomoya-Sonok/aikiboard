@@ -234,6 +234,27 @@
         "redo": "Redo"
       }
     },
+    "feed": {
+      "title": "Feed",
+      "placeholder": "Share updates with your dojo…",
+      "post": "Post",
+      "posting": "Posting…",
+      "postError": "Failed to post",
+      "empty": "No posts yet. Be the first to share something.",
+      "loading": "Loading…",
+      "loadMore": "Load more",
+      "addImage": "Add image or video",
+      "removeAttachment": "Remove attachment",
+      "fileRejected": "Unsupported file type or too large (max 100MB).",
+      "tooManyFiles": "You can attach up to {max} files.",
+      "menu": "Menu",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this post?",
+      "deleteError": "Failed to delete",
+      "mediaUnavailable": "Could not load media",
+      "reply": "Reply",
+      "replyCount": "{count} replies"
+    },
     "members": {
       "title": "Members",
       "memberCount": "{count}",
