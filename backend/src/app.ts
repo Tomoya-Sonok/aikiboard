@@ -11,6 +11,7 @@ import announcementsRoute from "./routes/announcements/index.js";
 import archivesRoute from "./routes/archives/index.js";
 import boardPostsRoute from "./routes/board-posts/index.js";
 import boardSettingsRoute from "./routes/board-settings/index.js";
+import boardTodosRoute from "./routes/board-todos/index.js";
 import boardsRoute from "./routes/boards/index.js";
 import dojoMastersRoute from "./routes/dojo-masters/index.js";
 import eventsRoute from "./routes/events/index.js";
@@ -130,6 +131,7 @@ app.route("/api/notifications", notificationsRoute);
 app.route("/api/activity-logs", activityLogsRoute);
 app.route("/api/board-settings", boardSettingsRoute);
 app.route("/api/archives", archivesRoute);
+app.route("/api/board-todos", boardTodosRoute);
 app.route("/api/finance", financeRoute);
 app.route("/api/public", publicRoute);
 

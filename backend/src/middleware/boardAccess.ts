@@ -34,7 +34,8 @@ type IdTable =
   | "membership_requests"
   | "board_posts"
   | "archives"
-  | "expense_entries";
+  | "expense_entries"
+  | "board_todos";
 
 async function resolveBoardId(
   c: Context<GuardEnv>,
@@ -179,6 +180,13 @@ export const boardPostMemberMiddleware = createBoardGuard(
 // 閲覧=メンバー、作成/編集/削除=admin。さらに requireFeature("archive") でプラン判定する。
 export const archiveMemberMiddleware = createBoardGuard("member", "archives");
 export const archiveAdminMiddleware = createBoardGuard("admin", "archives");
+
+// Todo 用(:id は Todo の id → board_todos から board_id を引く)。
+// 閲覧・作成・編集・削除すべて owner/admin のみ(member は参照不可)。
+export const boardTodoAdminMiddleware = createBoardGuard(
+  "admin",
+  "board_todos",
+);
 
 // 会計用。管理者のみ。さらに requireFeature("accounting") でプラン判定する。
 //   - boardId を query/body で渡すルート(月謝/支払/支出一覧/サマリ)は financeAdminMiddleware。
