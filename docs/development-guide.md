@@ -218,8 +218,37 @@ aikiboard/
 
 ---
 
+## 12. 本番反映チェックリスト(migration 適用台帳)
+
+migration の本番適用は Supabase Dashboard SQL Editor での**手動運用**([ADR 0004](adr/0004-environment-and-migration-strategy.md) D-12)。適用したら必ずこの台帳に追記すること(PR のチェックボックスだけだと記録が散逸するため、ここを唯一の台帳とする)。
+
+> `000_seed_public_schema_for_local_dev.sql` は**ローカル専用・本番適用厳禁**。
+
+| migration | 内容 | 本番適用 | 確認日 |
+|---|---|---|---|
+| `001`〜`008` | スキーマ・全テーブル・RLS(Phase 0) | ✅ 適用済み | 2026-05-05(Phase 0 完了時) |
+| `009` | service_role への DML 権限付与 | ✅ 適用済み | 2026-07-04 確認 |
+| `010` | 出欠の開催日単位化 + `event_overrides` | ✅ 適用済み | 2026-07-04 確認 |
+| `011` | お知らせ下書きの RLS | ✅ 適用済み | 2026-07-04 確認 |
+| `012` | 招待のマルチユース化 | ✅ 適用済み | 2026-07-04 確認 |
+| `013` | `membership_requests` | ✅ 適用済み | 2026-07-04 確認 |
+| `014` | Storage バケット `board-media` | ✅ 適用済み | 2026-07-04 確認 |
+| `015` | `notifications` | ✅ 適用済み | 2026-07-04 確認 |
+| `016` | `board_todos` | ✅ 適用済み | 2026-07-04 確認 |
+
+Dashboard 側の設定(適用済み・変更時のみ再確認):
+
+- Settings → API → **Exposed schemas に `aikiboard`**(無いと backend の REST が全滅)
+- Settings → JWT Keys が **ES256(JWKS)**(HS256 の場合のみ `SUPABASE_JWT_SECRET` の secret 登録が必要。10 章参照)
+
+本番の実機確認シナリオは [`production-smoke-scenario.md`](production-smoke-scenario.md) を参照。
+
+---
+
 ## 関連ドキュメント
 
+- [`docs/roadmap.md`](roadmap.md) — 普及ロードマップ(残タスク台帳と実装方針)
+- [`docs/production-smoke-scenario.md`](production-smoke-scenario.md) — 本番動作確認シナリオ(道場長ひとりで一巡)
 - [`docs/adr/`](adr/) — 運用方針 ADR(開発フロー / アーキテクチャ / 品質ゲート / 環境戦略)
 - [`docs/requirements.md`](requirements.md) — 正式版要件定義書
 - [`backend/src/migrations/README.md`](../backend/src/migrations/README.md) — マイグレーション詳細

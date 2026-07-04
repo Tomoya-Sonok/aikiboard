@@ -131,9 +131,9 @@
 - **背景**: migration の本番適用は Supabase Dashboard SQL Editor での手動運用(ADR 0004 D-12)だが、PR テンプレの適用チェックが `009`〜`016` で未チェックのままで**記録が残っていなかった**。**2026-07-04 にユーザー確認により `009`〜`016` はすべて本番適用済みと判明**(Storage バケット `board-media` も migration `014` 適用により作成済み)。残るのは記録の恒久化と Dashboard 側設定の確認。
 - **実装方針**:
   1. Dashboard 設定の確認(**ユーザー作業**): Settings → API → **Exposed schemas に `aikiboard`** があるか / Settings → JWT Keys が **ES256(JWKS)** か(HS256 なら `wrangler secret put SUPABASE_JWT_SECRET` が必要。`backend/src/middleware/auth.ts` は alg 分岐で両対応)。※ 本番でログイン・ボード表示が現に動いているなら、いずれも設定済みの傍証。
-  2. 本番の実機スモーク: フィード投稿(画像添付)・スレッド・通知ベル・Todo・公開ページを一巡して動作確認。
-  3. `docs/development-guide.md` に「本番反映チェックリスト」節を追加し、**適用済み migration の台帳(`009`〜`016` = 適用済み、確認日 2026-07-04)** を記録。以後の機能 PR はマージ後にこの節へ追記する運用にする(`000_seed_*` は本番厳禁の注意書きも再掲)。
-- **受け入れ条件**: development-guide に台帳があり、`016` までが適用済みと記録されている。本番スモークが通る。
+  2. 本番の実機スモーク: **[`production-smoke-scenario.md`](./production-smoke-scenario.md)** のシナリオ(2026-07-04 作成)をユーザーが一巡して動作確認。
+  3. ~~`docs/development-guide.md` に「本番反映チェックリスト」節を追加~~ → **完了(2026-07-04)**: development-guide 12 章に migration 適用台帳を作成済み(`001`〜`016` = 適用済み)。以後の機能 PR はマージ後にこの台帳へ追記する。
+- **受け入れ条件**: development-guide に台帳があり、`016` までが適用済みと記録されている(✅ 済)。本番スモーク(シナリオ一巡)が通る。
 
 <a id="r1-2"></a>
 #### R1-2. Resend ドメイン認証 + 実メール検証 — P0 / S(ほぼユーザー作業)
@@ -217,7 +217,7 @@
 <a id="r3-1"></a>
 #### R3-1. トップページ(LP)の本実装 — P1 / M
 
-- **背景**: 現状の `aiki-board.com` はタイトル + サブタイトル + フェーズ表記だけの仮ページ(`frontend/src/app/[locale]/(public)/page.tsx`)。道場長が URL を開いた 10 秒で「自分の道場の課題を解決するものだ」と分からなければ、そこで終わる。公開ページ(SEO)から流入した見学希望者・他道場の指導者の受け皿でもある。
+- **背景**: 現状の `aiki-board.com` はタイトル + サブタイトルだけの仮ページ(`frontend/src/app/[locale]/(public)/page.tsx`。2026-07-04 にログイン/新規登録ボタンのみ追加済み — 本タスクは価値訴求を含む LP の本実装)。道場長が URL を開いた 10 秒で「自分の道場の課題を解決するものだ」と分からなければ、そこで終わる。公開ページ(SEO)から流入した見学希望者・他道場の指導者の受け皿でもある。
 - **実装方針**:
   1. 構成は `docs/aikiboard-product-overview.md` を単一ソースに: ヒーロー(「道場の運営を、もっと軽やかに。」+ CTA「無料で道場ボードを作る」)→ 「こんな悩みありませんか」(概要 1 章)→ 主要機能 6 枠(カレンダー/お知らせ/フィード/会計/アーカイブ/公開ページ、PhosphorIcons)→ AikiNote 連携 → 料金 3 プラン(概要 7 章。※価格は「予定」表記、R6-3 で確定)→ FAQ 抜粋 → フッター(規約/プライバシー/AikiNote リンク)。
   2. デザインは `docs/design/02_tokens.css` のトークン(墨 `#2C2C2C`・銅 `#C4956A`・和紙 `#F5F3EF`、Zen Old Mincho 見出し)を CSS Modules で。スクリーンショットは実画面(seed データ)を撮って `public/` に置く。
