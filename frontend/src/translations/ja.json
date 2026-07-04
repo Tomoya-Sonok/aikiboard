@@ -2,7 +2,9 @@
   "welcome": {
     "title": "AikiBoard",
     "subtitle": "合気道の道場運営のための管理＆コミュニケーションプラットフォーム",
-    "phase": "Phase 0 — リポジトリ初期化中"
+    "phase": "ベータ運用中 — フィードバック歓迎",
+    "signupCta": "無料で新規登録",
+    "loginCta": "ログイン"
   },
   "auth": {
     "login": {

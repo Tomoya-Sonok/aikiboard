@@ -2,7 +2,9 @@
   "welcome": {
     "title": "AikiBoard",
     "subtitle": "Dojo management & communication platform for Aikido communities",
-    "phase": "Phase 0 — repository bootstrap"
+    "phase": "Beta — feedback welcome",
+    "signupCta": "Sign up for free",
+    "loginCta": "Log in"
   },
   "auth": {
     "login": {

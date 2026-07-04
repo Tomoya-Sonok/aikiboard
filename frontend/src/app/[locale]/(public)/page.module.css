@@ -33,6 +33,44 @@
   line-height: var(--ab-lh-loose);
 }
 
+.actions {
+  display: flex;
+  gap: var(--ab-space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0 0 var(--ab-space-6);
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 160px;
+  padding: var(--ab-space-3) var(--ab-space-6);
+  border-radius: var(--ab-radius-md);
+  font-size: var(--ab-fs-md);
+  font-weight: var(--ab-fw-semibold);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.primaryAction {
+  background: var(--ab-sumi);
+  color: var(--ab-text-inverse);
+}
+
+.secondaryAction {
+  background: var(--ab-surface-card);
+  color: var(--ab-text-primary);
+  border: 1px solid var(--ab-border-default);
+}
+
+.primaryAction:hover,
+.secondaryAction:hover {
+  opacity: 0.85;
+}
+
 .phase {
   display: inline-block;
   font-family: var(--ab-font-num);
