@@ -37,9 +37,9 @@
 
 2026-07-04 に docs 全体・全マージ済み PR 本文・コードベースを横断調査し、「実装済み機能の一覧」ではなく「**道場に使ってもらうために足りないもの**」の観点で棚卸しした結果をまとめた。調査で判明した主な事実:
 
-1. **本番反映が追いついていない疑い**: PR テンプレの「本番 migration 適用」チェックが `009`〜`016` で軒並み未チェックのまま。Storage バケット・Exposed schemas 等も含め、本番環境の棚卸しが必要(→ R1-1)。
+1. **本番反映の記録が残っていなかった**: PR テンプレの「本番 migration 適用」チェックが `009`〜`016` で軒並み未チェックのままだった。**2026-07-04 にユーザー確認により、`009`〜`016` はすべて本番適用済みと判明**。以後は記録を恒久化する(→ R1-1)。
 2. **権限マトリクスと実装の乖離**: 要件 3.2 の「オーナーのみ: アドミン任命・オーナー譲渡・ボード削除」に対応する **API/UI が存在しない**(`backend/src/routes/members/index.ts` にロール変更なし、`backend/src/routes/boards/index.ts` は GET/GET/POST のみ)。「IT に不慣れな道場長が事務局に運営を任せる」という中核ストーリーが現状成立しない(→ R2-1)。
-3. **プラン定義の三つ巴の食い違い**: 要件 6.2(公開ページ・テーマは有料)/ migration `007` の seed(Free に `public_page`・`board_theme` を含む)/ プロダクト概要 7 章(Free は人数無制限、だが DB は free.member_limit=20)が互いに矛盾(→ R6-2、ユーザー判断)。
+3. **プラン定義の三つ巴の食い違い**: 要件 6.2(公開ページ・テーマは有料)/ migration `007` の seed(Free に `public_page`・`board_theme` を含む)/ プロダクト概要 7 章(Free は人数無制限、だが DB は free.member_limit=20)が互いに矛盾していた。**2026-07-04 にユーザーと協議のうえ確定**: 公開ページ = 有料 / テーマ = Free / Free 人数無制限・Mini 15 名 / カード不要の 60 日全機能トライアル(→ R6-0 / R6-2 に確定内容を記載)。
 4. **ドキュメントの陳腐化**: README.md は「フィード以降は未実装」と実態と真逆の記述。requirements.md ヘッダは v1.6 のまま(履歴は v2.7 まである)。CLAUDE.md・development-guide.md(migration 000-010・23 テーブル表記)も古い(→ R0-1)。
 5. **導入導線がプレースホルダ**: トップページ(`frontend/src/app/[locale]/(public)/page.tsx`)はタイトルとサブタイトルだけの仮ページ。OAuth なし・オンボーディングなし(→ R1-3, R3-1, R3-2)。
 
@@ -51,7 +51,7 @@
 
 | # | 問い | 現状の答え | 対応フェーズ |
 |---|---|---|---|
-| 1 | **今日サインアップした道場長は、そもそも使えるか?** | 疑わしい。本番 migration・Storage・メール送信の反映が未確認 | **R1(P0)** |
+| 1 | **今日サインアップした道場長は、そもそも使えるか?** | ほぼ使える(migration 009〜016 は本番適用済みと確認)。残りはメール送信(Resend)と Dashboard 設定の確認 | **R1(P0)** |
 | 2 | **道場の運営体制をそのまま持ち込めるか?** | 持ち込めない。アドミン任命ができず、やめる手段(ボード削除)もない | **R2** |
 | 3 | **最初の 15 分で価値を感じ、仲間を呼べるか?** | 弱い。LP が仮、OAuth なし、空のボードに置き去り、招待の戻り導線なし | **R3** |
 | 4 | **道場生(スマホ・非日本語話者含む)が毎日使えるか?** | 部分的。SP 未検証画面あり、言語切替 UI なし、PWA なし | **R4** |
@@ -71,7 +71,7 @@
 | ID | タスク | 優先度 | 規模 | 依存 |
 |---|---|---|---|---|
 | [R0-1](#r0-1) | ドキュメント整合性の回復 | P0 | S | — |
-| [R1-1](#r1-1) | 本番環境の棚卸しと migration 適用 | P0 | M | ユーザー作業含む |
+| [R1-1](#r1-1) | 本番 Dashboard 設定の確認とチェックリスト恒久化 | P0 | S | ユーザー作業含む |
 | [R1-2](#r1-2) | Resend ドメイン認証 + 実メール検証 | P0 | S | ユーザー作業 |
 | [R1-3](#r1-3) | OAuth(Google / Apple)ログイン | P0 | M | ユーザー作業含む |
 | [R1-4](#r1-4) | 利用規約・プライバシーポリシー | P0 | M | ユーザーレビュー必須 |
@@ -95,8 +95,9 @@
 | [R5-4](#r5-4) | E2E スモークテスト | P1 | M | ADR 追補 |
 | [R5-5](#r5-5) | dependabot 滞留の解消 | P1 | M | — |
 | [R5-6](#r5-6) | 監視(Sentry / Axiom / Uptime / Umami) | P1 | M | **ユーザー明示指示が必要** |
-| [R6-1](#r6-1) | Stripe 決済(Checkout / Webhook / Portal / トライアル) | P1 | L | 価格確定 |
-| [R6-2](#r6-2) | プラン定義の整合とプラン制限の enforcement | P1 | M | R6-1、**ユーザー判断** |
+| [R6-0](#r6-0) | カード不要の 60 日全機能トライアル(アプリ内実装) | P1 | M | — |
+| [R6-1](#r6-1) | Stripe 決済(Checkout / Webhook / Portal) | P1 | L | 価格確定、R6-0 |
+| [R6-2](#r6-2) | プラン定義の整合とプラン制限の enforcement(**確定済み**) | P1 | M | R6-0 と同時リリース |
 | [R6-3](#r6-3) | 特定商取引法表記・価格確定 | P1 | S | R6-1 |
 | [R7-*](#r7) | 磨き込みバックログ(P2 一覧) | P2 | — | — |
 
@@ -125,17 +126,14 @@
 ### R1: 本番リリースブロッカー(P0)
 
 <a id="r1-1"></a>
-#### R1-1. 本番環境の棚卸しと migration 適用 — P0 / M(ユーザー作業含む)
+#### R1-1. 本番 Dashboard 設定の確認とチェックリスト恒久化 — P0 / S(ユーザー作業含む)
 
-- **背景**: migration の本番適用は Supabase Dashboard SQL Editor での手動運用(ADR 0004 D-12)だが、PR テンプレの適用チェックが `009`〜`016` で未チェックのまま。**適用漏れがあると、ローカルで動く機能が本番で 500 になる**(例: `event_overrides` が無ければ休講機能が全滅、`board-media` バケットが無ければフィード添付が全滅)。「今日サインアップした道場長が使えるか?」への回答がこのタスク。
-- **現状**: 本番にどこまで適用済みかの記録が無い。確認手段は Dashboard か検証クエリのみ。
+- **背景**: migration の本番適用は Supabase Dashboard SQL Editor での手動運用(ADR 0004 D-12)だが、PR テンプレの適用チェックが `009`〜`016` で未チェックのままで**記録が残っていなかった**。**2026-07-04 にユーザー確認により `009`〜`016` はすべて本番適用済みと判明**(Storage バケット `board-media` も migration `014` 適用により作成済み)。残るのは記録の恒久化と Dashboard 側設定の確認。
 - **実装方針**:
-  1. **検証クエリを用意**(読み取り専用): `information_schema.tables` / `information_schema.columns` / `storage.buckets` / `pg_policies` を引いて、`000` 以外の各 migration の「適用済みなら存在するはずのオブジェクト」を一括チェックする SQL を `backend/scripts/verify-prod-migrations.sql` として追加。判定対象の例: `aikiboard.event_overrides`(010)、`announcements` の下書き RLS ポリシー名(011)、`invitations.revoked_at` 列(012)、`aikiboard.membership_requests`(013)、`storage.buckets` の `board-media`(014)、`aikiboard.notifications`(015)、`aikiboard.board_todos`(016)。
-  2. ユーザーが本番 SQL Editor で検証クエリを実行 → 結果を貼ってもらう → 未適用の migration を番号順に適用(`000_seed_*` は**絶対に本番適用しない**)。
-  3. 併せて Dashboard 設定を確認: Settings → API → **Exposed schemas に `aikiboard`**(無いと backend の REST が全滅)/ Settings → JWT Keys が **ES256(JWKS)** か(HS256 なら `wrangler secret put SUPABASE_JWT_SECRET` が必要。`backend/src/middleware/auth.ts` は alg 分岐で両対応)。
-  4. 結果を `docs/development-guide.md` に「本番反映チェックリスト」節として恒久化(以後の機能 PR はマージ後にこの節の手順で反映・記録する)。
-- **受け入れ条件**: 本番の `https://aiki-board.com` で、フィード投稿(画像添付)・スレッド・通知ベル・アーカイブ画面(Free ならロック表示)・Todo・公開ページが実際に動作する。チェックリストが development-guide に存在する。
-- **備考**: 検証クエリの実行と migration 適用は**ユーザー作業**(Claude は本番 DB に触れない)。スマホの Dashboard アプリからでも SQL Editor は実行可能。
+  1. Dashboard 設定の確認(**ユーザー作業**): Settings → API → **Exposed schemas に `aikiboard`** があるか / Settings → JWT Keys が **ES256(JWKS)** か(HS256 なら `wrangler secret put SUPABASE_JWT_SECRET` が必要。`backend/src/middleware/auth.ts` は alg 分岐で両対応)。※ 本番でログイン・ボード表示が現に動いているなら、いずれも設定済みの傍証。
+  2. 本番の実機スモーク: フィード投稿(画像添付)・スレッド・通知ベル・Todo・公開ページを一巡して動作確認。
+  3. `docs/development-guide.md` に「本番反映チェックリスト」節を追加し、**適用済み migration の台帳(`009`〜`016` = 適用済み、確認日 2026-07-04)** を記録。以後の機能 PR はマージ後にこの節へ追記する運用にする(`000_seed_*` は本番厳禁の注意書きも再掲)。
+- **受け入れ条件**: development-guide に台帳があり、`016` までが適用済みと記録されている。本番スモークが通る。
 
 <a id="r1-2"></a>
 #### R1-2. Resend ドメイン認証 + 実メール検証 — P0 / S(ほぼユーザー作業)
@@ -257,7 +255,7 @@
 
 - **背景**: 公開ページは「集客チャネル」という戦略的位置づけ(requirements 2 章)だが、現状は連絡先の**表示のみ**で、見学希望者が踏めるアクションが無い。「問い合わせフォーム / 見学申し込み導線」はプロダクト概要 5 章の約束。入門希望者 1 人の獲得は道場にとって月謝数千円 × 年単位の価値であり、これが決まれば有料プランの説得力が跳ね上がる。
 - **実装方針**:
-  1. migration `017_create_inquiries.sql`: `aikiboard.inquiries`(board_id, name, email, message ≤1000, kind: `inquiry`/`trial_visit`, created_at, handled_at)。RLS は管理者のみ SELECT/UPDATE(`is_admin_or_owner_of_board` ヘルパ再利用)。
+  1. migration `0XX_create_inquiries.sql`(番号は着手時の次の空き連番): `aikiboard.inquiries`(board_id, name, email, message ≤1000, kind: `inquiry`/`trial_visit`, created_at, handled_at)。RLS は管理者のみ SELECT/UPDATE(`is_admin_or_owner_of_board` ヘルパ再利用)。
   2. backend: `routes/public` に `POST /api/public/boards/:slug/inquiries`(anon、`is_public=true` かつ設定で受付 ON のボードのみ)。**スパム対策 3 層**: honeypot フィールド / 最小送信間隔(同一 IP、R5-1 のレート制限)/ 本文長・件数上限(1 ボード 1 日 N 件で自動クローズ)。管理者へアプリ内通知(`notifyBoardMembers` を admin 限定に絞る改修 or 個別 `createNotifications`)+ Resend でメール転送(R1-2 完了後)。
   3. frontend: `PublicBoardView` にフォーム(名前/メール/種別/本文)。管理側は `SettingsView` に受付 ON/OFF、通知はベルに載る。返信は当面メーラー起動(`mailto:`)でよい(CRM 化しない)。
 - **受け入れ条件**: 未ログインの見学希望者が公開ページから送信 → owner/admin に通知が届き、一覧で確認できる。スパム 3 層が効いている。
@@ -367,39 +365,66 @@
 
 ### R6: 収益化(Stripe)とプラン整合
 
-<a id="r6-1"></a>
-#### R6-1. Stripe 決済 — P1 / L(価格確定 R6-3 が前提)
+> **2026-07-04 確定(ユーザー協議済み)**: 公開ページは**有料機能**とする。ただし**カード登録不要の 60 日全機能トライアル**(Standard 相当)を全新規ボードに付与し、無料で試せるようにする。テーマカラーは Free に残す。人数は Free 無制限・**Mini のみ 15 名上限**・Standard 無制限。
 
-- **背景**: 有料機能(アーカイブ/会計/アクティビティログ)は実装済みだが、**本番では全ボード Free 固定のため誰も使えない**(`lib/features.ts` のフォールバック仕様として正しい挙動)。30 日トライアル(概要 7 章)も決済があって初めて成立。
+<a id="r6-0"></a>
+#### R6-0. カード不要の 60 日全機能トライアル(アプリ内実装) — P1 / M(Stripe 非依存、R6-2 と同時リリース必須)
+
+- **背景**: 公開ページを有料機能とする決定により、Free は純粋な内部運営ツールになり、道場が有料価値(公開ページ・会計・アーカイブ)を実感する経路は**トライアルだけ**になる。Stripe(R6-1)の完成を待たずに本番の道場へ全機能を体験してもらうため、カード登録不要のトライアルをアプリ内で先行実装する。IT に不慣れな道場長にとって「カード入力なしで始められる」ことは心理障壁の最小化でもある。
+- **決定事項(2026-07-04)**: 期間 **60 日** / 範囲は**全有料機能(Standard 相当)** / **カード登録不要** / 期限切れで Free に自動ダウングレード(**データは消さない**)。
+- **現状**: `POST /api/boards`(`backend/src/routes/boards/index.ts` の subscription 自動生成部)はボード作成時に Free(status: active)の `board_subscriptions` を生成。`lib/features.ts` は status が `trialing/active/past_due` の契約を有効扱いするが、**`trial_ends_at` の期限判定はしていない**。
+- **実装方針**:
+  1. ボード作成時の subscription 生成を「Standard / status=`trialing` / `trial_ends_at` = now + 60 日」に変更。**トライアルは owner 1 人につき 1 回**(過去に `trialing` 契約を持った owner の新規ボードは Free で開始。`board_subscriptions` × `board_members(owner)` の履歴で判定し、作り直しによる再トライアルを防ぐ)。
+  2. `lib/features.ts` に期限判定を追加: `status='trialing' AND trial_ends_at < now()` は Free 扱い(読み取り時のフェイルセーフ判定。DB 更新バッチ/cron は持たない)。
+  3. 期限の可視化: 設定画面 + ダッシュボードに「トライアル残り N 日」表示(`BoardDetail` に trial 情報を追加)。期限切れ後の `FeatureLocked` に「**データは消えていません**。プラン契約で再開できます」の文言。
+  4. 公開ページの期限切れ挙動: `routes/public` の anon API に `hasFeature(boardId, "public_page")` 判定を追加(期限切れ = 非公開扱い)。`board-settings` の公開設定保存にも `requireFeature("public_page")`(テーマは Free 確定のため対象外)。
+  5. 既存の本番ボードへの経過措置: リリース時点で存在するボードには「**リリース日 + 60 日**」でトライアルを付与(作成日起点にしない)。
+- **受け入れ条件**: 新規ボードが 60 日間フル機能で使え、61 日目に公開ページが非公開・有料機能がロックされ、データは保持される。同一 owner の 2 枚目ボードにトライアルが付かない。残り日数が UI で分かる。
+- **備考**: R6-2(公開ページの有料化 = seed 修正)と**同一リリース**にすること(トライアルなしで有料化すると、Stripe 完成まで誰も公開ページを使えなくなる)。また、**R6-0/R6-2 リリースから 60 日以内に R6-1(Stripe)を届ける**こと(最初のトライアル満了道場が支払い手段のないままロックされるのを防ぐ)。
+
+<a id="r6-1"></a>
+#### R6-1. Stripe 決済 — P1 / L(価格確定 R6-3 と R6-0 が前提)
+
+- **背景**: 有料機能(公開ページ/アーカイブ/会計/アクティビティログ)は実装済みだが、決済が無いため対価を受け取れない。**R6-0 のトライアル満了道場が現れる前(R6-0/R6-2 リリースから 60 日以内)に本タスクを届ける**ことで、公開ページ有料化の商流が閉じる。
 - **現状**: DB は受け入れ準備済み — `plans.stripe_product_id` / `board_subscriptions.stripe_subscription_id`・`stripe_customer_id`・`status(trialing/active/past_due/canceled)`・`trial_ends_at`・`current_period_end`(migration `007`)。Stripe SDK・Webhook・Checkout・プラン変更 UI は皆無。
 - **実装方針**(スタック PR 3〜4 本):
-  1. **backend #1**: `stripe` npm(Workers では `Stripe.createFetchHttpClient()` + `SubtleCryptoProvider` を使用)。`routes/billing`: `POST /checkout-session`(owner 限定、`mode: subscription`、`subscription_data.trial_period_days: 30`、成功/キャンセル URL は settings 画面)・`POST /portal-session`(Customer Portal でプラン変更・解約・請求書を丸投げし、自前 UI を最小化)。
+  1. **backend #1**: `stripe` npm(Workers では `Stripe.createFetchHttpClient()` + `SubtleCryptoProvider` を使用)。`routes/billing`: `POST /checkout-session`(owner 限定、`mode: subscription`、成功/キャンセル URL は settings 画面。**`trial_period_days` は付けない** — トライアルは R6-0 のアプリ内実装が正であり、二重トライアルを防ぐ)・`POST /portal-session`(Customer Portal でプラン変更・解約・請求書を丸投げし、自前 UI を最小化)。
   2. **backend #2**: `POST /api/billing/webhook`(署名検証は `constructEventAsync`。**authMiddleware なし・専用パス**)。処理イベント: `checkout.session.completed` / `customer.subscription.updated` / `customer.subscription.deleted` → `board_subscriptions` を upsert(plan は price ID→`plans` 逆引き)。冪等性は event id 記録で担保。
   3. **frontend**: `SettingsView` に「プラン」セクション(現在プラン表示 / アップグレード → Checkout / 管理 → Portal)。`FeatureLocked` の CTA をこの画面へのリンクに差し替え。
   4. **Stripe ダッシュボード(ユーザー作業)**: Product/Price 作成(月・年 × Mini/Standard)、Customer Portal 設定、Webhook エンドポイント登録、`wrangler secret put STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`。Stripe Invoice(請求書払い)は Portal/Checkout の標準機能で賄えるため独自実装しない。
-- **受け入れ条件**: テストモードで Free→Standard アップグレード → 有料機能が即時解放 → 解約 → 期間満了で Free に戻る、が Webhook 経由で自動反映される。トライアル 30 日が効く。
+- **受け入れ条件**: テストモードで Free→Standard アップグレード → 有料機能が即時解放 → 解約 → 期間満了で Free に戻る、が Webhook 経由で自動反映される。トライアル済み/中のボードが契約すると `trialing` から `active` に引き継がれ、追加トライアルは付かない。
 - **備考**: 支払いはオーナー 1 名代表(概要 7 章)。owner 以外には課金 UI を出さない。
 
 <a id="r6-2"></a>
-#### R6-2. プラン定義の整合とプラン制限の enforcement — P1 / M(**ユーザー判断が 2 件**)
+#### R6-2. プラン定義の整合とプラン制限の enforcement — P1 / M(**2026-07-04 確定済み**、R6-0 と同時リリース)
 
-- **背景**: 調査で**プラン定義の食い違い**が判明した。実装を進める前にプロダクトとしての意思決定が必要。
-  - **食い違い①(公開ページ・テーマ)**: 要件 6.2 とプロダクト概要では「公開ページ」「ロゴ・テーマ」は**有料**。しかし migration `007` の `plan_features` seed は **Free に `public_page`・`board_theme` を含めている**。さらに `board-settings` ルートはプランに関係なく保存を許している。
-  - **食い違い②(人数上限)**: プロダクト概要 7 章は「Free = 人数無制限(機能制限あり)」だが、DB の `plans` seed は **free.member_limit = 20**。そして**そもそも member_limit を enforce するコードがどこにも無い**(招待参加・申請承認で人数チェックなし)。
-  - **未ゲート**: `multi_board` も未使用(Free でも `POST /api/boards` で 2 枚目以降を作れる)。
-- **判断してほしいこと(推奨付き)**:
-  1. 公開ページ(+テーマ)を Free に含めるか。**推奨: Free に含める**(公開ページは道場の集客ページであると同時に AikiBoard 自身の SEO 資産・認知チャネル。無料で道場ページが持てることが最強の導入フックになる。要件 6.2 を改訂)。
-  2. Free の人数上限。**推奨: 概要の記述に合わせ Free 無制限とし(seed の member_limit を NULL に修正)、Mini=20 のみ上限を持つ**。「小規模道場は永久無料、快適さと運営高度化(有料機能)で対価を頂く」構図が明快。
-- **実装方針**(決定後、R6-1 と同時リリース):
-  1. 決定を反映する migration `018`(plan_features / plans の seed 修正。UPDATE 文で forward-only)。
-  2. enforcement: `POST /api/boards` の 2 枚目以降に `multi_board` 判定(所属 owner ボード数で判定 → 無ければ 403 `feature_locked`)/ 招待参加・申請承認時に `member_limit` 超過チェック(超過時は管理者に「プラン上限」エラー)/ 有料に倒す機能があれば `requireFeature` を board-settings に追加。
-  3. **既存ボードの既得権**: enforcement は「新規作成・新規参加」のみに適用し、既存データは遡って壊さない(上限超過中のボードは「これ以上増やせない」だけ)。この方針を requirements に明記。
-- **受け入れ条件**: 要件 6.2・概要 7 章・DB seed・実装の 4 者が一致。Free ボードで制限が正しく効き、アップグレードで即時解放される。
+- **背景**: 調査で判明したプラン定義の食い違い(要件 6.2 / migration `007` seed / プロダクト概要 7 章)について、2026-07-04 にユーザーと協議のうえ以下に**確定**した。
+- **確定したプラン定義**:
+
+  | 項目 | Free | Mini(¥630/月・仮) | Standard(¥980/月・仮) |
+  |---|---|---|---|
+  | メンバー人数 | **無制限** | **15 名まで** | 無制限 |
+  | カレンダー/出欠/お知らせ/フィード/メンバー管理/Todo | ○ | ○ | ○ |
+  | ロゴ・テーマカラー(`board_theme`) | **○(Free に確定)** | ○ | ○ |
+  | 公開ページ(`public_page`) | **✕(有料に確定)** | ○ | ○ |
+  | アーカイブ / 会計 / アクティビティログ / マルチボード | ✕ | ○ | ○ |
+
+  - 全新規ボードに **60 日フルトライアル**(R6-0)が付くため、どの道場も公開ページ含む全機能を無料で試したうえで契約を判断できる。
+  - 現状の seed との差分: `plan_features` から free × `public_page` を除外(`board_theme` は現 seed どおり Free 維持)、`plans` を free.member_limit=NULL・mini.member_limit=**15**(現 20)に修正。
+- **実装方針**:
+  1. migration(次の空き連番)で seed 修正: `DELETE FROM plan_features WHERE plan=free AND feature=public_page` / `UPDATE plans SET member_limit = NULL WHERE code='free'` / `UPDATE plans SET member_limit = 15 WHERE code='mini'`(forward-only)。
+  2. ドキュメント同期: 要件 6.2(`board_theme` を Free 側へ移動、公開ページ有料 + 60 日トライアルを明記)・6.3(トライアルを「30 日・Stripe」から「60 日・カード不要・アプリ内」へ改訂)・プロダクト概要 7 章(人数・トライアル・公開ページ)を同時改訂。
+  3. enforcement:
+     - `member_limit`: 招待参加(`/invite/<token>` の参加処理)と参加申請の承認時に、契約プランの `member_limit` と現メンバー数を突き合わせ、超過なら「プラン上限に達しています」エラー。ダウングレード等で既に超過しているボードは「追加だけ不可」(既存メンバーは維持)。
+     - `multi_board`: `POST /api/boards` で owner として 2 枚目以降を作る場合に `hasFeature` 判定(無ければ 403 `feature_locked`)。トライアル中は通る。
+     - `public_page`: R6-0 の実装方針 4(公開 API + board-settings のゲート)で対応。
+  4. **既存ボードの既得権**: enforcement は「新規作成・新規参加」のみに適用し、既存データは遡って壊さない。この方針を requirements に明記。
+- **受け入れ条件**: 要件 6.2・概要 7 章・DB seed・実装の 4 者が一致。Mini ボードは 16 人目の参加がブロックされ、トライアル切れの Free ボードは公開ページが非公開になり、契約(R6-1 実装後)で即時解放される。
 
 <a id="r6-3"></a>
 #### R6-3. 特定商取引法表記・価格確定 — P1 / S(ユーザー作業中心)
 
-- 有料販売開始には特商法に基づく表記(事業者名・連絡先・返金規定等)が必須。`(public)/tokushoho` 静的ページ + フッターリンク。価格(現行仮: Mini ¥630/月・Standard ¥980/月)と年額・トライアル条件の最終確定はユーザー。R1-4(規約)と同一 PR で扱ってよい。
+- 有料販売開始には特商法に基づく表記(事業者名・連絡先・返金規定等)が必須。`(public)/tokushoho` 静的ページ + フッターリンク。価格(現行仮: Mini ¥630/月・Standard ¥980/月)と年額の最終確定はユーザー(トライアル条件は「60 日・カード不要・全機能」で確定済み)。R1-4(規約)と同一 PR で扱ってよい。
 
 ---
 
@@ -445,13 +470,13 @@
 ユーザー作業(Dashboard・DNS・credentials)とコード作業を並行できるよう配列している。
 
 1. **R0-1**(ドキュメント是正) — 誤解の芽を摘む。PR 1 本、即日
-2. **R1-1**(本番棚卸し) — 検証クエリの用意はコード作業、実行はユーザー。すべての本番検証の前提
+2. **R1-1**(本番設定確認 + チェックリスト恒久化) — migration `009`〜`016` は適用済み確認済(2026-07-04)。残りは Dashboard 設定確認と実機スモークのみ
 3. **R2-1**(アドミン任命) — 運営体制ストーリーの成立。並行して**ユーザーに R1-2(Resend DNS)と R1-3(OAuth credentials 確認)を依頼**
 4. **R3-4 + R3-3**(招待の戻り導線 + QR) — 招待体験を完成させる。小さく速い
 5. **R1-3**(OAuth) → **R1-4**(規約) — 一般公開の最低条件を満たす
 6. **R3-1**(LP) → **R3-2**(オンボーディング) — ここまでで「知らない道場長が自力で立ち上がる」導線が閉じる
 
-以降は R4(SP/言語/PWA)→ R5(運用基盤)→ R6(Stripe)を、実際の道場のフィードバックを見ながら。
+以降は R4(SP/言語/PWA)→ R5(運用基盤)→ R6(トライアル + Stripe)を、実際の道場のフィードバックを見ながら。**R6-0(トライアル)+ R6-2(公開ページ有料化)は必ず同時リリースとし、その 60 日以内に R6-1(Stripe)を届けること。**
 
 ---
 
@@ -459,12 +484,11 @@
 
 | 種別 | 項目 | 関連 |
 |---|---|---|
-| 判断 | 公開ページ・テーマを Free に含めるか(推奨: 含める) | R6-2 |
-| 判断 | Free の人数上限(推奨: 無制限、Mini のみ 20 名) | R6-2 |
+| ~~判断~~ | ~~公開ページ・テーマの Free 可否 / 人数上限~~ → **2026-07-04 確定済み**(公開ページ有料・テーマ Free・Free 無制限・Mini 15 名・60 日トライアル) | R6-0/R6-2 |
 | 判断 | 監視・分析(Sentry 等)の導入可否(ルール上、明示指示が必要) | R5-6 |
 | 判断 | 価格・トライアル条件の最終確定 | R6-3 |
 | 判断 | アカウント削除の AikiNote との共通方針 | R2-4 |
-| 作業 | 本番 Supabase: 検証クエリ実行 → 未適用 migration の適用、Exposed schemas・JWT 方式確認 | R1-1 |
+| 作業 | 本番 Supabase: Exposed schemas・JWT 署名方式の確認(migration `009`〜`016` は適用済み確認済) | R1-1 |
 | 作業 | Resend ドメイン認証(Cloudflare DNS)+ `wrangler secret put RESEND_API_KEY` | R1-2 |
 | 作業 | Supabase Auth: Google/Apple provider と Redirect URL 設定(AikiNote 側設定の有無確認から) | R1-3 |
 | 作業 | 利用規約・プライバシーポリシー文面の確定 | R1-4 |
