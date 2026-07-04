@@ -1,0 +1,389 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-4);
+  max-width: 860px;
+}
+
+.heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--ab-space-1);
+  border-bottom: 1px solid var(--ab-border-default);
+}
+
+.tab {
+  padding: var(--ab-space-2) var(--ab-space-4);
+  border: none;
+  background: transparent;
+  color: var(--ab-text-tertiary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tab:hover {
+  color: var(--ab-text-secondary);
+}
+
+.tabActive {
+  color: var(--ab-text-primary);
+  border-bottom-color: var(--ab-dou);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-3);
+}
+
+.periodNav {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+}
+
+.navBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-card);
+  color: var(--ab-text-secondary);
+  cursor: pointer;
+}
+
+.navBtn:hover {
+  background: var(--ab-washi-dark);
+}
+
+.periodLabel {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+  min-width: 72px;
+  text-align: center;
+}
+
+.empty {
+  color: var(--ab-text-tertiary);
+  font-size: 14px;
+  padding: var(--ab-space-6) 0;
+  text-align: center;
+}
+
+.note {
+  font-size: 12px;
+  color: var(--ab-text-tertiary);
+}
+
+/* 月謝・支払 */
+.roster {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+  padding: var(--ab-space-3) var(--ab-space-4);
+  border-bottom: 1px solid var(--ab-border-subtle);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.member {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 14px;
+  color: var(--ab-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feeCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.yen {
+  color: var(--ab-text-tertiary);
+  font-size: 13px;
+}
+
+.feeInput {
+  width: 90px;
+  padding: var(--ab-space-1) var(--ab-space-2);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-sm);
+  background: var(--ab-surface-canvas);
+  color: var(--ab-text-primary);
+  font-size: 13px;
+  text-align: right;
+}
+
+.status {
+  padding: var(--ab-space-1) var(--ab-space-2);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-pill);
+  background: var(--ab-surface-canvas);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.status_paid {
+  color: var(--ab-attend-attend-strong, #2e7d32);
+}
+
+.status_unpaid {
+  color: var(--ab-danger);
+}
+
+.status_waived {
+  color: var(--ab-text-tertiary);
+}
+
+/* 支出 */
+.expenseForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ab-space-2);
+  align-items: center;
+}
+
+.expenseInput {
+  padding: var(--ab-space-2) var(--ab-space-3);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-surface-canvas);
+  color: var(--ab-text-primary);
+  font-size: 13px;
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-1);
+  padding: var(--ab-space-2) var(--ab-space-4);
+  background: var(--ab-dou);
+  color: var(--ab-text-on-brand);
+  border: none;
+  border-radius: var(--ab-radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.addBtn:hover {
+  background: var(--ab-dou-light);
+}
+
+.error {
+  color: var(--ab-danger);
+  font-size: 13px;
+}
+
+.expenseList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+  overflow: hidden;
+}
+
+.expenseRow {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+  padding: var(--ab-space-3) var(--ab-space-4);
+  border-bottom: 1px solid var(--ab-border-subtle);
+  font-size: 13px;
+}
+
+.expenseRow:last-child {
+  border-bottom: none;
+}
+
+.expenseDate {
+  color: var(--ab-text-tertiary);
+  white-space: nowrap;
+}
+
+.expenseCategory {
+  font-weight: 600;
+  color: var(--ab-text-primary);
+}
+
+.expenseAmount {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--ab-text-primary);
+  white-space: nowrap;
+}
+
+.expenseNote {
+  color: var(--ab-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.deleteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--ab-radius-sm);
+  background: transparent;
+  color: var(--ab-text-tertiary);
+  cursor: pointer;
+}
+
+.deleteBtn:hover {
+  color: var(--ab-danger);
+  background: var(--ab-washi-dark);
+}
+
+.totalLine {
+  font-size: 14px;
+  color: var(--ab-text-secondary);
+  text-align: right;
+}
+
+/* 収支 */
+.totals {
+  display: flex;
+  gap: var(--ab-space-3);
+  flex-wrap: wrap;
+}
+
+.totalCard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 140px;
+  padding: var(--ab-space-3) var(--ab-space-4);
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+}
+
+.totalLabel {
+  font-size: 12px;
+  color: var(--ab-text-tertiary);
+}
+
+.totalIncome {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ab-dou);
+}
+
+.totalExpense {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ab-danger);
+}
+
+.totalBalance {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ab-text-primary);
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--ab-space-2);
+  height: 180px;
+  padding: var(--ab-space-4);
+  background: var(--ab-surface-card);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-lg);
+}
+
+.chartCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ab-space-1);
+  flex: 1;
+  height: 100%;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  width: 100%;
+}
+
+.barIncome,
+.barExpense {
+  width: 40%;
+  min-height: 1px;
+  border-radius: 2px 2px 0 0;
+}
+
+.barIncome {
+  background: var(--ab-dou);
+}
+
+.barExpense {
+  background: var(--ab-danger);
+}
+
+.chartLabel {
+  font-size: 11px;
+  color: var(--ab-text-tertiary);
+}
+
+.legend {
+  display: flex;
+  gap: var(--ab-space-4);
+  justify-content: center;
+  font-size: 12px;
+}
+
+.legendIncome {
+  color: var(--ab-dou);
+}
+
+.legendExpense {
+  color: var(--ab-danger);
+}

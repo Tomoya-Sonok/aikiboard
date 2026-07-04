@@ -33,7 +33,8 @@ type IdTable =
   | "invitations"
   | "membership_requests"
   | "board_posts"
-  | "archives";
+  | "archives"
+  | "expense_entries";
 
 async function resolveBoardId(
   c: Context<GuardEnv>,
@@ -178,3 +179,12 @@ export const boardPostMemberMiddleware = createBoardGuard(
 // 閲覧=メンバー、作成/編集/削除=admin。さらに requireFeature("archive") でプラン判定する。
 export const archiveMemberMiddleware = createBoardGuard("member", "archives");
 export const archiveAdminMiddleware = createBoardGuard("admin", "archives");
+
+// 会計用。管理者のみ。さらに requireFeature("accounting") でプラン判定する。
+//   - boardId を query/body で渡すルート(月謝/支払/支出一覧/サマリ)は financeAdminMiddleware。
+//   - :id を持つ支出の編集/削除は financeExpenseAdminMiddleware(expense_entries から board_id 解決)。
+export const financeAdminMiddleware = createBoardGuard("admin");
+export const financeExpenseAdminMiddleware = createBoardGuard(
+  "admin",
+  "expense_entries",
+);

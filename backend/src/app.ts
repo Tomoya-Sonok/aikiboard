@@ -14,6 +14,7 @@ import boardSettingsRoute from "./routes/board-settings/index.js";
 import boardsRoute from "./routes/boards/index.js";
 import dojoMastersRoute from "./routes/dojo-masters/index.js";
 import eventsRoute from "./routes/events/index.js";
+import financeRoute from "./routes/finance/index.js";
 import invitationsRoute from "./routes/invitations/index.js";
 import membersRoute from "./routes/members/index.js";
 import membershipRequestsRoute from "./routes/membership-requests/index.js";
@@ -129,6 +130,7 @@ app.route("/api/notifications", notificationsRoute);
 app.route("/api/activity-logs", activityLogsRoute);
 app.route("/api/board-settings", boardSettingsRoute);
 app.route("/api/archives", archivesRoute);
+app.route("/api/finance", financeRoute);
 app.route("/api/public", publicRoute);
 
 export type AppType = typeof app;
