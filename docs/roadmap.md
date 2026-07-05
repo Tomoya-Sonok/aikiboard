@@ -357,7 +357,7 @@
 <a id="r5-6"></a>
 #### R5-6. 監視・分析(Sentry / Axiom / BetterStack / Umami) — P1 / M(**ユーザーの明示指示が必要**)
 
-- **背景**: 本番エラーは現状 Cloudflare の observability ログを見に行かない限り誰も気づけない。道場に使ってもらい始めるなら「壊れたら 5 分で気づける」状態が先。requirements 10 章で選定済み(Sentry=エラー / Axiom=ログ / BetterStack=稼働 / Umami=分析)。
+- **背景**: 本番エラーは現状 Cloudflare の observability ログを見に行かない限り誰も気づけない。道場に使ってもらい始めるなら「壊れたら 5 分で気づける」状態が先。requirements 10 章で選定済み(Sentry=エラー / Axiom=ログ / BetterStack=稼働 / Umami=分析)。**実例(2026-07-05)**: backend の本番デプロイが CI 設定ミスで初回(2026-05-01)から 2 か月間全滅していたことに、初の本番動作確認まで誰も気づけなかった。CI の failure 通知や外形監視があれば即日検知できた事案で、導入の必要性を裏付けている。
 - **実装方針**: `backend/src/lib/logger.ts` は emit() 差し替え前提で設計済み(ADR 0003 C-10)。① Axiom: logger の emit を fetch 送信に差し替え(Workers 互換)。② Sentry: frontend は `@sentry/nextjs`、backend は Workers 用 SDK か logger 経由のエラー転送。③ BetterStack: `https://aiki-board.com` と `https://api.aiki-board.com/health` の外形監視(Dashboard 設定のみ)。④ Umami: script タグ 1 行(AikiNote と同じダッシュボード)。
 - **備考**: 運用ルール(instructions.md)で「監視・分析はユーザーの明示的な指示がある場合のみ導入」と定められているため、**着手前に必ずユーザー承認を取る**。外部サービス契約・API キー発行はユーザー作業。
 
