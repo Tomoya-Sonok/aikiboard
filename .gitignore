@@ -11,7 +11,8 @@ logs/
 
 # AI agent / Claude Code local config
 .agent/
-.claude/
+.claude/*
+!.claude/skills/
 
 # Dependencies
 node_modules/
