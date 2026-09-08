@@ -39,7 +39,6 @@ tsconfig.tsbuildinfo
 frontend/next-env.d.ts
 
 # Env (never commit)
-.env
-.env.local
-.env.*.local
+.env*
+!.env.local.example
 .dev.vars

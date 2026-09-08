@@ -1,2 +1,2 @@
-pnpm -r build
+pnpm -r typecheck
 pnpm -r test:ci

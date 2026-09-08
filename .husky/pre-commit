@@ -1,1 +1,2 @@
-pnpm -r check
+pnpm exec lint-staged
+gitleaks protect --staged --no-banner

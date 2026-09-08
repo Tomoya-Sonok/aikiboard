@@ -10,6 +10,7 @@
     "verify:env:production": "node ./scripts/verify-production-env.mjs",
     "test": "vitest",
     "test:ci": "vitest run --silent --passWithNoTests",
+    "typecheck": "tsc --noEmit",
     "check": "biome check . && tsc --noEmit",
     "check:fix": "biome check . --write",
     "sb": "storybook dev -p 6006",
