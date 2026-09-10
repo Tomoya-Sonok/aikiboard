@@ -47,6 +47,11 @@
     "home": {
       "greeting": "Welcome, {name}",
       "signOut": "Log out"
+    },
+    "oauth": {
+      "google": "Continue with Google",
+      "divider": "or",
+      "error": "Google sign-in failed. Please try again in a moment."
     }
   },
   "boards": {

@@ -146,6 +146,7 @@ aikiboard/
 
 1. **サインアップ**: フロント `SignUpForm` → tRPC `users.create`(`publicProcedure`)→ Hono `POST /api/users`(認証不要)→ backend が `supabase.auth.admin.createUser`(`email_confirm: true`)+ `public."User"` へ INSERT を service_role で実行、失敗時は Auth ユーザーをロールバック削除 → 成功後フロントが `supabase.auth.signInWithPassword` で自動ログイン。
 2. **ログイン**: フロント `LoginForm` → `supabase.auth.signInWithPassword` を**直接**呼ぶ(BFFを経由しない)。
+2-b. **Google OAuth ログイン**(2026-09-10 追加): `signInWithGoogle`(`useAuth`)が `supabase.auth.signInWithOAuth` を直接呼び、Google から `/auth/callback`(`app/auth/callback/route.ts`、`[locale]` の外)へ戻る。route handler が `exchangeCodeForSession` でセッションを確立し、`public."User"` 行が無ければ `ensureOAuthUser`(`lib/server/ensure-oauth-user.ts`)が service_role で作成してから `/home` へ遷移する。**メール/パスワード登録は backend の `POST /api/users`、OAuth は frontend の route handler と、User 行の作成経路が2つある**(AikiNote と同じ構造)。
 3. **セッション管理**: `AuthProvider`(`frontend/src/lib/hooks/useAuth.tsx`)が `onAuthStateChange` を購読し、profile を tRPC `users.getUserInfo` 経由で取得。
 4. **cookieの更新**: `frontend/src/proxy.ts`(Next.js 16の `middleware.ts` 代替)が毎リクエスト `supabase.auth.getSession()` を呼びトークンローテーションを行うが、**認可判断はしない**。
 5. **認可ガード**: `(authenticated)/layout.tsx`(Server Component)が未認証を `/login` へ redirect。ボード配下は各 `d/[slug]/*/page.tsx` が `requireBoardMember()` を呼ぶパターンで統一。**統一されたミドルウェアガードではなく、ページ/layoutへの分散実装**。
