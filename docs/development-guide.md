@@ -215,6 +215,7 @@ aikiboard/
 | CI で secrets が空(`verify:env:production` 失敗) | workflow の `environment: Production` 指定を確認(secrets は environment 配置) |
 | `db reset` で migration が当たらない | `backend/supabase/migrations` の symlink が壊れていないか確認(`ls -la`) |
 | dependabot PR が大量 | grouping 済み([`.github/dependabot.yml`](../.github/dependabot.yml))。minor/patch は 1 PR にまとまる |
+| 本番 API が 404 / 新機能だけ動かない | **backend のデプロイ失敗を疑う**。Actions の「Backend Deploy」が直近 main で success か確認。deploy job には `environment: Production` が必須(secrets が environment 配置のため。2026-07-05 に指定漏れで全デプロイが失敗し続けていた問題を修正) |
 
 ---
 

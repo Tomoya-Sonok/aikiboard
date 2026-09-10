@@ -14,6 +14,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    # secrets(CLOUDFLARE_API_TOKEN 等)は GitHub の Production environment に配置されているため、
+    # 参照には environment 指定が必須。これが無いと secrets が空になり wrangler が失敗する
+    # (2026-07-05 まで全デプロイがこれで失敗していた)。
+    environment: Production
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,6 +40,20 @@ jobs:
       - name: Type-check Backend
         working-directory: ./backend
         run: pnpm build
+
+      # Worker のランタイム secrets を GitHub secrets から同期する(source of truth を GitHub に一本化)。
+      # wrangler secret put は既存値の上書きなので毎回実行しても安全。
+      - name: Sync Worker Secrets
+        working-directory: ./backend
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          printf '%s' "$SUPABASE_URL" | pnpm wrangler secret put SUPABASE_URL
+          printf '%s' "$SUPABASE_SERVICE_ROLE_KEY" | pnpm wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+          printf '%s' "$SUPABASE_ANON_KEY" | pnpm wrangler secret put SUPABASE_ANON_KEY
 
       - name: Deploy to Cloudflare Workers
         working-directory: ./backend
