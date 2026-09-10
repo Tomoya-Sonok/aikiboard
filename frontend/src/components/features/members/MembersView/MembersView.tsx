@@ -1,6 +1,11 @@
 "use client";
 
-import { SignOut, Trash } from "@phosphor-icons/react";
+import {
+  ShieldCheck,
+  ShieldSlash,
+  SignOut,
+  Trash,
+} from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { Avatar } from "@/components/shared/Avatar/Avatar";
@@ -49,6 +54,13 @@ export function MembersView({ boardId, canManage }: Props) {
     },
   });
 
+  // ロール変更(アドミン任命・解除)。member ⇄ admin のみ。
+  const changeRoleMutation = useMutation({
+    mutationFn: (params: { userId: string; role: "admin" | "member" }) =>
+      trpcClient.members.changeRole.mutate({ boardId, ...params }),
+    onSuccess: refresh,
+  });
+
   const handleRemove = (member: BoardMember) => {
     if (window.confirm(t("removeConfirm", { name: member.username }))) {
       removeMutation.mutate(member.userId);
@@ -59,8 +71,19 @@ export function MembersView({ boardId, canManage }: Props) {
       leaveMutation.mutate();
     }
   };
+  const handleChangeRole = (member: BoardMember) => {
+    const nextRole = member.role === "admin" ? "member" : "admin";
+    const confirmKey =
+      nextRole === "admin" ? "promoteConfirm" : "demoteConfirm";
+    if (window.confirm(t(confirmKey, { name: member.username }))) {
+      changeRoleMutation.mutate({ userId: member.userId, role: nextRole });
+    }
+  };
 
-  const busy = removeMutation.isPending || leaveMutation.isPending;
+  const busy =
+    removeMutation.isPending ||
+    leaveMutation.isPending ||
+    changeRoleMutation.isPending;
   const roleLabel = (role: BoardMember["role"]) => t(`role.${role}`);
 
   return (
@@ -83,6 +106,10 @@ export function MembersView({ boardId, canManage }: Props) {
             const isSelf = member.userId === user?.id;
             const canRemove = canManage && member.role !== "owner" && !isSelf;
             const canLeave = isSelf && member.role !== "owner";
+            // ロール変更: owner/admin が、owner 以外かつ自分以外に対して実行できる。
+            const canChangeRole =
+              canManage && member.role !== "owner" && !isSelf;
+            const isAdmin = member.role === "admin";
             return (
               <li key={member.userId} className={styles.row}>
                 <Avatar
@@ -108,6 +135,22 @@ export function MembersView({ boardId, canManage }: Props) {
                 >
                   {roleLabel(member.role)}
                 </span>
+                {canChangeRole ? (
+                  <button
+                    type="button"
+                    className={styles.action}
+                    onClick={() => handleChangeRole(member)}
+                    disabled={busy}
+                    aria-label={isAdmin ? t("demote") : t("promote")}
+                    title={isAdmin ? t("demote") : t("promote")}
+                  >
+                    {isAdmin ? (
+                      <ShieldSlash size={16} />
+                    ) : (
+                      <ShieldCheck size={16} />
+                    )}
+                  </button>
+                ) : null}
                 {canRemove ? (
                   <button
                     type="button"

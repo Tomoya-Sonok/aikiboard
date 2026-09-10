@@ -13,7 +13,8 @@ export type NotificationType =
   | "announcement.published"
   | "post.created"
   | "thread.replied"
-  | "event.created";
+  | "event.created"
+  | "member.role_changed";
 
 type CreateParams = {
   boardId: string;

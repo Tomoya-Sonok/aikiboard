@@ -15,6 +15,7 @@ import { z } from "zod";
 import type { AppBindings, AppVariables, BoardRole } from "../../app.js";
 import { logActivity } from "../../lib/activity.js";
 import { logger } from "../../lib/logger.js";
+import { createNotifications } from "../../lib/notifications.js";
 import { authMiddleware } from "../../middleware/auth.js";
 import {
   boardAdminMiddleware,
@@ -25,10 +26,18 @@ type MembersEnv = { Bindings: AppBindings; Variables: AppVariables };
 
 const membersRoute = new Hono<MembersEnv>();
 
+const uuidLike = z
+  .string()
+  .regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+
 const leaveSchema = z.object({
-  boardId: z
-    .string()
-    .regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i),
+  boardId: uuidLike,
+});
+
+// ロール変更(アドミン任命・解除)。member ⇄ admin のみ。owner は対象にも指定値にもできない。
+const changeRoleSchema = z.object({
+  boardId: uuidLike,
+  role: z.enum(["admin", "member"]),
 });
 
 const parseJson = async (c: Context<MembersEnv>): Promise<unknown> => {
@@ -271,6 +280,117 @@ membersRoute.delete(
       });
     }
     return c.json({ success: true, message: "メンバーを削除しました" });
+  },
+);
+
+// ────────────────────────────────────────────────────────────────
+// PATCH /api/members/:userId/role — ロール変更(owner/admin)。
+//   member ⇄ admin のみ。owner を対象にはできない(オーナー譲渡は別機能)。
+//   自分自身も変更できない(削除と同じ方針。降りたい admin は退会するか他者に依頼する)。
+//   boardId は body から解決される(:userId は boardAccess の :id 分岐に該当しない)。
+// ────────────────────────────────────────────────────────────────
+membersRoute.patch(
+  "/:userId/role",
+  authMiddleware,
+  boardAdminMiddleware,
+  async (c) => {
+    const supabase = c.get("supabase");
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+    const actorId = c.get("userId");
+    const boardId = c.get("boardId");
+    const targetId = c.req.param("userId");
+    const aikiboard = supabase.schema("aikiboard");
+
+    const parsed = changeRoleSchema.safeParse(await parseJson(c));
+    if (!parsed.success) {
+      return c.json({ success: false, error: "入力内容に誤りがあります" }, 400);
+    }
+    const nextRole = parsed.data.role;
+
+    if (targetId === actorId) {
+      return c.json(
+        { success: false, error: "自分自身のロールは変更できません" },
+        400,
+      );
+    }
+
+    const { data: target, error: targetError } = await aikiboard
+      .from("board_members")
+      .select("role")
+      .eq("board_id", boardId)
+      .eq("user_id", targetId)
+      .maybeSingle();
+    if (targetError) {
+      logger.error("対象メンバーの確認に失敗", { feature: "members", boardId });
+      return c.json({ success: false, error: "変更に失敗しました" }, 500);
+    }
+    if (!target) {
+      return c.json({ success: false, error: "対象が見つかりません" }, 404);
+    }
+    if (target.role === "owner") {
+      return c.json(
+        { success: false, error: "オーナーのロールは変更できません" },
+        400,
+      );
+    }
+    if (target.role === nextRole) {
+      return c.json({ success: false, error: "変更内容がありません" }, 400);
+    }
+
+    const { error } = await aikiboard
+      .from("board_members")
+      .update({ role: nextRole })
+      .eq("board_id", boardId)
+      .eq("user_id", targetId);
+    if (error) {
+      logger.error("ロール変更に失敗", {
+        feature: "members",
+        boardId,
+        targetId,
+      });
+      return c.json({ success: false, error: "変更に失敗しました" }, 500);
+    }
+
+    logger.info("メンバーのロールを変更した", {
+      feature: "members",
+      boardId,
+      targetId,
+      nextRole,
+    });
+
+    if (boardId) {
+      // 表示用に対象ユーザー名を metadata へ載せる(一覧の JOIN 回避)。
+      const { data: targetUser } = await supabase
+        .from("User")
+        .select("username")
+        .eq("id", targetId)
+        .maybeSingle();
+      const targetName = (targetUser?.username as string | undefined) ?? "";
+
+      await logActivity(supabase, {
+        boardId,
+        userId: actorId ?? null,
+        action: "member.role_changed",
+        targetType: "member",
+        targetId,
+        title: targetName,
+        extra: { role: nextRole },
+      });
+      // 本人にのみ通知する(ボード全体には流さない)。
+      await createNotifications(supabase, {
+        boardId,
+        recipientUserIds: [targetId],
+        actorUserId: actorId ?? null,
+        type: "member.role_changed",
+        targetType: "member",
+        targetId,
+        title: targetName,
+      });
+    }
+
+    return c.json({ success: true, message: "ロールを変更しました" });
   },
 );
 
