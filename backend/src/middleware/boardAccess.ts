@@ -18,7 +18,7 @@ import { createMiddleware } from "hono/factory";
 import type { AppBindings, AppVariables, BoardRole } from "../app.js";
 import { logger } from "../lib/logger.js";
 
-type AccessLevel = "member" | "admin"; // admin = owner または admin
+type AccessLevel = "member" | "admin" | "owner"; // admin = owner または admin / owner = owner のみ
 
 type GuardEnv = { Bindings: AppBindings; Variables: AppVariables };
 
@@ -27,6 +27,7 @@ const ADMIN_ROLES: BoardRole[] = ["owner", "admin"];
 type ResolveResult = { boardId: string | null; dbError: boolean };
 
 // :id ルートで board_id を引くテーブル。リソースごとに切り替える。
+// "boards" だけは例外で、:id 自体がボード ID(board_id カラムを持たない)。
 type IdTable =
   | "events"
   | "announcements"
@@ -35,7 +36,8 @@ type IdTable =
   | "board_posts"
   | "archives"
   | "expense_entries"
-  | "board_todos";
+  | "board_todos"
+  | "boards";
 
 async function resolveBoardId(
   c: Context<GuardEnv>,
@@ -46,6 +48,10 @@ async function resolveBoardId(
   // 1. :id(対象リソースの id)があれば、そのリソースの board_id を正とする。
   const resourceId = c.req.param("id");
   if (resourceId) {
+    // boards はボード自身が対象。:id がそのままボード ID(board_id カラムは無い)。
+    if (idTable === "boards") {
+      return { boardId: resourceId, dbError: false };
+    }
     if (!supabase) {
       return { boardId: null, dbError: false };
     }
@@ -135,6 +141,9 @@ const createBoardGuard = (level: AccessLevel, idTable: IdTable = "events") =>
     if (level === "admin" && !ADMIN_ROLES.includes(role)) {
       return c.json({ success: false, error: "権限がありません" }, 403);
     }
+    if (level === "owner" && role !== "owner") {
+      return c.json({ success: false, error: "権限がありません" }, 403);
+    }
 
     c.set("boardId", boardId);
     c.set("boardRole", role);
@@ -146,6 +155,9 @@ export const boardMemberMiddleware = createBoardGuard("member");
 
 // owner または admin であることを要求する(稽古の作成・編集・削除・出欠集計など)。
 export const boardAdminMiddleware = createBoardGuard("admin");
+
+// owner のみを許可する(ボード削除)。:id はボード自身の id。
+export const boardOwnerMiddleware = createBoardGuard("owner", "boards");
 
 // お知らせ用(:id はお知らせの id → announcements から board_id を引く)。
 export const announcementMemberMiddleware = createBoardGuard(

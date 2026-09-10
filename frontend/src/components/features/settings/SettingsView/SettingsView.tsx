@@ -1,15 +1,20 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { Dialog } from "@/components/shared/Dialog/Dialog";
+import { useRouter } from "@/lib/i18n/routing";
 import { trpcClient } from "@/lib/trpc/client";
+import type { BoardRole } from "@/lib/types/board";
 import type { PublicPageConfig } from "@/lib/types/publicBoard";
 import styles from "./SettingsView.module.css";
 
 type Props = {
   boardId: string;
   slug: string;
+  boardName: string;
+  viewerRole: BoardRole | null;
 };
 
 // 10 色プリセット(9.4)。色は表示用のスウォッチ。実際のテーマ適用は将来対応。
@@ -26,8 +31,10 @@ const THEMES: { code: string; color: string }[] = [
   { code: "nezumi", color: "#6E7173" },
 ];
 
-export function SettingsView({ boardId, slug }: Props) {
+export function SettingsView({ boardId, slug, boardName, viewerRole }: Props) {
   const t = useTranslations("boards.settings");
+  const router = useRouter();
+  const isOwner = viewerRole === "owner";
 
   const { data, isLoading } = useQuery({
     queryKey: ["boardSettings", boardId],
@@ -58,6 +65,38 @@ export function SettingsView({ boardId, slug }: Props) {
 
   const setCfgField = (key: keyof PublicPageConfig, value: unknown) => {
     setCfg((prev) => ({ ...prev, [key]: value }));
+  };
+
+  // ── ボード削除(owner のみ)。ボード名の入力一致で確定する。 ──
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // 削除ダイアログを開いたときだけ集計を取りに行く。
+  const { data: summaryRes } = useQuery({
+    queryKey: ["boardDeletionSummary", boardId],
+    queryFn: () => trpcClient.boards.deletionSummary.query({ boardId }),
+    enabled: deleteOpen && isOwner,
+  });
+  const summary = summaryRes?.data;
+
+  const deleteMutation = useMutation({
+    mutationFn: () => trpcClient.boards.remove.mutate({ boardId }),
+    onSuccess: (res) => {
+      if (!res.success) {
+        setDeleteError(res.error ?? t("deleteError"));
+        return;
+      }
+      // 削除後はこのボードに入れないのでホームへ(所属 0 件なら /boards/new に誘導される)。
+      router.replace("/home");
+    },
+    onError: () => setDeleteError(t("deleteError")),
+  });
+
+  const closeDeleteDialog = () => {
+    setDeleteOpen(false);
+    setNameInput("");
+    setDeleteError(null);
   };
 
   const handleSave = async () => {
@@ -248,6 +287,87 @@ export function SettingsView({ boardId, slug }: Props) {
           {saving ? t("saving") : t("save")}
         </button>
       </div>
+
+      {/* 危険な操作(owner のみ)。ボード削除は物理削除で復旧できない。 */}
+      {isOwner ? (
+        <section className={styles.dangerZone}>
+          <h2 className={styles.dangerTitle}>{t("dangerZone")}</h2>
+          <p className={styles.dangerHint}>{t("dangerZoneHint")}</p>
+          <button
+            type="button"
+            className={styles.dangerButton}
+            onClick={() => setDeleteOpen(true)}
+          >
+            {t("deleteBoard")}
+          </button>
+        </section>
+      ) : null}
+
+      <Dialog
+        open={deleteOpen}
+        onClose={closeDeleteDialog}
+        title={t("deleteDialogTitle")}
+        footer={
+          <>
+            <button
+              type="button"
+              className={styles.dialogCancel}
+              onClick={closeDeleteDialog}
+              disabled={deleteMutation.isPending}
+            >
+              {t("cancel")}
+            </button>
+            <button
+              type="button"
+              className={styles.dialogDelete}
+              onClick={() => {
+                setDeleteError(null);
+                deleteMutation.mutate();
+              }}
+              disabled={nameInput !== boardName || deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? t("deleting") : t("deleteConfirm")}
+            </button>
+          </>
+        }
+      >
+        <p className={styles.dangerHint}>{t("dangerZoneHint")}</p>
+
+        {summary ? (
+          <div className={styles.summaryBox}>
+            <span className={styles.summaryTitle}>{t("deleteSummary")}</span>
+            <ul className={styles.summaryList}>
+              <li>
+                {t("deleteSummaryMembers", { count: summary.memberCount })}
+              </li>
+              <li>{t("deleteSummaryPosts", { count: summary.postCount })}</li>
+              <li>{t("deleteSummaryEvents", { count: summary.eventCount })}</li>
+              <li>
+                {t("deleteSummaryAnnouncements", {
+                  count: summary.announcementCount,
+                })}
+              </li>
+              <li>
+                {t("deleteSummaryArchives", { count: summary.archiveCount })}
+              </li>
+            </ul>
+          </div>
+        ) : null}
+
+        <label className={styles.field}>
+          <span className={styles.label}>
+            {t("deleteNameLabel", { name: boardName })}
+          </span>
+          <input
+            className={styles.input}
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            autoComplete="off"
+          />
+        </label>
+
+        {deleteError ? <p className={styles.error}>{deleteError}</p> : null}
+      </Dialog>
     </div>
   );
 }

@@ -108,6 +108,35 @@ export const resolveSignedUrls = async (
   return result;
 };
 
+// ボード削除時に、そのボード配下のメディアを丸ごと消す(feed / archive 両方)。
+// ベストエフォート(失敗はログのみ)。DB の削除はこの結果に関わらず進める方針のため、
+// 孤児ファイルが残ることは許容する。
+export const removeBoardMedia = async (
+  supabase: SupabaseClient,
+  boardId: string,
+): Promise<void> => {
+  const prefixes: Array<"feed" | "archive"> = ["feed", "archive"];
+  for (const prefix of prefixes) {
+    const dir = `${prefix}/${boardId}`;
+    const { data, error } = await supabase.storage
+      .from(BOARD_MEDIA_BUCKET)
+      .list(dir);
+    if (error) {
+      logger.warn("ボードメディアの一覧取得に失敗(孤児ファイルとして残置)", {
+        feature: "storage",
+        boardId,
+        dir,
+        error: error.message,
+      });
+      continue;
+    }
+    const paths = (data ?? [])
+      .filter((item) => item.name)
+      .map((item) => `${dir}/${item.name}`);
+    await removeObjects(supabase, paths);
+  }
+};
+
 // ベストエフォートでストレージ上のオブジェクトを削除する(投稿/ページ削除時)。
 // 失敗してもログのみで握りつぶす(孤児ファイルは許容、後続でまとめて掃除可能)。
 export const removeObjects = async (

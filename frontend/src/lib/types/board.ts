@@ -30,3 +30,12 @@ export type BoardDetail = {
   // 契約プランで利用可能な feature code(有料機能のゲート・PRO 表示に使う)。
   features: string[];
 };
+
+// GET /api/boards/:id/deletion-summary(削除前の集計、owner 限定)。
+export type BoardDeletionSummary = {
+  memberCount: number;
+  postCount: number;
+  eventCount: number;
+  announcementCount: number;
+  archiveCount: number;
+};

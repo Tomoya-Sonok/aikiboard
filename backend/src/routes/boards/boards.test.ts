@@ -659,3 +659,121 @@ describe("GET /api/boards/:slug", () => {
     expect(res.status).toBe(401);
   });
 });
+
+// ────────────────────────────────────────────────────────────────
+// ボード削除(owner 限定)。boardOwnerMiddleware が board_members から
+// actor のロールを引き、boards を delete する。Storage はベストエフォート。
+// ────────────────────────────────────────────────────────────────
+const BOARD_ID = "00000000-0000-0000-0000-0000000000aa";
+
+function createDeleteMock(actorRole: "owner" | "admin" | "member" | null) {
+  const boardsDeleteSpy = vi.fn(() => ({
+    eq: async () => ({ error: null }),
+  }));
+  const storageRemoveSpy = vi.fn(async () => ({ error: null }));
+
+  const aikiboard = {
+    from: (table: string) => {
+      if (table === "board_members") {
+        return {
+          select: () => ({
+            eq: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({
+                  data: actorRole ? { role: actorRole } : null,
+                  error: null,
+                }),
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === "boards") {
+        return { delete: boardsDeleteSpy };
+      }
+      return {};
+    },
+  };
+
+  const supabase = {
+    schema: () => aikiboard,
+    from: () => ({}),
+    storage: {
+      from: () => ({
+        list: async () => ({ data: [], error: null }),
+        remove: storageRemoveSpy,
+      }),
+    },
+  };
+
+  return {
+    supabase: supabase as unknown as SupabaseClient,
+    boardsDeleteSpy,
+  };
+}
+
+async function deleteBoard(app: Hono<TestEnv>, boardId: string) {
+  const token = await sign({ sub: "user-1" }, SECRET);
+  return app.request(
+    `/api/boards/${boardId}`,
+    {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    },
+    { SUPABASE_JWT_SECRET: SECRET },
+  );
+}
+
+describe("DELETE /api/boards/:id", () => {
+  it("owner はボードを削除できる", async () => {
+    // Arrange
+    const { supabase, boardsDeleteSpy } = createDeleteMock("owner");
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await deleteBoard(app, BOARD_ID);
+
+    // Assert
+    expect(res.status).toBe(200);
+    expect(boardsDeleteSpy).toHaveBeenCalled();
+  });
+
+  it("admin は削除できない(403)", async () => {
+    // Arrange
+    const { supabase, boardsDeleteSpy } = createDeleteMock("admin");
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await deleteBoard(app, BOARD_ID);
+
+    // Assert
+    expect(res.status).toBe(403);
+    expect(boardsDeleteSpy).not.toHaveBeenCalled();
+  });
+
+  it("member は削除できない(403)", async () => {
+    // Arrange
+    const { supabase, boardsDeleteSpy } = createDeleteMock("member");
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await deleteBoard(app, BOARD_ID);
+
+    // Assert
+    expect(res.status).toBe(403);
+    expect(boardsDeleteSpy).not.toHaveBeenCalled();
+  });
+
+  it("非メンバーには存在を伏せる(404)", async () => {
+    // Arrange
+    const { supabase, boardsDeleteSpy } = createDeleteMock(null);
+    const app = buildApp(supabase);
+
+    // Act
+    const res = await deleteBoard(app, BOARD_ID);
+
+    // Assert
+    expect(res.status).toBe(404);
+    expect(boardsDeleteSpy).not.toHaveBeenCalled();
+  });
+});
