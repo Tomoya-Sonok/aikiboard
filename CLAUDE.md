@@ -29,7 +29,7 @@ AikiBoard(道場管理プラットフォーム)開発時にAIエージェント�
 |---|---|
 | 乱雑な要望メモ | `/prd` |
 | PRDの精緻化 | `/prd-refine` |
-| PRD確定後 | `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` |
+| PRD確定後 | `specs/{feature}/` の `spec.md` → `plan.md` → `tasks.md` → 実装(手書き。`specs/README.md` 参照) |
 | コミット前 | `/quality-check` |
 
 ## 人間の判断ポイント(ゲート)
@@ -53,7 +53,7 @@ AIは以下の3点(ゲート)**以外は確認なしで自律的に進める**�
 
 ### 仕様変更の順序
 
-`spec.md → plan.md → tasks.md → コード` の順で反映する。コードだけを直して `spec.md` を放置する逆順の変更は禁止(`specs/README.md` 参照)。
+`spec.md → plan.md → tasks.md → コード` の順で反映する。コードだけを直して `spec.md` を放置する逆順の変更は禁止(`specs/README.md` 参照)。**実装判断で仕様に無い制約を足すときも同じ順序**(先に `spec.md` へ理由付きで書く。詳細と spec-kit スキルとの衝突時の扱いは `docs/conventions.md` 参照)。
 
 ## 完了の定義
 
