@@ -1,0 +1,64 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-3);
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ab-space-3);
+  width: 100%;
+  padding: var(--ab-space-3) var(--ab-space-4);
+  background: var(--ab-surface-card);
+  color: var(--ab-text-primary);
+  border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--ab-surface-card-alt);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mark {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ab-danger);
+}
+
+/* 「または」の区切り線。左右に罫線を伸ばす。 */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+  color: var(--ab-text-tertiary);
+  font-size: 12px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--ab-border-default);
+}
+
+.dividerLabel {
+  white-space: nowrap;
+}

@@ -146,6 +146,7 @@ aikiboard/
 
 1. **サインアップ**: フロント `SignUpForm` → tRPC `users.create`(`publicProcedure`)→ Hono `POST /api/users`(認証不要)→ backend が `supabase.auth.admin.createUser`(`email_confirm: true`)+ `public."User"` へ INSERT を service_role で実行、失敗時は Auth ユーザーをロールバック削除 → 成功後フロントが `supabase.auth.signInWithPassword` で自動ログイン。
 2. **ログイン**: フロント `LoginForm` → `supabase.auth.signInWithPassword` を**直接**呼ぶ(BFFを経由しない)。
+2-b. **Google OAuth ログイン**(2026-09-10 追加): `signInWithGoogle`(`useAuth`)が `supabase.auth.signInWithOAuth` を直接呼び、Google から `/auth/callback`(`app/auth/callback/route.ts`、`[locale]` の外)へ戻る。route handler が `exchangeCodeForSession` でセッションを確立し、`public."User"` 行が無ければ `ensureOAuthUser`(`lib/server/ensure-oauth-user.ts`)が service_role で作成してから `/home` へ遷移する。**メール/パスワード登録は backend の `POST /api/users`、OAuth は frontend の route handler と、User 行の作成経路が2つある**(AikiNote と同じ構造)。
 3. **セッション管理**: `AuthProvider`(`frontend/src/lib/hooks/useAuth.tsx`)が `onAuthStateChange` を購読し、profile を tRPC `users.getUserInfo` 経由で取得。
 4. **cookieの更新**: `frontend/src/proxy.ts`(Next.js 16の `middleware.ts` 代替)が毎リクエスト `supabase.auth.getSession()` を呼びトークンローテーションを行うが、**認可判断はしない**。
 5. **認可ガード**: `(authenticated)/layout.tsx`(Server Component)が未認証を `/login` へ redirect。ボード配下は各 `d/[slug]/*/page.tsx` が `requireBoardMember()` を呼ぶパターンで統一。**統一されたミドルウェアガードではなく、ページ/layoutへの分散実装**。
@@ -287,11 +288,11 @@ GitHub Repository Ruleset(`main` ブランチ)で `deletion`禁止・`non_fast_f
 
 ### 7.2 要件定義書にあるが実装が見当たらない機能
 
-- **アドミン任命・解除(ロール変更)**: `backend/src/routes/members/index.ts` に一覧/自主退会/削除のみ、ロール変更エンドポイントなし。フロントにもUIなし。
-- **オーナー譲渡**: `backend/src/routes/boards/index.ts` に該当エンドポイントなし。
-- **ボード削除**: 同上、`DELETE` エンドポイントなし。
+- ~~**アドミン任命・解除(ロール変更)**~~ → **2026-09-10 実装済み**(PR #115、`PATCH /api/members/:userId/role`。`specs/members/spec.md` の「ロール変更の仕様」)。
+- **オーナー譲渡**: `backend/src/routes/boards/index.ts` に該当エンドポイントなし。**未実装のまま**(roadmap R2-3、今回のスコープ外)。
+- ~~**ボード削除**~~ → **2026-09-10 実装済み**(PR #115、`DELETE /api/boards/:id`。`specs/boards/spec.md` の「ボード削除の仕様」)。
 
-要件定義書3.2の権限マトリクスに明記されているが実装なし。roadmap.mdでは「実質P0の未実装」として認識済み。
+要件定義書3.2の権限マトリクスのうち、残る未実装は**オーナー譲渡のみ**。
 
 ### 7.3 列・型は確保されているが未実装の機能
 
