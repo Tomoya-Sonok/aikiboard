@@ -40,7 +40,9 @@ $ARGUMENTS
    - 代替案(1つ以上)
    - 「上記以外(具体的に: ___)」
 4. 回答を得たら即座にPRD本文の該当箇所に反映し、その行または節の末尾に `[Clarified]` を付ける。ユーザーが「持ち帰る/わからない」と回答した項目は `[TBD]` のまま残す。
-5. 全ラウンド終了時点で `[TBD]` が残っている項目を `specs/{feature}/open-questions.md` に転記する(ファイルが無ければ新規作成し、`specs/README.md` のファイル構成に従う)。転記した項目はPRD側にも `[TBD](→ open-questions.md 参照)` と併記する。
+5. 全ラウンド終了時点で `[TBD]` が残っている項目を `specs/{feature}/open-questions.md` に転記する(ファイルが無ければ新規作成し、`specs/README.md` の書式に従う)。転記した項目はPRD側にも `[TBD](→ open-questions.md 参照)` と併記する。
+   - **スコープが複数 feature にまたがると確定した場合、「どの feature の `spec.md` / `open-questions.md` に何を書くか」もこのラウンドで決めてPRDに記録する**。
+     **Why**: 前回スコープが `members` と `boards` の2機能にまたがり、`open-questions.md` の置き場所と振り分けを実装者判断で決める羽目になった(スキルは単一 feature を前提にしていた)。
 6. すべての `Critical` と `High` が `[Clarified]` になった時点で「精緻化完了。`/speckit-specify` に進めます」と宣言する。`Critical`/`High` が1件でも残っている場合は宣言せず、未解決項目を一覧で報告する。
 
 ## Done When

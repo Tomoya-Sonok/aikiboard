@@ -53,7 +53,7 @@ AIは以下の3点(ゲート)**以外は確認なしで自律的に進める**�
 
 ### 仕様変更の順序
 
-`spec.md → plan.md → tasks.md → コード` の順で反映する。コードだけを直して `spec.md` を放置する逆順の変更は禁止(`specs/README.md` 参照)。
+`spec.md → plan.md → tasks.md → コード` の順で反映する。コードだけを直して `spec.md` を放置する逆順の変更は禁止(`specs/README.md` 参照)。**実装判断で仕様に無い制約を足すときも同じ順序**(先に `spec.md` へ理由付きで書く。詳細と spec-kit スキルとの衝突時の扱いは `docs/conventions.md` 参照)。
 
 ## 完了の定義
 
