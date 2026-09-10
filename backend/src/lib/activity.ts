@@ -16,7 +16,8 @@ export type ActivityAction =
   | "rsvp.responded"
   | "member.joined"
   | "member.left"
-  | "member.removed";
+  | "member.removed"
+  | "member.role_changed";
 
 type LogParams = {
   boardId: string;

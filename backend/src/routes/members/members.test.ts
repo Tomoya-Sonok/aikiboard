@@ -84,6 +84,7 @@ function createMock(opts: {
       return { data: r ? { role: r } : null, error: null };
     }
     if (s.op === "delete") return { error: null };
+    if (s.op === "update") return { error: null }; // ロール変更の UPDATE
     // 一覧
     return { data: opts.members ?? [], error: null };
   };
@@ -257,6 +258,104 @@ describe("POST /api/members/leave", () => {
     const res = await request(app, "/api/members/leave", {
       method: "POST",
       body: { boardId: BOARD_ID },
+    });
+
+    expect(res.status).toBe(400);
+  });
+});
+
+describe("PATCH /api/members/:userId/role", () => {
+  it("owner は member を admin に昇格できる", async () => {
+    const { supabase } = createMock({ role: "owner", targetRole: "member" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/members/${TARGET}/role`, {
+      method: "PATCH",
+      body: { boardId: BOARD_ID, role: "admin" },
+    });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("admin も member を admin に昇格できる", async () => {
+    const { supabase } = createMock({ role: "admin", targetRole: "member" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/members/${TARGET}/role`, {
+      method: "PATCH",
+      body: { boardId: BOARD_ID, role: "admin" },
+    });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("owner は admin を member に降格できる", async () => {
+    const { supabase } = createMock({ role: "owner", targetRole: "admin" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/members/${TARGET}/role`, {
+      method: "PATCH",
+      body: { boardId: BOARD_ID, role: "member" },
+    });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("member はロールを変更できない(403)", async () => {
+    const { supabase } = createMock({ role: "member", targetRole: "member" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/members/${TARGET}/role`, {
+      method: "PATCH",
+      body: { boardId: BOARD_ID, role: "admin" },
+    });
+
+    expect(res.status).toBe(403);
+  });
+
+  it("オーナーを対象にはできない(400)", async () => {
+    const { supabase } = createMock({ role: "admin", targetRole: "owner" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/members/${TARGET}/role`, {
+      method: "PATCH",
+      body: { boardId: BOARD_ID, role: "member" },
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("自分自身のロールは変更できない(400)", async () => {
+    const { supabase } = createMock({ role: "owner", targetRole: "owner" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/members/${ACTOR}/role`, {
+      method: "PATCH",
+      body: { boardId: BOARD_ID, role: "member" },
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("現在と同じロールへの変更は 400", async () => {
+    const { supabase } = createMock({ role: "owner", targetRole: "admin" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/members/${TARGET}/role`, {
+      method: "PATCH",
+      body: { boardId: BOARD_ID, role: "admin" },
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("不正な role 値は 400", async () => {
+    const { supabase } = createMock({ role: "owner", targetRole: "member" });
+    const app = buildApp(supabase);
+
+    const res = await request(app, `/api/members/${TARGET}/role`, {
+      method: "PATCH",
+      body: { boardId: BOARD_ID, role: "owner" },
     });
 
     expect(res.status).toBe(400);

@@ -164,3 +164,95 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* 危険な操作(ボード削除)。owner にのみ表示される。 */
+.dangerZone {
+  margin-top: var(--ab-space-10);
+  padding: var(--ab-space-6);
+  border: 1px solid var(--ab-danger);
+  border-radius: var(--ab-radius-md);
+  background: var(--ab-danger-soft);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-3);
+}
+
+.dangerTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ab-danger);
+}
+
+.dangerHint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ab-text-secondary);
+}
+
+.dangerButton {
+  align-self: flex-start;
+  padding: var(--ab-space-2) var(--ab-space-5);
+  background: transparent;
+  color: var(--ab-danger);
+  border: 1px solid var(--ab-danger);
+  border-radius: var(--ab-radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.dangerButton:hover {
+  background: var(--ab-danger);
+  color: var(--ab-text-on-brand);
+}
+
+.summaryBox {
+  margin: var(--ab-space-4) 0;
+  padding: var(--ab-space-4);
+  border-radius: var(--ab-radius-sm);
+  background: var(--ab-surface-sunken);
+}
+
+.summaryTitle {
+  display: block;
+  margin-bottom: var(--ab-space-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.summaryList {
+  margin: 0;
+  padding-left: var(--ab-space-5);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ab-text-secondary);
+}
+
+.dialogCancel {
+  padding: var(--ab-space-2) var(--ab-space-5);
+  background: transparent;
+  color: var(--ab-text-secondary);
+  border: 1px solid var(--ab-border);
+  border-radius: var(--ab-radius-pill);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dialogDelete {
+  padding: var(--ab-space-2) var(--ab-space-5);
+  background: var(--ab-danger);
+  color: var(--ab-text-on-brand);
+  border: none;
+  border-radius: var(--ab-radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dialogDelete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

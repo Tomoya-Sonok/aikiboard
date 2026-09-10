@@ -9,6 +9,7 @@ import { MembersView } from "./MembersView";
 const listQuery = vi.fn();
 const removeMutate = vi.fn(async () => ({ success: true }));
 const leaveMutate = vi.fn(async () => ({ success: true }));
+const changeRoleMutate = vi.fn(async () => ({ success: true }));
 
 vi.mock("@/lib/trpc/client", () => ({
   trpcClient: {
@@ -16,6 +17,7 @@ vi.mock("@/lib/trpc/client", () => ({
       list: { query: (...a: unknown[]) => listQuery(...a) },
       remove: { mutate: (...a: unknown[]) => removeMutate(...a) },
       leave: { mutate: (...a: unknown[]) => leaveMutate(...a) },
+      changeRole: { mutate: (...a: unknown[]) => changeRoleMutate(...a) },
     },
     // InviteLinkPanel が使う(admin 描画時)。
     invitations: {
@@ -84,6 +86,7 @@ describe("MembersView", () => {
     listQuery.mockResolvedValue({ success: true, data: MEMBERS });
     removeMutate.mockClear();
     leaveMutate.mockClear();
+    changeRoleMutate.mockClear();
     viewerId = "u-admin";
   });
 
@@ -124,5 +127,67 @@ describe("MembersView", () => {
 
     await waitFor(() => expect(screen.getByText("門人")).toBeTruthy());
     expect(screen.getByRole("button", { name: "退会" })).toBeTruthy();
+  });
+
+  it("admin には member に「管理者にする」ボタンが出る", async () => {
+    renderWithProviders(<MembersView boardId={BOARD_ID} canManage />);
+
+    await waitFor(() => expect(screen.getByText("門人")).toBeTruthy());
+    // owner(道場長)と自分(幹部)には出ず、門人(member)にだけ出る。
+    expect(
+      screen.getAllByRole("button", { name: "管理者にする" }),
+    ).toHaveLength(1);
+  });
+
+  it("member 閲覧時はロール変更ボタンが出ない", async () => {
+    viewerId = "u-member";
+    renderWithProviders(<MembersView boardId={BOARD_ID} canManage={false} />);
+
+    await waitFor(() => expect(screen.getByText("門人")).toBeTruthy());
+    expect(screen.queryByRole("button", { name: "管理者にする" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "管理者を解除" })).toBeNull();
+  });
+
+  it("「管理者にする」を押すと確認後に changeRole(admin)を呼ぶ", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderWithProviders(<MembersView boardId={BOARD_ID} canManage />);
+
+    await waitFor(() => expect(screen.getByText("門人")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "管理者にする" }));
+
+    await waitFor(() =>
+      expect(changeRoleMutate).toHaveBeenCalledWith({
+        boardId: BOARD_ID,
+        userId: "u-member",
+        role: "admin",
+      }),
+    );
+  });
+
+  it("owner 閲覧時、admin には「管理者を解除」が出て降格できる", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    viewerId = "u-owner";
+    renderWithProviders(<MembersView boardId={BOARD_ID} canManage />);
+
+    await waitFor(() => expect(screen.getByText("幹部")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "管理者を解除" }));
+
+    await waitFor(() =>
+      expect(changeRoleMutate).toHaveBeenCalledWith({
+        boardId: BOARD_ID,
+        userId: "u-admin",
+        role: "member",
+      }),
+    );
+  });
+
+  it("確認をキャンセルすると changeRole を呼ばない", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    renderWithProviders(<MembersView boardId={BOARD_ID} canManage />);
+
+    await waitFor(() => expect(screen.getByText("門人")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "管理者にする" }));
+
+    expect(changeRoleMutate).not.toHaveBeenCalled();
   });
 });

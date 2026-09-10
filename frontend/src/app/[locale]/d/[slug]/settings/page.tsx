@@ -18,5 +18,12 @@ export default async function BoardSettingsPage({
     redirect({ href: `/d/${slug}`, locale });
   }
 
-  return <SettingsView boardId={board.id} slug={board.slug} />;
+  return (
+    <SettingsView
+      boardId={board.id}
+      slug={board.slug}
+      boardName={board.name}
+      viewerRole={board.viewerRole}
+    />
+  );
 }

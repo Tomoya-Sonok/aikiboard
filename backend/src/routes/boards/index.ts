@@ -12,7 +12,9 @@ import { z } from "zod";
 import type { AppBindings, AppVariables } from "../../app.js";
 import { getEntitledFeatures } from "../../lib/features.js";
 import { logger } from "../../lib/logger.js";
+import { removeBoardMedia } from "../../lib/storage.js";
 import { authMiddleware } from "../../middleware/auth.js";
+import { boardOwnerMiddleware } from "../../middleware/boardAccess.js";
 
 const boardsRoute = new Hono<{
   Bindings: AppBindings;
@@ -391,6 +393,116 @@ boardsRoute.post("/", authMiddleware, async (c) => {
     data: board,
     message: "ボードを作成しました",
   });
+});
+
+// ────────────────────────────────────────────────────────────────
+// GET /api/boards/:id/deletion-summary — 削除前の集計(owner 限定)。
+//   「何がどれだけ消えるのか」を確認ダイアログに出すための件数。
+//   :slug(1セグメント)とはセグメント数が違うため競合しない。
+// ────────────────────────────────────────────────────────────────
+boardsRoute.get(
+  "/:id/deletion-summary",
+  authMiddleware,
+  boardOwnerMiddleware,
+  async (c) => {
+    const supabase = c.get("supabase");
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+    const boardId = c.get("boardId");
+    const aikiboard = supabase.schema("aikiboard");
+
+    // count のみ取得(head: true で行データは転送しない)。
+    const countOf = async (table: string): Promise<number> => {
+      const { count, error } = await aikiboard
+        .from(table)
+        .select("id", { count: "exact", head: true })
+        .eq("board_id", boardId);
+      if (error) {
+        logger.warn("削除前集計の取得に失敗(0 として扱う)", {
+          feature: "boards",
+          boardId,
+          table,
+        });
+        return 0;
+      }
+      return count ?? 0;
+    };
+
+    // board_members は複合 PK で id 列を持たないため user_id で数える。
+    const membersPromise = (async (): Promise<number> => {
+      const { count, error } = await aikiboard
+        .from("board_members")
+        .select("user_id", { count: "exact", head: true })
+        .eq("board_id", boardId);
+      if (error) {
+        logger.warn("メンバー数の取得に失敗(0 として扱う)", {
+          feature: "boards",
+          boardId,
+        });
+        return 0;
+      }
+      return count ?? 0;
+    })();
+
+    const [
+      memberCount,
+      postCount,
+      eventCount,
+      announcementCount,
+      archiveCount,
+    ] = await Promise.all([
+      membersPromise,
+      countOf("board_posts"),
+      countOf("events"),
+      countOf("announcements"),
+      countOf("archives"),
+    ]);
+
+    return c.json({
+      success: true,
+      data: {
+        memberCount,
+        postCount,
+        eventCount,
+        announcementCount,
+        archiveCount,
+      },
+    });
+  },
+);
+
+// ────────────────────────────────────────────────────────────────
+// DELETE /api/boards/:id — ボード削除(owner 限定)。
+//   物理削除。aikiboard スキーマの子テーブルは全て ON DELETE CASCADE のため、
+//   boards を 1 行消せば連鎖削除される(migration 002〜016 で確認済み)。
+//   Storage(board-media)はベストエフォートで先に消す(失敗しても DB 削除は続行)。
+//   activity_logs には記録しない(ボードごと CASCADE で消えるため無意味)。
+// ────────────────────────────────────────────────────────────────
+boardsRoute.delete("/:id", authMiddleware, boardOwnerMiddleware, async (c) => {
+  const supabase = c.get("supabase");
+  if (!supabase) {
+    return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+  }
+  const userId = c.get("userId");
+  const boardId = c.get("boardId");
+
+  if (boardId) {
+    await removeBoardMedia(supabase, boardId);
+  }
+
+  const { error } = await supabase
+    .schema("aikiboard")
+    .from("boards")
+    .delete()
+    .eq("id", boardId);
+  if (error) {
+    logger.error("ボード削除に失敗", { feature: "boards", boardId, userId });
+    return c.json({ success: false, error: "ボードの削除に失敗しました" }, 500);
+  }
+
+  logger.info("ボードを削除した", { feature: "boards", boardId, userId });
+  return c.json({ success: true, message: "ボードを削除しました" });
 });
 
 export default boardsRoute;

@@ -2,7 +2,11 @@
 
 import { z } from "zod";
 import type { ApiResponse } from "@/lib/types/api";
-import type { BoardDetail, BoardSummary } from "@/lib/types/board";
+import type {
+  BoardDeletionSummary,
+  BoardDetail,
+  BoardSummary,
+} from "@/lib/types/board";
 import { callHonoApi } from "../hono";
 import { authenticatedProcedure, createTRPCRouter } from "../index";
 
@@ -53,4 +57,24 @@ export const boardsRouter = createTRPCRouter({
         body: JSON.stringify(input),
       });
     }),
+
+  // 削除前の集計(owner 限定)。確認ダイアログで「何がどれだけ消えるか」を出す。
+  deletionSummary: authenticatedProcedure
+    .input(z.object({ boardId: uuidLike }))
+    .query(({ input, ctx }) =>
+      callHonoApi<ApiResponse<BoardDeletionSummary>>(
+        `/api/boards/${input.boardId}/deletion-summary`,
+        { headers: { Authorization: `Bearer ${ctx.accessToken}` } },
+      ),
+    ),
+
+  // ボード削除(owner 限定、物理削除)。
+  remove: authenticatedProcedure
+    .input(z.object({ boardId: uuidLike }))
+    .mutation(({ input, ctx }) =>
+      callHonoApi<ApiResponse<never>>(`/api/boards/${input.boardId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${ctx.accessToken}` },
+      }),
+    ),
 });

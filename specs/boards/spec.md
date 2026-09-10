@@ -28,13 +28,43 @@
 - ✅ ボード詳細取得(`GET /api/boards/:slug`)は非メンバーには公開ボードのみ許可、非公開ボードは404で存在を隠す — `boards/index.ts`
 - ❓ ボード作成後に道場マスタの紐付けを変更/追加する画面が見当たらない(`board_dojo_masters`を更新するAPI/UIはボード作成時のみ)。設定画面にも道場変更機能なし
 
+## ボード削除の仕様
+
+`docs/prd/dojo-platform-vision.md` で確定したスコープ(2026-09-10)。製品概要10章FAQ「オーナーの方は、ボード自体を削除することでAikiBoardの利用を終了できます」を成立させるための機能。「やめる手段が無いサービスは試されない」ため、試用→撤退→再挑戦のループを許容する。
+
+### ユーザーストーリー
+
+- オーナーとして、ボードの利用を終了したいので、ボードとそれに紐づくデータを完全に削除したい。
+- オーナーとして、削除は取り返しがつかないので、何がどれだけ消えるのか(メンバー数・投稿数等)を実行前に確認したい。
+- オーナーとして、誤操作で消えてしまわないよう、明示的な確認手順を踏みたい。
+
+### 機能要件
+
+- 実行権限は **owner 限定**。admin/member が実行した場合は403。非メンバーは404(存在を隠す。`docs/constitution.md` 原則2)。admin/member には削除UI自体を表示しない。
+- **物理削除**とする。`aikiboard` スキーマの子テーブルは FK の `ON DELETE CASCADE` に従い連鎖削除する。CASCADE が定義されていないテーブルは明示的に削除する(実装前に migration `002`〜`016` の FK 定義を確認すること)。`docs/constitution.md` 原則8「アーカイブ・お知らせ等の本体削除は CASCADE による物理削除とする」に整合。
+- Storage(`board-media` バケット)の `feed/<boardId>/` と `archive/<boardId>/` 配下のファイルも削除する。削除はベストエフォート(Storage 側の失敗で DB 削除をロールバックしない)とし、失敗時はログに残す。
+- フロントエンドは `SettingsView` に「危険な操作」セクションを設け、**ボード名の入力一致**で確定する確認ダイアログ(GitHub方式)を表示する。実行前に「メンバー N 名・投稿 N 件が完全に削除されます」と集計を表示する。
+- 削除完了後は `/home` へ遷移する(所属ボードが0件になった場合は既存リゾルバにより `/boards/new` へ誘導される)。
+- 削除されたボードの `slug` は、公開ページを含めどの経路からも404になる。
+- `activity_logs` への記録は行わない(ボード削除と同時に CASCADE で消えるため無意味)。
+
+### 受け入れ条件
+
+- owner のみが削除でき、admin/member には削除UIが見えず、API を直接叩いても403になる。
+- 確認ダイアログでボード名が一致しない限り、削除ボタンが押せない。
+- 削除後、旧 `/d/<slug>` はメンバーだった人にも未認証の第三者にも404になる。
+- 削除後、Storage に当該ボードのファイルが残らない。
+- 所属ボードが0件になったユーザーは、ログイン後に `/boards/new` へ誘導される。
+
 ## 画面・API・テーブルの対応
 
-- 画面: `/[locale]/boards/new`(`BoardCreateForm`)、`/[locale]/home`(リゾルバ、UI無し即redirect)、`/[locale]/d/[slug]`(共通レイアウト+ダッシュボード/公開ページ出し分け)、`BoardShell`/`BoardSidebar`/`BoardHeader`
+- 画面: `/[locale]/boards/new`(`BoardCreateForm`)、`/[locale]/home`(リゾルバ、UI無し即redirect)、`/[locale]/d/[slug]`(共通レイアウト+ダッシュボード/公開ページ出し分け)、`BoardShell`/`BoardSidebar`/`BoardHeader`、削除UIは `SettingsView`([settings](../settings/spec.md))
 - API:
   - `GET /api/boards`(認証必須)= tRPC `boards.list`
   - `GET /api/boards/:slug`(認証必須)= tRPC `boards.getBySlug`
   - `POST /api/boards`(認証必須)= tRPC `boards.create`
+  - `GET /api/boards/:id/deletion-summary`(owner限定)= tRPC `boards.deletionSummary` — 削除前の集計(メンバー数・投稿数等)
+  - `DELETE /api/boards/:id`(owner限定)= tRPC `boards.remove`
 - テーブル: `aikiboard.boards`, `aikiboard.board_settings`, `aikiboard.board_members`, `aikiboard.board_dojo_masters`, `aikiboard.board_subscriptions`, `aikiboard.plans`
 
 ## 未決事項
@@ -42,7 +72,8 @@
 - [TBD] ボード名・slug・道場を「あとから変更できる」とUI文言にあるが、slug変更UI/APIはコード上見当たらない。slug変更の可否・仕様は不明
 - [TBD] `dojoMasterIds` はAPIが配列(最大10件)を受け付けるが、`BoardCreateForm`は単一選択のみ。コメント「複数紐付けは将来対応」の詳細計画は不明
 - [TBD] Freeプラン以外へのアップグレード導線(決済)は未実装。有料化ロードマップの詳細は本機能の範囲外
-- [TBD] **権限マトリクス(要件定義書3.2)にある「アドミン任命・解除」「オーナー譲渡」「ボード削除」は、いずれもAPI/UIが存在しない**(`backend/src/routes/members/index.ts` にロール変更なし、`backend/src/routes/boards/index.ts` はGET/GET/POSTのみ)。owner保護のメッセージ(「オーナーは退会できません。先に権限を引き継いでください」)は実装されているが、引き継ぎの実現手段自体がコード上にない。
+- [Clarified: 2026-09-10] 権限マトリクス(要件定義書3.2)のうち「アドミン任命・解除」は [members](../members/spec.md) の「ロール変更の仕様」、「ボード削除」は本ファイルの「ボード削除の仕様」として確定した(`docs/prd/dojo-platform-vision.md`)。
+- [TBD] 「オーナー譲渡」は依然としてAPI/UIが存在しない。owner保護のメッセージ(「オーナーは退会できません。先に権限を引き継いでください」)は実装されているが、引き継ぎの実現手段がコード上にない。今回のスコープ外。
 
 ## この粒度で切った理由
 

@@ -47,4 +47,22 @@ export const membersRouter = createTRPCRouter({
         body: JSON.stringify(input),
       }),
     ),
+
+  // ロール変更(アドミン任命・解除)。owner/admin が実行でき、member ⇄ admin のみ。
+  // owner を対象にはできず、自分自身も変更できない(判定は backend)。
+  changeRole: authenticatedProcedure
+    .input(
+      z.object({
+        boardId: uuidLike,
+        userId: z.string(),
+        role: z.enum(["admin", "member"]),
+      }),
+    )
+    .mutation(({ input, ctx }) =>
+      callHonoApi<ApiResponse<never>>(`/api/members/${input.userId}/role`, {
+        method: "PATCH",
+        headers: authHeader(ctx.accessToken),
+        body: JSON.stringify({ boardId: input.boardId, role: input.role }),
+      }),
+    ),
 });

@@ -298,7 +298,8 @@
       "rsvp_responded": "{name} responded to attendance",
       "member_joined": "{name} joined the board",
       "member_left": "{name} left the board",
-      "member_removed": "{name} removed a member"
+      "member_removed": "{name} removed a member",
+      "member_role_changed": "{name} changed a member’s role"
     },
     "featureLocked": {
       "title": "{feature} is a paid feature",
@@ -328,7 +329,22 @@
       "saving": "Saving…",
       "saved": "Saved",
       "saveError": "Failed to save",
-      "loading": "Loading…"
+      "loading": "Loading…",
+      "dangerZone": "Danger zone",
+      "dangerZoneHint": "Deleting this board permanently removes all of its data, including practices, announcements, feed posts, finances, and archives. This cannot be undone.",
+      "deleteBoard": "Delete this board",
+      "deleteDialogTitle": "Delete this board?",
+      "deleteSummary": "Data to be deleted",
+      "deleteSummaryMembers": "{count} members",
+      "deleteSummaryPosts": "{count} posts",
+      "deleteSummaryEvents": "{count} practices",
+      "deleteSummaryAnnouncements": "{count} announcements",
+      "deleteSummaryArchives": "{count} archive pages",
+      "deleteNameLabel": "Type the board name “{name}” to confirm",
+      "deleteConfirm": "Delete permanently",
+      "deleting": "Deleting…",
+      "deleteError": "Failed to delete the board",
+      "cancel": "Cancel"
     },
     "archive": {
       "searchPlaceholder": "Search archive",
@@ -435,7 +451,11 @@
       "inviteUrl": "Invite link URL",
       "copy": "Copy",
       "revoke": "Revoke",
-      "expiresAt": "Expires: {date}"
+      "expiresAt": "Expires: {date}",
+      "promote": "Make admin",
+      "demote": "Remove admin",
+      "promoteConfirm": "Make {name} an admin? Admins can post announcements and approve members.",
+      "demoteConfirm": "Remove admin privileges from {name}?"
     },
     "invite": {
       "loading": "Loading…",

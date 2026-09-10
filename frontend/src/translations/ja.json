@@ -298,7 +298,8 @@
       "rsvp_responded": "{name} さんが出欠を表明しました",
       "member_joined": "{name} さんがボードに参加しました",
       "member_left": "{name} さんが退会しました",
-      "member_removed": "{name} さんがメンバーを削除しました"
+      "member_removed": "{name} さんがメンバーを削除しました",
+      "member_role_changed": "{name} さんがメンバーの権限を変更しました"
     },
     "featureLocked": {
       "title": "{feature} は有料プランの機能です",
@@ -328,7 +329,22 @@
       "saving": "保存中…",
       "saved": "保存しました",
       "saveError": "保存に失敗しました",
-      "loading": "読み込み中…"
+      "loading": "読み込み中…",
+      "dangerZone": "危険な操作",
+      "dangerZoneHint": "ボードを削除すると、稽古・お知らせ・フィード・会計・アーカイブなど、このボードのすべてのデータが完全に削除されます。元に戻すことはできません。",
+      "deleteBoard": "このボードを削除",
+      "deleteDialogTitle": "ボードを削除しますか？",
+      "deleteSummary": "削除されるデータ",
+      "deleteSummaryMembers": "メンバー {count} 名",
+      "deleteSummaryPosts": "投稿 {count} 件",
+      "deleteSummaryEvents": "稽古 {count} 件",
+      "deleteSummaryAnnouncements": "お知らせ {count} 件",
+      "deleteSummaryArchives": "アーカイブ {count} 件",
+      "deleteNameLabel": "確認のため、ボード名「{name}」を入力してください",
+      "deleteConfirm": "完全に削除する",
+      "deleting": "削除中…",
+      "deleteError": "ボードの削除に失敗しました",
+      "cancel": "キャンセル"
     },
     "archive": {
       "searchPlaceholder": "アーカイブを検索",
@@ -435,7 +451,11 @@
       "inviteUrl": "招待リンク URL",
       "copy": "コピー",
       "revoke": "失効",
-      "expiresAt": "有効期限: {date}"
+      "expiresAt": "有効期限: {date}",
+      "promote": "管理者にする",
+      "demote": "管理者を解除",
+      "promoteConfirm": "{name} さんを管理者にしますか？管理者はお知らせの作成やメンバーの承認ができるようになります。",
+      "demoteConfirm": "{name} さんの管理者権限を解除しますか？"
     },
     "invite": {
       "loading": "読み込み中…",
