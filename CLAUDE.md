@@ -29,7 +29,7 @@ AikiBoard(道場管理プラットフォーム)開発時にAIエージェント�
 |---|---|
 | 乱雑な要望メモ | `/prd` |
 | PRDの精緻化 | `/prd-refine` |
-| PRD確定後 | `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` |
+| PRD確定後 | `specs/{feature}/` の `spec.md` → `plan.md` → `tasks.md` → 実装(手書き。`specs/README.md` 参照) |
 | コミット前 | `/quality-check` |
 
 ## 人間の判断ポイント(ゲート)
