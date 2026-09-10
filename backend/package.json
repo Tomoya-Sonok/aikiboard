@@ -13,6 +13,7 @@
     "test:watch": "vitest --watch",
     "test:integration": "dotenv -e ../.env.local -- vitest run --config vitest.integration.config.ts",
     "seed:dev": "dotenv -e ../.env.local -- tsx scripts/seed-dev.ts",
+    "typecheck": "tsc --noEmit",
     "check": "biome check . && tsc --noEmit",
     "check:fix": "biome check . --write"
   },
