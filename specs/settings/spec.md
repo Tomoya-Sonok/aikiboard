@@ -26,7 +26,7 @@ owner/adminが公開ページの内容(ロゴ・テーマカラー・紹介文�
 - 画面: `frontend/src/app/[locale]/d/[slug]/settings/page.tsx` → `SettingsView`(※`ArchiveForm`/`TodoForm`のような分離した`Form`コンポーネントは無く、`SettingsView`単体がフォームを兼ねる)
 - API: tRPC `boardSettings.get/update`
 - テーブル: `aikiboard.board_settings`, `aikiboard.boards`(`is_public`列)
-- 🚧 **ボード削除UI(「危険な操作」セクション)は本画面に置く**(owner にのみ表示)。仕様の正は [boards](../boards/spec.md) の「ボード削除の仕様」節。
+- ✅ **ボード削除UI(「危険な操作」セクション)を本画面に置いた**(owner にのみ表示、PR #115)。仕様の正は [boards](../boards/spec.md) の「ボード削除の仕様」節。
 
 ## 未決事項
 

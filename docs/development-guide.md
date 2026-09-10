@@ -33,7 +33,7 @@ cp .env.local.example .env.local
 # 3. ローカル Supabase を起動(Docker Desktop が必要)
 cd backend && pnpm exec supabase start
 
-# 4. マイグレーションを適用(000_seed + 001-010)
+# 4. マイグレーションを適用(000_seed + 001-016。最新の連番は backend/src/migrations/ を確認)
 pnpm exec supabase db reset
 
 # 5. supabase status でローカルのキーを確認し、ルートの
@@ -120,7 +120,7 @@ pnpm seed:dev                # db reset 後: 開発用ログインユーザー +
 pnpm exec supabase stop      # コンテナ停止
 ```
 
-- **Studio**: http://localhost:54323 で `aikiboard` schema(23 テーブル)を確認できる
+- **Studio**: http://localhost:54323 で `aikiboard` schema(migration `016` 時点で 26 テーブル)を確認できる
 - migration の実体は [`backend/src/migrations/`](../backend/src/migrations/)。`backend/supabase/migrations` はそこへの **symlink**(supabase CLI は `supabase/migrations` 固定のため)
 - `000_seed_public_schema_for_local_dev.sql` は `public."DojoStyleMaster"` 等の**ローカル専用ダミー**。**本番には絶対適用しない**
 - **`db reset` するたびに `pnpm seed:dev`(= `pnpm -C backend seed:dev`)を再実行**してログインユーザー/サンプルデータを入れ直す(「2. 初回セットアップ」のログイン情報表を参照)

@@ -26,6 +26,7 @@
 - 🚧 ダッシュボードの「最近のフィード」はダミーデータ固定表示。「次の稽古」「お知らせ」カードは実データ — `frontend/src/components/features/boards/dashboard/DashboardCards.tsx`
 - ✅ ボード一覧取得時にプラン名(Freeフォールバック)・メンバー数を付与 — `boards/index.ts`
 - ✅ ボード詳細取得(`GET /api/boards/:slug`)は非メンバーには公開ボードのみ許可、非公開ボードは404で存在を隠す — `boards/index.ts`
+- ✅ **ボード削除(owner限定、物理削除)**(PR #115 で実装、下記「ボード削除の仕様」参照)— `backend/src/routes/boards/index.ts` の `DELETE /:id` と `GET /:id/deletion-summary`
 - ❓ ボード作成後に道場マスタの紐付けを変更/追加する画面が見当たらない(`board_dojo_masters`を更新するAPI/UIはボード作成時のみ)。設定画面にも道場変更機能なし
 
 ## ボード削除の仕様

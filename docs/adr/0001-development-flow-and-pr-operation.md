@@ -28,6 +28,17 @@ Phase 1 着手にあたり、開発フローを **PR ベース運用** に切り
 - **merge commit / rebase merge を許可(不採用)**: feature ブランチの中間コミットが main に流入し履歴が汚れる。squash に一本化して粒度を PR 単位に統一する。
 - **commitlint の導入(不採用)**: squash & merge 前提では main に乗るのは PR タイトルのみ。PR タイトル規約で実質的に Conventional Commits が担保されるため、中間コミットを縛る commitlint は過剰。
 
+## 追補(2026-09-10): マージ戦略を実態に合わせて改訂
+
+上記「squash and merge を強制(merge commit / rebase は無効化)」は、運用の結果として**撤回**する。
+
+- **スタック PR(依存する PR を積み上げる運用)を squash マージすると、後続 PR が連鎖的にコンフリクトする**。#86〜#99 のスタック運用で実証されたため、以降は**上から順に merge commit でマージ**している。
+- GitHub 側の設定も実態と一致している(Ruleset の `allowed_merge_methods` は merge / squash / rebase すべて許可、`required_approving_review_count: 0`)。
+- **required status checks(CI 必須化)は未設定**。CI は paths フィルタで skip されることがあり必須化すると PR がブロックされうるため、意図的に見送っている(`docs/development-guide.md` にも記載)。
+- 変わらない点: main 直 push 禁止(緊急 hotfix のみ例外)、`delete_branch_on_merge: true`、ブランチ命名とコミット規約(prefix 以外日本語)。
+
+現行の規約は [`docs/conventions.md`](../conventions.md) の「コミットメッセージ・PR」節を正とする。
+
 ## Consequences
 
 - branch protection と Pull Requests 設定(squash のみ許可・auto delete head branches)は **GitHub UI 側の手動設定** が必要。この設定が有効化されるまでは main 直 push が物理的に可能なので、設定完了までは運用ルールとして直 push を避ける。
