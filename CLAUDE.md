@@ -6,7 +6,7 @@ AikiBoard(道場管理プラットフォーム)開発時にAIエージェント�
 
 - 日本語で応答する
 - コードから確認できないことは推測で埋めず `[TBD]` と残す
-- 仕様変更はコードより先に `specs/{feature}/spec.md` を直す
+- 仕様変更は「人間の判断ポイント」節の順序(spec.md→plan.md→tasks.md→コード)に従う
 
 ## 正典の優先順位
 
@@ -32,15 +32,28 @@ AikiBoard(道場管理プラットフォーム)開発時にAIエージェント�
 | PRD確定後 | `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` |
 | コミット前 | `/quality-check` |
 
-> `/prd` `/prd-refine` `/quality-check` はこのリポジトリにまだ存在しない(2026-09-07時点、未整備)。整備までは手動でPRDを書き(`docs/prd/_template.md`)、コミット前は `pnpm -r check && pnpm -r build && pnpm -r test:ci` を代用する。
+## 人間の判断ポイント(ゲート)
 
-## 人間の判断ポイント
+AIは以下の3点(ゲート)**以外は確認なしで自律的に進める**。plan作成・tasks分解・実装・テスト・コミット・PR作成はゲートではない。
 
-AIは以下の3点**以外**は自律で進める。
+1. **PRD精緻化の質問への回答**(`/prd-refine` が出す選択肢に答える)
+2. **`spec.md` のPASS宣言**(e2eシナリオまたは受け入れ条件が要件を表しているかを一読して承認する)
+3. **PRレビューとマージ**
 
-1. PRD精緻化(`/prd-refine`)時の質問への回答
-2. `spec.md` のPASS宣言(「実装してよい」状態になったという承認)
-3. PRレビュー
+### ゲート以外でも確認を求める場合(例外)
+
+- 破壊的操作(データ削除、ロールバック不可なマイグレーション等)
+- 外部サービスへの送信(メール送信・決済・Webhook等)
+- `docs/constitution.md` の原則に抵触しうる判断
+- `specs/{feature}/open-questions.md` の `[TBD]` を実装で踏む時(下記参照)
+
+### `[TBD]` を実装で踏んだ時
+
+推測で埋めない。該当箇所を**スタブ化**し `// TODO([TBD] 番号)` を付けて実装を止める。対象 `open-questions.md` を更新(書式は `specs/README.md` 参照)し、判断が必要な点を報告する。
+
+### 仕様変更の順序
+
+`spec.md → plan.md → tasks.md → コード` の順で反映する。コードだけを直して `spec.md` を放置する逆順の変更は禁止(`specs/README.md` 参照)。
 
 ## 完了の定義
 

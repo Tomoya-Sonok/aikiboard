@@ -11,6 +11,15 @@
 | `tasks.md` | 実装タスクの分解(`/speckit-tasks` が生成) | 機能追加時に作成 |
 | `open-questions.md` | 仕様上の未決事項のうち、実装着手前に人間の判断が必要なもの | 未決事項がある場合のみ |
 
+## open-questions.md の書式
+
+| 番号 | 質問 | 推奨案 | 影響範囲 | 状態 |
+|---|---|---|---|---|
+| Q1 | ... | ... | ... | open |
+
+- **状態**: `open`(未回答) / `answered`(回答済み) / `deferred`(今は判断せず持ち越し)
+- `answered` になった項目は、対応する PRD(`docs/prd/{feature}.md`)と `spec.md` の該当箇所に `[Clarified]` を付けて反映する(`.claude/skills/prd-refine/SKILL.md` の手順を参照)。
+
 ## 運用ルール
 
 - 既存14機能(`auth` / `boards` / `dojo-masters` / `public` / `events` / `announcements` / `notifications` / `members` / `feed` / `activity` / `archive` / `finance` / `todo` / `settings`)の `spec.md` は、`docs/ARCHITECTURE.md` 作成時に現状(as-is)から逆生成したものである。以後これらの機能に変更を加える際は、該当 `spec.md` を先に更新してからコードに着手する。
