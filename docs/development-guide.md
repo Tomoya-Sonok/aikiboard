@@ -10,7 +10,7 @@ AikiBoard リポジトリをローカルで開発するための実践ガイド�
 
 | ツール | バージョン | 備考 |
 |---|---|---|
-| Node.js | 22.22.0 | [mise](https://mise.jdx.dev/) で管理(`.mise.toml`) |
+| Node.js | 22.23.4 | [mise](https://mise.jdx.dev/) で管理(`.mise.toml`) |
 | pnpm | 8.15.4 | 同上。`packageManager` 固定 |
 | Docker Desktop | — | ローカル Supabase コンテナ用。起動しておくこと |
 
