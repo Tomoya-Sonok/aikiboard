@@ -17,6 +17,7 @@ import {
 } from "react";
 import { getClientSupabase } from "@/lib/supabase/client";
 import { trpcClient } from "@/lib/trpc/client";
+import { getBaseUrl } from "@/lib/utils/env";
 
 export type AuthUser = {
   id: string;
@@ -33,6 +34,7 @@ interface AuthContextValue {
   isInitializing: boolean;
   isProcessing: boolean;
   signInWithCredentials: (input: Credentials) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signUp: (input: SignUpInput) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -130,6 +132,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [supabase],
   );
 
+  // Google OAuth。コールバックは /auth/callback の route handler が受ける
+  // (specs/auth/spec.md「OAuth ログインの仕様」)。
+  const signInWithGoogle = useCallback(async () => {
+    setIsProcessing(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          // redirectTo はユーザー入力を受け付けない(open redirect 防止)。
+          redirectTo: `${getBaseUrl()}/auth/callback`,
+          // 既存の Google セッションでサイレント認証されないよう毎回アカウント選択させる
+          // (AikiNote と同じ)。
+          queryParams: { prompt: "select_account" },
+        },
+      });
+      if (error) {
+        throw new Error(error.message);
+      }
+      // 成功時はブラウザが Google へ遷移するため、ここには戻ってこない。
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [supabase]);
+
   const signUp = useCallback(
     async ({ email, password, username }: SignUpInput) => {
       setIsProcessing(true);
@@ -176,6 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isInitializing,
       isProcessing,
       signInWithCredentials,
+      signInWithGoogle,
       signUp,
       signOut,
     }),
@@ -184,6 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isInitializing,
       isProcessing,
       signInWithCredentials,
+      signInWithGoogle,
       signUp,
       signOut,
     ],

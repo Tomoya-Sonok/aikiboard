@@ -28,7 +28,7 @@
 - ✅ 自主退会(owner不可)— 同上
 - ✅ 削除/退会時の関連データ掃除(event_rsvps, announcement_reads)— 同上
 - ✅ 操作履歴記録(member.joined/left/removed)— `logActivity`呼び出し各所
-- 🚧 **ロール変更(アドミン任命・解除)**: `member ⇄ admin` の昇降格。今回実装(下記「ロール変更の仕様」参照)
+- ✅ **ロール変更(アドミン任命・解除)**: `member ⇄ admin` の昇降格(PR #115 で実装、下記「ロール変更の仕様」参照)— `backend/src/routes/members/index.ts` の `PATCH /:userId/role`
 
 ## ロール権限チェックの実装(重点)
 

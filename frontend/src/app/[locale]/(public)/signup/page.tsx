@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import authPage from "@/components/features/auth/authPage.module.css";
+import { OAuthButtons } from "@/components/features/auth/OAuthButtons/OAuthButtons";
 import { SignUpForm } from "@/components/features/auth/SignUpForm/SignUpForm";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useRouter } from "@/lib/i18n/routing";
@@ -34,6 +35,7 @@ export default function SignUpPage() {
 
   return (
     <main className={authPage.page}>
+      <OAuthButtons />
       <SignUpForm
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}

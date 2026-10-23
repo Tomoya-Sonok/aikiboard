@@ -47,6 +47,11 @@
     "home": {
       "greeting": "ようこそ、{name} さん",
       "signOut": "ログアウト"
+    },
+    "oauth": {
+      "google": "Google で続ける",
+      "divider": "または",
+      "error": "Google ログインに失敗しました。時間をおいてもう一度お試しください"
     }
   },
   "boards": {

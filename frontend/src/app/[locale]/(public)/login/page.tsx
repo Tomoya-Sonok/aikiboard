@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import authPage from "@/components/features/auth/authPage.module.css";
 import { LoginForm } from "@/components/features/auth/LoginForm/LoginForm";
+import { OAuthButtons } from "@/components/features/auth/OAuthButtons/OAuthButtons";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useRouter } from "@/lib/i18n/routing";
 import type { LoginFormValues } from "@/lib/validation/auth";
@@ -30,6 +31,7 @@ export default function LoginPage() {
 
   return (
     <main className={authPage.page}>
+      <OAuthButtons />
       <LoginForm
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
