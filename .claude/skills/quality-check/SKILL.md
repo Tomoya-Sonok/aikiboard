@@ -21,6 +21,8 @@ disable-model-invocation: false
 
 ## 手順
 
+0. **直前にスクリプト(python/sed 等)やヒアドキュメントでファイルを機械的に書き換えていたら、先に `biome check --write <該当ファイル>` を通す**。
+   **Why**: 前回、テストファイルを python スクリプトで書き換えた結果、フォーマット差分で `pnpm -r check` が1回失敗した(Edit ツールでの編集では起きなかった)。
 1. 以下を**この順で**実行する(すべて `package.json` に実在するスクリプト)。
    1. `pnpm -r check` — 各パッケージで `biome check .`(lint)→ `tsc --noEmit`(typecheck)。
    2. `pnpm -r test:ci` — 各パッケージで `vitest run --silent --passWithNoTests`。

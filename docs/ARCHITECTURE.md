@@ -287,11 +287,11 @@ GitHub Repository Ruleset(`main` ブランチ)で `deletion`禁止・`non_fast_f
 
 ### 7.2 要件定義書にあるが実装が見当たらない機能
 
-- **アドミン任命・解除(ロール変更)**: `backend/src/routes/members/index.ts` に一覧/自主退会/削除のみ、ロール変更エンドポイントなし。フロントにもUIなし。
-- **オーナー譲渡**: `backend/src/routes/boards/index.ts` に該当エンドポイントなし。
-- **ボード削除**: 同上、`DELETE` エンドポイントなし。
+- ~~**アドミン任命・解除(ロール変更)**~~ → **2026-09-10 実装済み**(PR #115、`PATCH /api/members/:userId/role`。`specs/members/spec.md` の「ロール変更の仕様」)。
+- **オーナー譲渡**: `backend/src/routes/boards/index.ts` に該当エンドポイントなし。**未実装のまま**(roadmap R2-3、今回のスコープ外)。
+- ~~**ボード削除**~~ → **2026-09-10 実装済み**(PR #115、`DELETE /api/boards/:id`。`specs/boards/spec.md` の「ボード削除の仕様」)。
 
-要件定義書3.2の権限マトリクスに明記されているが実装なし。roadmap.mdでは「実質P0の未実装」として認識済み。
+要件定義書3.2の権限マトリクスのうち、残る未実装は**オーナー譲渡のみ**。
 
 ### 7.3 列・型は確保されているが未実装の機能
 
